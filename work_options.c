@@ -1,0 +1,163 @@
+#include "main.h"
+#include "show_columns.h"
+#include "work_options.h"
+#include "load_entry_data.h"
+
+void apply_cb(GtkCheckButton *self, user_data *udp)
+{
+	if (udp->opt_changed) {
+		load_entry_data(udp);
+		udp->opt_changed = FALSE;
+	}	
+        gtk_window_close (GTK_WINDOW (udp->option_window));  
+}
+
+void save_cb(GtkCheckButton *self, user_data *udp)
+{
+        // Setup file and stream for writing
+        GFile *file = g_file_new_for_path (udp->opt_name);
+        GFileOutputStream *out = g_file_replace (file, NULL, TRUE, G_FILE_CREATE_NONE, NULL, NULL);
+        if (!out) {
+	        GtkAlertDialog *alert = gtk_alert_dialog_new ("Can't open option stream");
+        	gtk_alert_dialog_show (alert, GTK_WINDOW (udp->main_window));
+        }
+
+        // Creat variant from current values
+        GVariant *value = g_variant_new ("(bbbb)", udp->opt_include_empty, udp->opt_include_directory, udp->opt_include_duplicate, udp->opt_include_unique);
+
+        // Serialize for writing
+        int sz = g_variant_get_size (value);
+        unsigned char data[sz];
+        g_variant_store (value, data);
+
+        // Write in one fell swoop
+        gsize wrote;
+        gboolean result = g_output_stream_write_all (G_OUTPUT_STREAM (out), data, sz, &wrote, NULL, NULL);
+        result = g_output_stream_close (G_OUTPUT_STREAM (out), NULL, NULL);
+        gtk_window_close (GTK_WINDOW (udp->option_window));  
+}
+
+gboolean read_options(unsigned char *buff, char *name)
+{
+        // Get file size, and if not there exit
+        struct stat attr;
+        stat(name, &attr);
+        if (attr.st_size != OPTION_SIZE) {
+		g_print("error in read option stat");
+                return FALSE;
+        }
+
+        // Setup file and stream
+        GFile *file = g_file_new_for_path(name);
+        GFileInputStream *in = g_file_read(file, NULL, NULL);
+
+        // Read in serialized gvariant
+        gsize read;
+        gboolean result =  g_input_stream_read_all (G_INPUT_STREAM(in), buff, OPTION_SIZE, &read,  NULL, NULL);
+	return result;
+}
+
+void unique_cb(GtkCheckButton *self, user_data *udp)
+{
+	udp->opt_changed = TRUE;
+	if (gtk_check_button_get_active(self))
+		udp->opt_include_unique = TRUE;
+	else
+		udp->opt_include_unique = FALSE;
+}
+
+void empty_cb(GtkCheckButton *self, user_data *udp)
+{
+	udp->opt_changed = TRUE;
+	if (gtk_check_button_get_active(self))
+		udp->opt_include_empty = TRUE;
+	else
+		udp->opt_include_empty = FALSE;
+}
+
+void duplicate_cb(GtkCheckButton *self, user_data *udp)
+{
+	udp->opt_changed = TRUE;
+	if (gtk_check_button_get_active(self))
+		udp->opt_include_duplicate = TRUE;
+	else
+		udp->opt_include_duplicate = FALSE;
+}
+
+void directory_cb(GtkCheckButton *self, user_data *udp)
+{
+	udp->opt_changed = TRUE;
+	if (gtk_check_button_get_active(self))
+		udp->opt_include_directory = TRUE;
+	else
+		udp->opt_include_directory = FALSE;
+}
+
+void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
+{
+
+	// Create labels
+	GtkWidget *show = gtk_label_new("Include Options");
+	gtk_label_set_xalign(GTK_LABEL(show), 0.0);
+
+	// Create check buttons
+	GtkWidget *empty = gtk_check_button_new_with_label("Empty files");
+	GtkWidget *directory = gtk_check_button_new_with_label("Directories");
+	GtkWidget *duplicate = gtk_check_button_new_with_label("Duplicate files");
+	GtkWidget *unique = gtk_check_button_new_with_label("Unique files");
+
+	if (udp->opt_include_empty)
+		gtk_check_button_set_active((GtkCheckButton *) empty, TRUE);
+	else
+		gtk_check_button_set_active((GtkCheckButton *) empty, FALSE);
+
+	if (udp->opt_include_unique)
+		gtk_check_button_set_active((GtkCheckButton *) unique, TRUE);
+	else
+		gtk_check_button_set_active((GtkCheckButton *) unique, FALSE);
+
+	if (udp->opt_include_duplicate)
+		gtk_check_button_set_active((GtkCheckButton *) duplicate, TRUE);
+	else
+		gtk_check_button_set_active((GtkCheckButton *) duplicate, FALSE);
+
+	if (udp->opt_include_directory)
+		gtk_check_button_set_active((GtkCheckButton *) directory, TRUE);
+	else
+		gtk_check_button_set_active((GtkCheckButton *) directory, FALSE);
+
+	// Setup callbacks
+	g_signal_connect(empty, "toggled", G_CALLBACK(empty_cb), udp);
+	g_signal_connect(unique, "toggled", G_CALLBACK(unique_cb), udp);
+	g_signal_connect(duplicate, "toggled", G_CALLBACK(duplicate_cb), udp);
+	g_signal_connect(directory, "toggled", G_CALLBACK(directory_cb), udp);
+
+	// Create box and add check buttons
+	GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+	gtk_box_append(GTK_BOX(box), show);
+	gtk_box_append(GTK_BOX(box), empty);
+	gtk_box_append(GTK_BOX(box), directory);
+	gtk_box_append(GTK_BOX(box), duplicate);
+	gtk_box_append(GTK_BOX(box), unique);
+
+	// Create window and add title
+	udp->option_window = gtk_window_new();
+	gtk_window_set_title(GTK_WINDOW(udp->option_window), "Options");
+
+	// Create header bar to use as titlebar, include save button
+	GtkWidget *header = gtk_header_bar_new();
+
+	GtkWidget *save = gtk_button_new_with_label("Save");
+	g_signal_connect(save, "clicked", G_CALLBACK(save_cb), udp);
+
+	GtkWidget *reshow = gtk_button_new_with_label("Apply");
+	g_signal_connect(reshow, "clicked", G_CALLBACK(apply_cb), udp);
+
+	gtk_header_bar_pack_start((GtkHeaderBar *) header, save);
+	gtk_header_bar_pack_end((GtkHeaderBar *) header, reshow);
+	gtk_window_set_titlebar(GTK_WINDOW(udp->option_window), header);
+
+	// Add box to window and show
+	gtk_window_set_child(GTK_WINDOW(udp->option_window), box);
+	gtk_window_present(GTK_WINDOW(udp->option_window));
+}
