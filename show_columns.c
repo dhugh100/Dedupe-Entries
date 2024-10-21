@@ -3,6 +3,18 @@
 #include "filter_columns.h"
 #include "show_columns.h"
 
+// Right btn pressed
+void right_btn_pressed(user_data udp) 
+{
+	printf("right button pressed\n");
+}
+
+// Right btn released
+void right_btn_released(user_data udp) 
+{
+	printf("right button released\n");
+}
+
 // Return ptr to result
 static const char* dup_item_get_result (DupItem *item) {
 	return item->result;
@@ -25,7 +37,7 @@ static void setup_cb (GtkSignalListItemFactory *factory,  GObject  *listitem) {
 static void bind_result_cb (GtkSignalListItemFactory *factory, GtkListItem *listitem, user_data *udp) {
 	GtkWidget *label = gtk_list_item_get_child (listitem);
 	GObject *item = gtk_list_item_get_item (GTK_LIST_ITEM (listitem));
-	GBinding *prop_bind = g_object_bind_property (item, "result", label, "label"    , G_BINDING_SYNC_CREATE);
+	GBinding *prop_bind = g_object_bind_property (item, "result", label, "label", G_BINDING_SYNC_CREATE);
 }
 
 // For the factory, get the fullname for the item into the label
@@ -75,16 +87,19 @@ void show_columns (user_data *udp) {
         udp->custom_filter = custom_filter;
         gtk_filter_list_model_set_filter (filter, GTK_FILTER(custom_filter));
 
-	// Setup the single selection model
-	GtkSingleSelection *selection = gtk_single_selection_new (G_LIST_MODEL (filter));
+	// Setup to allow multiple selections
+	GtkMultiSelection *selection = gtk_multi_selection_new (G_LIST_MODEL (filter));
 	udp->selection = selection;
-	gtk_single_selection_set_autoselect (selection, FALSE);
-	gtk_single_selection_set_can_unselect (selection, TRUE);
-	gtk_single_selection_set_selected (selection, GTK_INVALID_LIST_POSITION);
-	g_signal_connect (G_OBJECT (selection), "selection-changed", G_CALLBACK (work_selected_file_cb), udp);
  
-	// Associate selection model with column view and present
+	// Associate selection model with column view 
 	gtk_column_view_set_model (GTK_COLUMN_VIEW (column_view), GTK_SELECTION_MODEL (selection));
+
+	// Setup the right button gesture event, will be used to select action on right button from column view
+	GtkGesture *gesture = gtk_gesture_click_new (); 
+	gtk_gesture_single_set_button (GTK_GESTURE_SINGLE (gesture), 3); // Right button
+	g_signal_connect (gesture, "released",  G_CALLBACK (work_selected_file_cb), udp);
+	gtk_widget_add_controller (column_view, GTK_EVENT_CONTROLLER (gesture));
+
 	gtk_window_present (GTK_WINDOW (udp->main_window));
   
 	// Need to unselect first item as by default is selected

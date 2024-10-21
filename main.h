@@ -24,6 +24,8 @@
 #define STR_BNAME (NAME_MAX *2) // From limits.h add null, double for possible unicode
 #define STR_NAME (PATH_MAX + NAME_MAX)
 #define STR_HASH (SHA256_DIGEST_LENGTH * 2) + 1 // Two asci hex digits for hash byte + Null
+//#define STR_CLIP (STR_PATH * 1000) // Clipboard mostly for small groups
+#define STR_CLIP (128) // Clipboard mostly for small groups
 
 // Define the DupItem GObject type
 #define DUP_TYPE_ITEM (dup_item_get_type ())
@@ -108,7 +110,8 @@ typedef struct user_data {
         // Selection processing fields
 	DupItem *sel_item;
 	uint sel_item_position;
-        GtkSingleSelection *selection;
+        GtkMultiSelection *selection;
+	GtkBitset *sel_bitset;
 
 	// Filter 
         GtkWidget *filter_window;
