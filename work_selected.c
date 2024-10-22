@@ -8,6 +8,7 @@
 void wipe_selected(user_data *udp)
 {
 	gtk_selection_model_unselect_all(GTK_SELECTION_MODEL (udp->selection));
+
 	gtk_bitset_remove_all (udp->sel_bitset);
   	gtk_bitset_unref (udp->sel_bitset);
   	udp->sel_bitset = NULL;
@@ -107,20 +108,25 @@ void launch_async_cb (GtkFileLauncher *launcher, GAsyncResult *res, GError **err
 }
 
 // Launch an application for the selected item
-// - Set to always prompt
+// - Set to always prompt for the application
+// - Only invoked when one item is selected
 
 void launch_cb(GtkCheckButton *self, user_data *udp)
 {
 	// Shutdown window
 	gtk_window_close(GTK_WINDOW(udp->action_window));
 
-	GFile *file = g_file_new_for_path (udp->sel_item->name);
+	// Get the selected item
+	DupItem *item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), 
+				gtk_bitset_get_minimum(udp->sel_bitset)); 
+
+	// Launch the application
+	GFile *file = g_file_new_for_path(item->name);
         GtkFileLauncher *file_launcher = gtk_file_launcher_new (file);
         gtk_file_launcher_set_file (file_launcher, file);
         gtk_file_launcher_set_always_ask (file_launcher, TRUE);
-	udp->sel_item = NULL;
-
 	gtk_file_launcher_launch (file_launcher, GTK_WINDOW(udp->main_window), NULL, (GAsyncReadyCallback) launch_async_cb, NULL);
+
 	wipe_selected(udp);
 }	
 
@@ -145,57 +151,42 @@ void work_selected_file_cb(GtkGestureClick *self, int n_press, double x, double 
 
 	// If one item selected, offer copy, view, trash, launch
 	// If more then one item, just offer copy and trash
-	
-	// Create the check buttons
+
+	// Items common to both single and multi
+	udp->action_window = gtk_window_new();
+
+	GtkWidget *copy_chkb = gtk_check_button_new_with_label("Copy Name to Clipboard");
+	GtkWidget *move_chkb = gtk_check_button_new_with_label("Move to Trash");
+
+	g_signal_connect(copy_chkb, "toggled", G_CALLBACK(copy_cb), udp);
+	g_signal_connect(move_chkb, "toggled", G_CALLBACK(work_trash_cb), udp);
+
+	box_action = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+	gtk_box_append(GTK_BOX(box_action), copy_chkb);
+	gtk_box_append(GTK_BOX(box_action), move_chkb);
+
+	// Create the rest of the single selection action window
 	if (sel_bs_size == 1) {
-		// Create the window
-		udp->action_window = gtk_window_new();
 		gtk_window_set_title(GTK_WINDOW(udp->action_window), "Single Selection Actions");
 
-		// Set the buttons
-		GtkWidget *copy_chkb = gtk_check_button_new_with_label("Copy Name to Clipboard");
 		GtkWidget *view_chkb = gtk_check_button_new_with_label("View");
-		GtkWidget *move_chkb = gtk_check_button_new_with_label("Move to Trash");
 		GtkWidget *launch_chkb = gtk_check_button_new_with_label("Launch application");
 
-		// Set the group
 		gtk_check_button_set_group(GTK_CHECK_BUTTON(copy_chkb), GTK_CHECK_BUTTON(view_chkb));
 		gtk_check_button_set_group(GTK_CHECK_BUTTON(move_chkb), GTK_CHECK_BUTTON(copy_chkb));	
 		gtk_check_button_set_group(GTK_CHECK_BUTTON(launch_chkb), GTK_CHECK_BUTTON(copy_chkb));	// Had to circle back to the original copy in 2nd parameter
 
-		// Connect the signals
-		g_signal_connect(copy_chkb, "toggled", G_CALLBACK(copy_cb), udp);
 		g_signal_connect(view_chkb, "toggled", G_CALLBACK(view_cb), udp);
-		g_signal_connect(move_chkb, "toggled", G_CALLBACK(work_trash_cb), udp);
 		g_signal_connect(launch_chkb, "toggled", G_CALLBACK(launch_cb), udp);
 	
-		// Create the box
-		box_action = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-		gtk_box_append(GTK_BOX(box_action), copy_chkb);
 		gtk_box_append(GTK_BOX(box_action), view_chkb);
-		gtk_box_append(GTK_BOX(box_action), move_chkb);
 		gtk_box_append(GTK_BOX(box_action), launch_chkb);
 	}
 	else {
-		// Create the window
-		udp->action_window = gtk_window_new();
+		// Finish the mutli selection action window setup
 		gtk_window_set_title(GTK_WINDOW(udp->action_window), "Multiple Selection Actions");
 
-		// Set the buttons
-		GtkWidget *copy_chkb = gtk_check_button_new_with_label("Copy Name to Clipboard");
-		GtkWidget *move_chkb = gtk_check_button_new_with_label("Move to Trash");
-
-		// Set the group
 		gtk_check_button_set_group(GTK_CHECK_BUTTON(copy_chkb), GTK_CHECK_BUTTON(move_chkb));
-
-		// Connect the signals
-		g_signal_connect(copy_chkb, "toggled", G_CALLBACK(copy_cb), udp);
-		g_signal_connect(move_chkb, "toggled", G_CALLBACK(work_trash_cb), udp);
-
-		// Create the box
-		box_action = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-		gtk_box_append(GTK_BOX(box_action), copy_chkb);
-		gtk_box_append(GTK_BOX(box_action), move_chkb);
 	}
 
 	gtk_window_set_default_size(GTK_WINDOW(udp->action_window), 512, 256);
