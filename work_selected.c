@@ -141,8 +141,6 @@ void work_selected_file_cb(GtkGestureClick *self, int n_press, double x, double 
 	udp->sel_bitset = sel_bitset;
 	guint64 sel_bs_size = gtk_bitset_get_size (sel_bitset);
 
-	printf("Selected bitset size: %lu\n", sel_bs_size);
-
 	if (sel_bs_size == 0) {
 		GtkAlertDialog *alert = gtk_alert_dialog_new("No Selection");
 		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
