@@ -25,14 +25,14 @@ void view_cb(GtkCheckButton *self, user_data *udp)
 	gtk_window_close(GTK_WINDOW(udp->action_window));
 
 	// Get the selected item
-	DupItem *item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), 
+	udp->sel_item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), 
 				gtk_bitset_get_minimum(udp->sel_bitset)); 
 
 	// Just view files
 	if (gtk_check_button_get_active(self)) {
-		if (strcmp(item->result, STR_DIR) ||
-		    strncmp(item->result, STR_ERR, 5)) {
-			view_file(udp);
+		if (strcmp(udp->sel_item->result, STR_DIR) ||
+		    strncmp(udp->sel_item->result, STR_ERR, 5)) {
+			view_file(udp->sel_item, udp->main_window);
 		} 
 		else {
 			GtkAlertDialog *alert = gtk_alert_dialog_new("Can't view Directories or files with errors");
