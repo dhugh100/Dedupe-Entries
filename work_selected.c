@@ -30,8 +30,8 @@ void view_cb(GtkCheckButton *self, user_data *udp)
 
 	// Just view files
 	if (gtk_check_button_get_active(self)) {
-		if (strcmp(item->result, "Directory") &&
-		    !strstr(item->result, "Error")) {
+		if (strcmp(item->result, STR_DIR) ||
+		    strncmp(item->result, STR_ERR, 5)) {
 			view_file(udp);
 		} 
 		else {

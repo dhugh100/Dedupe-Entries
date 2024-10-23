@@ -45,17 +45,17 @@ uint32_t count_match(GListStore *list_store, const char *result)
 
 // Change item result from a group number to unique
 // - Called when an item in a group of two items is being removed
-// - Remaining item must be changed to "Unique"
+// - Remaining item must be changed to STR_UNI
 
 void change_result_to_unique(GListStore *list_store, const char *result)
 {
 	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(list_store));
 
-	// Loop through list store and change result to "Unique" if match
+	// Loop through list store and change result to STR_UNI if match
 	for (uint32_t i = 0; i < cnt; i++) {
 		DupItem *item = g_list_model_get_item(G_LIST_MODEL(list_store), i);
 		if (!strcmp(item->result, result)) {
-			g_object_set(item, "result", "Unique", NULL);
+			g_object_set(item, "result", STR_UNI, NULL);
 			g_object_unref(item);
 			break;	// Only one change needed
 		}
@@ -168,11 +168,11 @@ void trash_and_remove(user_data *udp)
 	// If trash is good remove the entry from the list store and perform any follow-on actions
 	const char *selected_result = udp->sel_item->result;	// sa ve so can pass
 
-	if (!strcmp(selected_result, "Unique") || 
-	    !strcmp(selected_result, "Empty")) 
+	if (!strcmp(selected_result, STR_UNI) || 
+	    !strcmp(selected_result, STR_EMP)) 
 		g_idle_add((GSourceFunc) remove_an_item, udp);
 
-	else if (!strcmp(selected_result, "Directory")) 
+	else if (!strcmp(selected_result, STR_DIR)) 
 		g_idle_add((GSourceFunc) remove_all_items, udp);
 
 	else if (count_match(udp->list_store, selected_result) == 2) 
@@ -206,7 +206,7 @@ void prompt_trash(user_data *udp)
 {
 
 	// Don't try to trash an error entry
-	if (!strncmp(udp->sel_item->result, "Error", 5)) {
+	if (!strncmp(udp->sel_item->result, STR_ERR, 5)) {
 		GtkAlertDialog *alert = gtk_alert_dialog_new("Can't trash an error entry");
 		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
 		wipe_selected(udp); // Clear selected
@@ -238,7 +238,7 @@ void work_trash_cb(GtkWidget *self, user_data *udp)
 
 	// A directory trash should be associated with just one request
 	if (gtk_bitset_get_size(udp->sel_bitset) > 1 &&
-	    count_selected_result(udp->sel_bitset, udp->list_store, "Directory", 1 ) > 0) { 
+	    count_selected_result(udp->sel_bitset, udp->list_store, STR_DIR, 1 ) > 0) { 
 		GtkAlertDialog *alert = gtk_alert_dialog_new("Directory removals can't be combined");
 		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
 		wipe_selected(udp); // Clear selected

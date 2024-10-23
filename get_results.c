@@ -37,7 +37,7 @@ int get_results(GListStore *list_store, user_data *udp)
 			g_object_unref(item);
 			return 1;
 		}
-		g_object_set(item, "result", "Unique", NULL);
+		g_object_set(item, "result", STR_UNI, NULL);
 		g_object_unref(item);
 		return 1;
 	}
@@ -71,7 +71,7 @@ int get_results(GListStore *list_store, user_data *udp)
 				strcpy(cghash, item->hash);
 			}
 			else {
-				g_object_set(item, "result", "Unique", NULL);
+				g_object_set(item, "result", STR_UNI, NULL);
 			}
 		}
 		i++;
@@ -95,7 +95,7 @@ int get_results(GListStore *list_store, user_data *udp)
 		g_object_unref(item);
 	}
 	else {
-		g_object_set(item, "result", "Unique", NULL);
+		g_object_set(item, "result", STR_UNI, NULL);
 		g_object_unref(item);
 	}
 	return 1;

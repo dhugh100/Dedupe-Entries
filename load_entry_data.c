@@ -187,9 +187,9 @@ void load_entry_data(user_data *udp)
 				g_list_store_sort(udp->list_store, (GCompareDataFunc) cmp_result_a, udp); // Sort by result column ascending
 
 				// Remove the entries from the list store that are not to be included
-				if (!udp->opt_include_empty) find_and_splice(udp->list_store, "Empty");
-				if (!udp->opt_include_directory) find_and_splice(udp->list_store, "Directory");
-				if (!udp->opt_include_unique) find_and_splice(udp->list_store, "Unique");
+				if (!udp->opt_include_empty) find_and_splice(udp->list_store, STR_EMP);
+				if (!udp->opt_include_directory) find_and_splice(udp->list_store, STR_DIR);
+				if (!udp->opt_include_unique) find_and_splice(udp->list_store, STR_UNI);
 				if (!udp->opt_include_duplicate) splice_group(udp->list_store); // Remove the group entries
 
 				adjust_sfs_button_sensitivity(udp);  // Turn on the sort, filter, search buttons

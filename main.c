@@ -226,7 +226,7 @@ int main(int argc, char **argv)
 	udp->fdpp = g_malloc0(MAX_FOLDERS * sizeof(char *)); // Allocate folder memory
 	udp->ep = g_malloc0(sizeof(filter_entry)); // Allocate filter entry memory
 	udp->sep = g_malloc0(sizeof(search_entry)); // Allocate search entry memory
-
+	
 	// App setup
 	GtkApplication *app = gtk_application_new("ddup.gtk.org", G_APPLICATION_DEFAULT_FLAGS);
 	udp->app = app;

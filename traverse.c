@@ -28,7 +28,7 @@ int traverse(char *dir_str, user_data *udp)
 	}	
 
 	// Setup directory item
-	DupItem *item =g_object_new (DUP_TYPE_ITEM, "result", "Directory", "name", dir_str, "hash", "", "file_size", "", "modified", "", NULL);
+	DupItem *item =g_object_new (DUP_TYPE_ITEM, "result", STR_DIR, "name", dir_str, "hash", "", "file_size", "", "modified", "", NULL);
 
 	// Open the directory in preparation for loop
         dir = opendir(dir_str);
@@ -41,7 +41,7 @@ int traverse(char *dir_str, user_data *udp)
         }
 
 	// Store the result on good open
-	g_object_set (item, "result", "Directory", NULL);
+	g_object_set (item, "result", STR_DIR, NULL);
 	g_list_store_append (udp->list_store, item);
 	g_object_unref (item);
 
@@ -104,7 +104,7 @@ int traverse(char *dir_str, user_data *udp)
 				g_object_unref (item);
 			}
 			else {
-				g_object_set(item, "result", "Empty", NULL);
+				g_object_set(item, "result", STR_EMP, NULL);
 				g_list_store_append (udp->list_store, item);
 				g_object_unref (item);
 			}

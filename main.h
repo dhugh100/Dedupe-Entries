@@ -26,6 +26,11 @@
 #define STR_HASH (SHA256_DIGEST_LENGTH * 2) + 1 // Two asci hex digits for hash byte + Null
 #define STR_CLIP (STR_PATH * 1000) // Clipboard mostly for small groups
 
+#define STR_DIR "Directory\0"
+#define STR_EMP "Empty\0"
+#define STR_ERR "Error\0"
+#define STR_UNI "Unique\0"
+
 // Define the DupItem GObject type
 #define DUP_TYPE_ITEM (dup_item_get_type ())
 G_DECLARE_FINAL_TYPE (DupItem, dup_item, DUP, ITEM, GObject)
@@ -71,14 +76,6 @@ typedef struct filter_entry {
         gboolean name_n;	
 } filter_entry;
 
-
-enum trash_type {
-        UNIQUE = 1,
-        DIRECTORY,
-        GROUP
-};
-
-
 // A key structure to pass between API calls
 typedef struct user_data {
 
@@ -106,7 +103,7 @@ typedef struct user_data {
 	// Folder 
 	char **fdpp; // A pointer to an array of pointers to folder names
 
-        // Selection processing fields
+	// Selection processing fields
 	DupItem *sel_item;
 	guint sel_item_position;
         GtkMultiSelection *selection;
