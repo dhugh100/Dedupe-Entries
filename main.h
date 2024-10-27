@@ -88,6 +88,7 @@ typedef struct user_data {
 	GtkWidget *action_window;
 	GtkWidget *trash_window;
 	GtkWidget *option_window;
+	GtkWidget *sort_window;
 	GtkWidget *column_view;
 
 	// Entry data
@@ -118,6 +119,15 @@ typedef struct user_data {
 	// Search
 	GtkWidget *search_window;
 	search_entry *sep;
+
+	// Sort
+	GtkWidget *result_a_button;
+        GtkWidget *result_d_button;
+        GtkWidget *name_a_button;
+        GtkWidget *name_d_button;
+        GtkWidget *name_a_sec_btn;
+        GtkWidget *name_d_sec_btn;
+
 
 
         // Switches

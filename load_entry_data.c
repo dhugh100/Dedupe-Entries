@@ -132,6 +132,13 @@ void find_and_splice(GListStore *list_store, char *str)
 	g_object_unref(item);
 }
 
+int cmp_a(const void *a, const void *b, user_data *udp)
+{
+        DupItem *item1 = (DupItem *)a;
+        DupItem *item2 = (DupItem *)b;
+        return(strcmp(item1->result,item2->result));
+}
+
 // Drive getting and showing entry duplicates and data
 // - Create the store
 // - Setup the progress box, progress bar, and cancel button
@@ -184,7 +191,7 @@ void load_entry_data(user_data *udp)
 
 				// No show stopper (0) so check to see if result type should be included
 				// Sort the list store by result so can find start and end of unique, empty, group and directory results as needed
-				g_list_store_sort(udp->list_store, (GCompareDataFunc) cmp_result_a, udp); // Sort by result column ascending
+				g_list_store_sort(udp->list_store, (GCompareDataFunc) cmp_a, udp); // Sort by result column ascending
 
 				// Remove the entries from the list store that are not to be included
 				if (!udp->opt_include_empty) find_and_splice(udp->list_store, STR_EMP);

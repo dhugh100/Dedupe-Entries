@@ -1,23 +1,17 @@
 #include "main.h"
 #include "sort_columns.h"
 
-// Comparsion function for name descending
+// Comparsion function for sort of name descending
+// - No secondary, as name should be unique
 int cmp_name_d(const void *a, const void *b, user_data *udp)
 {
 	DupItem *item1 = (DupItem *)a;
 	DupItem *item2 = (DupItem *)b;
-	return(strcmp(item2->name, item1->name));
-}
-
-// Sort name descending
-void name_d_cb(GtkCheckButton *button, user_data *udp)
-{
-	gtk_window_close(GTK_WINDOW(udp->option_window));
-	g_list_store_sort (udp->list_store, (GCompareDataFunc)cmp_name_d, udp);
-	gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), 1, NULL, GTK_LIST_SCROLL_NONE, NULL);
+	return(strcmp(item2->name, item1->name)); // item2 before item1 for descending
 }
 
 // Comparison function for sort of name ascending
+// - No secondary, as name should be unique
 int cmp_name_a(const void *a, const void *b, user_data *udp)
 {
 	DupItem *item1 = (DupItem *)a;
@@ -25,78 +19,171 @@ int cmp_name_a(const void *a, const void *b, user_data *udp)
 	return strcmp(item1->name, item2->name);
 }
 
-// Sort name ascending
-void name_a_cb(GtkCheckButton *button, user_data *udp)
+// Used for secondary comparison
+// - Item order is reversed at call time for ascending or descending
+int cmp_sec(const void *a, const void *b)
 {
-	gtk_window_close(GTK_WINDOW(udp->option_window));
-	g_list_store_sort (udp->list_store, (GCompareDataFunc)cmp_name_a, udp);
-	gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), 1, NULL, GTK_LIST_SCROLL_NONE, NULL);
+	DupItem *item1 = (DupItem *)a;
+	DupItem *item2 = (DupItem *)b;
+	return strcmp(item1->name, item2->name);
 }
 
-// Comparison function for sort of result descending
+// Comparison function for sort of result ascending
+// - Check for secondary sort direction
 int cmp_result_d(const void *a, const void *b, user_data *udp)
 {
 	DupItem *item1 = (DupItem *)a;
 	DupItem *item2 = (DupItem *)b;
-	return strcmp(item2->result, item1->result);
+	if (!strcmp(item1->result,item2->result)) {
+		if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_sec_btn)))
+			return cmp_sec(a, b); // Ascending name sort on equal
+		else if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_d_sec_btn)))
+			return cmp_sec(b, a); // Descending name sort on equal
+	}		
+	else 
+		return strcmp(item2->result, item1->result);
 }
-// Sort result descending
-void result_d_cb(GtkCheckButton *button, user_data *udp)
-{
-	gtk_window_close(GTK_WINDOW(udp->option_window));
-	g_list_store_sort (udp->list_store, (GCompareDataFunc)cmp_result_d, udp);
-	gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), 1, NULL, GTK_LIST_SCROLL_NONE, NULL);
-}
-
 // Comparison function for sort of result ascending
+// - Check for secondary sort direction
 int cmp_result_a(const void *a, const void *b, user_data *udp)
 {
 	DupItem *item1 = (DupItem *)a;
 	DupItem *item2 = (DupItem *)b;
-	return strcmp(item1->result, item2->result);
+	if (!strcmp(item1->result,item2->result)) {
+		if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_sec_btn)))
+			return cmp_sec(a, b); // Ascending name sort on equal
+		else if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_d_sec_btn)))
+			return cmp_sec(b, a); // Descending name sort on equal
+	}		
+	else 
+		return strcmp(item1->result, item2->result);
 }
 
-// Sort result ascending
-void result_a_cb(GtkCheckButton *button, user_data *udp)
+// Apply the sort
+// This function is called when the apply button is toggled
+void apply_sort_cb(GtkCheckButton *button, user_data *udp)
 {
-	gtk_window_close(GTK_WINDOW(udp->option_window));
-	g_list_store_sort (udp->list_store, (GCompareDataFunc)cmp_result_a, udp);
+	gtk_window_close(GTK_WINDOW(udp->sort_window));
+
+	// Check for invalid combination
+	if ((gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_button)) || // If either name selected for primary
+	    gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_button))) &&
+	   (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_sec_btn)) || // And either name selected for secondary
+	    gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_d_sec_btn)))) {
+		GtkAlertDialog *alert = gtk_alert_dialog_new("You can't have the primary and secondary sort on the same name column");
+		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+		return;
+	}	
+
+	// Sort the list store
+	if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->result_a_button))) 
+		g_list_store_sort (udp->list_store, (GCompareDataFunc)cmp_result_a, udp);
+	else if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->result_d_button))) 
+		g_list_store_sort (udp->list_store, (GCompareDataFunc)cmp_result_d, udp);
+	else if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_button))) 
+		g_list_store_sort (udp->list_store, (GCompareDataFunc)cmp_name_a, udp);
+	else if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_d_button))) 
+		g_list_store_sort (udp->list_store, (GCompareDataFunc)cmp_name_d, udp);
+
 	gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), 1, NULL, GTK_LIST_SCROLL_NONE, NULL);
+}
+
+// Alter sensitivity of secondary name options
+// - Only valid when primary sort column is result
+// - No secondary for primary sort on name as names are unique
+void alter_secondary_sensitvity(GtkCheckButton *button, user_data *udp)
+{
+	if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_button)) || gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_d_button))) {
+		gtk_widget_set_sensitive(udp->name_a_sec_btn, FALSE);
+		gtk_widget_set_sensitive(udp->name_d_sec_btn, FALSE);
+		gtk_check_button_set_active(GTK_CHECK_BUTTON(udp->name_a_sec_btn), FALSE);
+		gtk_check_button_set_active(GTK_CHECK_BUTTON(udp->name_d_sec_btn), FALSE);
+	}
+	else {
+		gtk_widget_set_sensitive(udp->name_a_sec_btn, TRUE);
+		gtk_widget_set_sensitive(udp->name_d_sec_btn, TRUE);
+		if (!gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_sec_btn)) || !gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_d_sec_btn))) {
+			gtk_check_button_set_active(GTK_CHECK_BUTTON(udp->name_a_sec_btn), TRUE);
+		}
+	}
 }
 
 // Prompt the user to choose proceed or cancel
 void get_sort_type_cb (GtkWidget *self, user_data *udp)
 {
-        // Create check buttons
-        GtkWidget *result_a_button = gtk_check_button_new_with_label("Result Ascending");
-        GtkWidget *result_d_button = gtk_check_button_new_with_label("Result Descending");
-        GtkWidget *name_a_button = gtk_check_button_new_with_label("Name Ascending");
-        GtkWidget *name_d_button = gtk_check_button_new_with_label("Name Descending");
+	// Create labels
+	const char *format = "<span weight=\"bold\">\%s</span>";
 
-	// Setup callbacks
-        g_signal_connect(result_a_button, "toggled", G_CALLBACK(result_a_cb), udp);
-        g_signal_connect(result_d_button, "toggled", G_CALLBACK(result_d_cb), udp);
-        g_signal_connect(name_a_button, "toggled", G_CALLBACK(name_a_cb), udp);
-        g_signal_connect(name_d_button, "toggled", G_CALLBACK(name_d_cb), udp);
+	// Primary setup
+	GtkWidget *primary_l = gtk_label_new (NULL);
+	char *str = "Primary Sort Option";
+	char *markup = g_markup_printf_escaped (format, str);
+	gtk_label_set_markup (GTK_LABEL (primary_l), markup);
 
-        // Create box and add check buttons
-        GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-        gtk_box_append(GTK_BOX(box), result_a_button);
-        gtk_box_append(GTK_BOX(box), result_d_button);
-        gtk_box_append(GTK_BOX(box), name_a_button);
-        gtk_box_append(GTK_BOX(box), name_d_button);
+	// Secondary setup
+	GtkWidget *secondary_l = gtk_label_new("NULL");
+	str = "Secondary Sort Option";
+	markup = g_markup_printf_escaped (format, str);
+	gtk_label_set_markup (GTK_LABEL (secondary_l), markup);
 
-       // Set the group
-       gtk_check_button_set_group(GTK_CHECK_BUTTON(result_a_button), GTK_CHECK_BUTTON(result_d_button));
-       gtk_check_button_set_group(GTK_CHECK_BUTTON(name_a_button), GTK_CHECK_BUTTON(result_a_button));
-       gtk_check_button_set_group(GTK_CHECK_BUTTON(name_d_button), GTK_CHECK_BUTTON(result_a_button));
+	// Create check buttons
+	// - No result secondary since no for primary name sort 
+	udp->result_a_button = gtk_check_button_new_with_label("Result Ascending");
+	gtk_check_button_set_active(GTK_CHECK_BUTTON(udp->result_a_button), TRUE);
+        udp->result_d_button = gtk_check_button_new_with_label("Result Descending");
+        udp->name_a_button = gtk_check_button_new_with_label("Name Ascending");
+        udp->name_d_button = gtk_check_button_new_with_label("Name Descending");
+        udp->name_a_sec_btn = gtk_check_button_new_with_label("Name Ascending");
+	gtk_check_button_set_active(GTK_CHECK_BUTTON(udp->name_a_sec_btn), TRUE);
+        udp->name_d_sec_btn = gtk_check_button_new_with_label("Name Descending");
+
+	// Setup apply button and callback
+	GtkWidget *apply_btn = gtk_button_new_with_label("Apply");
+        gtk_widget_set_halign(apply_btn,GTK_ALIGN_CENTER);
+	g_signal_connect(apply_btn, "clicked", G_CALLBACK(apply_sort_cb), udp);
+
+        // Create grid for entry widgets
+        GtkWidget *grid = gtk_grid_new();
+        gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
+        gtk_grid_set_row_spacing(GTK_GRID(grid), 10);
+        gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
+        gtk_grid_set_row_homogeneous(GTK_GRID(grid), TRUE);
+        gtk_widget_set_margin_top (GTK_WIDGET(grid), 10);
+        gtk_widget_set_margin_bottom (GTK_WIDGET(grid), 10);
+
+	// Place widget in grid
+	gtk_grid_attach(GTK_GRID(grid), primary_l, 0, 0, 2, 1);
+	gtk_grid_attach(GTK_GRID(grid), udp->result_a_button, 0, 1, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), udp->result_d_button, 1, 1, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), udp->name_a_button, 0, 2, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), udp->name_d_button, 1, 2, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), secondary_l, 0, 3, 2, 1);
+	gtk_grid_attach(GTK_GRID(grid), udp->name_a_sec_btn, 0, 4, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), udp->name_d_sec_btn, 1, 4, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), apply_btn, 0, 5, 2, 1);
+
+       // Set the group for the check buttons
+       // Primary
+       gtk_check_button_set_group(GTK_CHECK_BUTTON(udp->result_a_button), GTK_CHECK_BUTTON(udp->result_d_button));
+       gtk_check_button_set_group(GTK_CHECK_BUTTON(udp->name_a_button), GTK_CHECK_BUTTON(udp->result_a_button));
+       gtk_check_button_set_group(GTK_CHECK_BUTTON(udp->name_d_button), GTK_CHECK_BUTTON(udp->result_a_button));
+
+       // Secondary
+	gtk_check_button_set_group(GTK_CHECK_BUTTON(udp->name_a_sec_btn), GTK_CHECK_BUTTON(udp->name_d_sec_btn));
+
+	// Setup callback for when primary name buttons are clicked, have to make secondary insensitive
+	g_signal_connect(udp->name_a_button, "toggled", G_CALLBACK(alter_secondary_sensitvity),udp);
+	g_signal_connect(udp->name_d_button, "toggled", G_CALLBACK(alter_secondary_sensitvity),udp);
+	g_signal_connect(udp->result_a_button, "toggled", G_CALLBACK(alter_secondary_sensitvity),udp);
+	g_signal_connect(udp->result_d_button, "toggled", G_CALLBACK(alter_secondary_sensitvity),udp);
+
 
         // Create window and add title
-       GtkWidget *option_window = gtk_window_new();
-       udp->option_window = option_window;
-       gtk_window_set_title(GTK_WINDOW(option_window), "Sort Options");
+       GtkWidget *sort_window = gtk_window_new();
+       udp->sort_window = sort_window;
+       gtk_window_set_title(GTK_WINDOW(sort_window), "Sort Options");
 
         // Add box to window and show
-        gtk_window_set_child(GTK_WINDOW(option_window), box);
-        gtk_window_present(GTK_WINDOW(option_window));
+        gtk_window_set_child(GTK_WINDOW(sort_window), grid);
+        gtk_window_present(GTK_WINDOW(sort_window));
 }
