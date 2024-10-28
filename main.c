@@ -82,6 +82,16 @@ void option_init(user_data *udp)
 	}
 }
 
+// compare function for finding result in list store
+gboolean find_item_text(DupItem *item, DupItem *search)
+{
+	if (strstr(item->result, search->result) || 
+	    strstr(item->name, search->name))
+		return TRUE;
+	else
+		return FALSE;
+}
+
 // Find search entry match in list store
 // - Matching based on substring of either result or name
 // - Will scroll to first match found to make sure visible
@@ -98,14 +108,12 @@ void work_search_entry_cb(GtkEditable *entry, user_data *udp)
         uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(udp->list_store));
 	if (!cnt) return; // Bug out if list_store is empty
 
-        // Loop through list store and find match
-        for (uint32_t i = 0; i < cnt; i++) {
-                DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), i);
-                if (strstr(item->result, text) || strstr(item->name, text)) {
-                        gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), i, NULL , GTK_LIST_SCROLL_FOCUS, NULL);
-                        return;
-                }
-        }
+	uint32_t start_position = 0;
+	DupItem *item =g_object_new (DUP_TYPE_ITEM, "result", text, "name", text, NULL);
+	gboolean result = g_list_store_find_with_equal_func(udp->list_store, item, (GEqualFunc) find_item_text, &start_position);
+	if (result) {
+		gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), start_position, NULL , GTK_LIST_SCROLL_FOCUS, NULL);
+	}
 }
 
 // Create the main window
