@@ -132,11 +132,16 @@ void find_and_splice(GListStore *list_store, char *str)
 	g_object_unref(item);
 }
 
+// Sort compare
+// - Default is result primary, name secondary, both ascending
 int cmp_a(const void *a, const void *b, user_data *udp)
 {
         DupItem *item1 = (DupItem *)a;
         DupItem *item2 = (DupItem *)b;
-        return(strcmp(item1->result,item2->result));
+        if (!strcmp(item1->result,item2->result))
+		return(strcmp(item1->name, item2->name));
+	else 
+		return(strcmp(item1->result, item2->result));			
 }
 
 // Drive getting and showing entry duplicates and data
