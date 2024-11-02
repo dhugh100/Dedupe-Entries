@@ -107,13 +107,14 @@ void work_search_entry_cb(GtkEditable *entry, user_data *udp)
         // Get number of items in list store
         uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(udp->list_store));
 	if (!cnt) return; // Bug out if list_store is empty
-
-	uint32_t start_position = 0;
-	DupItem *item =g_object_new (DUP_TYPE_ITEM, "result", text, "name", text, NULL);
-	gboolean result = g_list_store_find_with_equal_func(udp->list_store, item, (GEqualFunc) find_item_text, &start_position);
-	if (result) {
-		gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), start_position, NULL , GTK_LIST_SCROLL_FOCUS, NULL);
-	}
+        // Loop through list store and find match
+        for (uint32_t i = 0; i < cnt; i++) {
+                DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), i);
+                if (strstr(item->result, text) || strstr(item->name, text)) {
+                        gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), i, NULL , GTK_LIST_SCROLL_FOCUS, NULL);
+                        return;
+                }
+        }
 }
 
 // Create the main window

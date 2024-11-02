@@ -42,6 +42,7 @@ struct _DupItem {
         const char *hash;
         const char *file_size;
         const char *modified;
+        gboolean highlight;
 };
 
 typedef struct search_entry {
