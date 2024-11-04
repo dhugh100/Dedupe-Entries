@@ -11,7 +11,6 @@ typedef enum {
 	PROP_HASH,
 	PROP_FILE_SIZE,
 	PROP_MODIFIED,
-	PROP_HIGHLIGHT,
 	N_PROPERTIES
 } DupItemProperty;
 
@@ -47,10 +46,6 @@ static void dup_item_set_property (GObject *object, uint32_t property_id, const 
 			self->modified = g_value_dup_string (value);
 			break;
 
-		case PROP_HIGHLIGHT:
-			self->highlight = g_value_get_boolean (value);
-			break;
-
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 			break;
@@ -84,10 +79,6 @@ void dup_item_get_property (GObject *object, uint32_t property_id, GValue *value
 			g_value_set_string (value, self->modified);
 			break;
 
-		case PROP_HIGHLIGHT:	
-			g_value_set_boolean (value, self->highlight);
-			break;
-
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 			break;
@@ -119,9 +110,6 @@ static void dup_item_class_init (DupItemClass *klass) {
 							G_PARAM_READWRITE);
 	
 	obj_properties[PROP_MODIFIED] = g_param_spec_string ("modified", "Modified", "5 column is modified", NULL,
-							G_PARAM_READWRITE);
-
-	obj_properties[PROP_HIGHLIGHT] = g_param_spec_string ("highlight", "Highlight", "6 column is highlight", NULL,
 							G_PARAM_READWRITE);
 
 	// Install properties

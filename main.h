@@ -42,7 +42,6 @@ struct _DupItem {
         const char *hash;
         const char *file_size;
         const char *modified;
-        gboolean highlight;
 };
 
 typedef struct search_entry {
@@ -120,6 +119,9 @@ typedef struct user_data {
 	// Search
 	GtkWidget *search_window;
 	search_entry *sep;
+	GtkWidget *entry;
+	uint32_t next_check;
+	gboolean a_match;
 
 	// Sort
 	GtkWidget *result_a_button;
@@ -153,5 +155,7 @@ int main_window(GtkApplication *, user_data *);
 void adjust_sfs_button_sensitivity(user_data *);
 
 void adjust_restore_button_sensitivity(user_data *);
+
+void work_search_entry_cb(GtkWidget *, user_data *);
 
 #endif

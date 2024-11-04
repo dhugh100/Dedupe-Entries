@@ -25,14 +25,11 @@ static const char* dup_item_get_name (DupItem *item) {
 	return item->name;
 }
 
-// 
-
 // Setup the label for the cell, set alignment to left
 static void setup_cb (GtkSignalListItemFactory *factory,  GObject  *listitem) {
 	GtkWidget *label = gtk_label_new (NULL);
 	gtk_label_set_xalign (GTK_LABEL (label), 0.0);
 	gtk_list_item_set_child (GTK_LIST_ITEM (listitem), label);
-
 }
 
 // For the factory, get the result for the item into the label
@@ -47,9 +44,7 @@ static void bind_result_cb (GtkSignalListItemFactory *factory, GtkListItem *list
 static void bind_name_cb (GtkSignalListItemFactory *factory, GtkListItem *listitem, user_data *udp) {
 	GtkWidget *label = gtk_list_item_get_child (listitem);
 	GObject *item = gtk_list_item_get_item (GTK_LIST_ITEM (listitem));
-	Gobject *citem = gtk_column_view_calllist_item_get_item (GTK_LIST_ITEM (listitem)
 	const char *string = dup_item_get_name (DUP_ITEM (item));
-	// const gboolean should_highlight = filter_match (udp, string);
 	gtk_label_set_text (GTK_LABEL (label), string);
 }
 
