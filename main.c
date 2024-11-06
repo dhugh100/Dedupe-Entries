@@ -85,7 +85,7 @@ void option_init(user_data *udp)
 // Process choice for search next or cancel prompt
 // - Called by prompt function
 // - Proceed is button 0, cancel is 1 (default and escape)
-// - If proceed then find next
+// - If proceed then find next match
 
 void work_next_choice(GObject *source_object, GAsyncResult *res, void *ptr)
 {
@@ -98,10 +98,12 @@ void work_next_choice(GObject *source_object, GAsyncResult *res, void *ptr)
 		work_search_entry_cb(nada, udp);
 	}
 	else {
-		if (udp->next_check < g_list_model_get_n_items(G_LIST_MODEL(udp->list_store))) 
+		if (udp->next_check < g_list_model_get_n_items(G_LIST_MODEL(udp->list_store))) { 
 			gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), udp->next_check, NULL , GTK_LIST_SCROLL_NONE, NULL);
-		else	
+		}
+		else {	
 			gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), 0, NULL , GTK_LIST_SCROLL_NONE, NULL);
+		}
 		gtk_selection_model_unselect_all(GTK_SELECTION_MODEL (udp->selection));   
 		udp->next_check = 0;
 		gtk_editable_set_text (GTK_EDITABLE(udp->search_entry), ""); // Clear search entry
@@ -110,7 +112,7 @@ void work_next_choice(GObject *source_object, GAsyncResult *res, void *ptr)
 }
 
 
-// See if should find next match in search entry
+// Prompt to See if should find next match in search entry
 
 void prompt_next(user_data *udp)
 {
@@ -130,6 +132,7 @@ void prompt_next(user_data *udp)
 // Find search entry match in list store
 // - Matching based on substring of either result or name
 // - Will scroll to first match found to make sure visible
+// - Can be called by search entry, prompt next, or self (auto restart from 0) 
 
 void work_search_entry_cb(GtkWidget *self, user_data *udp)
 {
@@ -166,7 +169,7 @@ void work_search_entry_cb(GtkWidget *self, user_data *udp)
 	else if	(udp->next_check > 0 && i < cnt) { // Found at least once, need to see if want to go again
 		prompt_next(udp); 
 	}
-	else if (udp->next_check > 0 && i == cnt) { // Found at least once, but not this time, restart automatically at 0 
+	else if (udp->next_check > 0 && i == cnt) { // Found at least once, but not this time, rollover automatically and search from 0 
 		udp->next_check = 0;	
 		work_search_entry_cb(self, udp);
 		//prompt_next(udp); 
@@ -280,7 +283,6 @@ void cmd_line_directory_cb(GApplication *app, GFile **files, gint n_files, const
 	main_window((GtkApplication *)app, udp); // Create the main window 
 	load_entry_data(udp); // Load the list store with the folder contents						 
 }
-
 
 // Start application
 // - Alloc memory for user data, filters, folders

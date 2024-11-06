@@ -1,25 +1,11 @@
 ```markdown
 # Dedup
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/dhugh100/Dedup/build.yml) ![License](https://img.shields.io/github/license/dhugh100/Dedup)
-
-## Table of Contents
-- [Description](#description)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## Description
-Dedup uses SHA256 hashes to identify and take action on duplicate files. Trust the math!
+Dedup uses SHA256 hashes to identify and take action on duplicate files. 
 
 ## Installation
 Provide instructions on how to install and set up the project, e.g.:
-```sh
-git clone https://github.com/dhugh100/Dedup.git
-cd Dedup
-make install
-```
 
 ## Usage
 ### Simple Flow Example
