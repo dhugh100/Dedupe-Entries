@@ -64,8 +64,6 @@ void select_multiple_cb (GObject *source, GAsyncResult *result, user_data *udp)
 	// - Example: /home/user/Downloads and /home/user/Downloads/Temp
 	// - Check each folder name against all other folder names
 	
-	int outer, inner = 0;
-
 	// Start the outer loop
 	for (int i = 0; i < cnt; i++) {
 

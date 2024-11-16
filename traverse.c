@@ -10,7 +10,6 @@
 
 int traverse(char *dir_str, user_data *udp) 
 {
-	int status = 0; // Function return codes
         char full_name[STR_NAME] = {0x00}; // Create full names from passed dir and dir entry
 	char buff[100] = {0x00}; // Buffer for conversions
 

@@ -33,7 +33,12 @@ void save_cb(GtkCheckButton *self, user_data *udp)
         // Write in one fell swoop
         gsize wrote;
         gboolean result = g_output_stream_write_all (G_OUTPUT_STREAM (out), data, sz, &wrote, NULL, NULL);
-        result = g_output_stream_close (G_OUTPUT_STREAM (out), NULL, NULL);
+        if (!result) {
+	        GtkAlertDialog *alert = gtk_alert_dialog_new ("Problem writing file");
+        	gtk_alert_dialog_show (alert, GTK_WINDOW (udp->main_window));
+        }
+
+        g_output_stream_close (G_OUTPUT_STREAM (out), NULL, NULL);
         gtk_window_close (GTK_WINDOW (udp->option_window));  
 }
 

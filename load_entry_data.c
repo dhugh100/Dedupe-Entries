@@ -100,7 +100,7 @@ void splice_group(GListStore *list_store)
 
 void find_and_splice(GListStore *list_store, char *str)
 {
-	int start_position = 0, end_position = 0, i = 0;
+	uint32_t start_position = 0, end_position = 0, i = 0;
 	gboolean result = FALSE;
 
 	// Get count of items in list store
@@ -204,7 +204,7 @@ void load_entry_data(user_data *udp)
 				if (!udp->opt_include_unique) find_and_splice(udp->list_store, STR_UNI);
 				if (!udp->opt_include_duplicate) splice_group(udp->list_store); // Remove the group entries
 
-				adjust_sfs_button_sensitivity(udp);  // Turn on the sort, filter, search buttons
+				adjust_sfs_button_sensitivity(udp);  // Turn on the sort, filter, search bar
 			        show_columns(udp);	
 			}
 			else { // Results return is 0

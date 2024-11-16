@@ -150,12 +150,10 @@ typedef struct user_data {
 
 // Function prototypes
 
-int main_window(GtkApplication *, user_data *);
-
+void main_window(GtkApplication *, user_data *);
 void adjust_sfs_button_sensitivity(user_data *);
-
 void adjust_restore_button_sensitivity(user_data *);
-
 void work_search_entry_cb(GtkWidget *, user_data *);
+void option_init(user_data *);
 
 #endif

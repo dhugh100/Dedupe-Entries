@@ -35,7 +35,7 @@ char * extract_bname (const char *filename) {
 }
 
 
-void dumpStr (unsigned char *ip, int len_in, unsigned char *op, int offset) {
+void dumpStr (unsigned char *ip, int len_in, char *op, int offset) {
 
 	// Output string starts with an offset in hex
 	sprintf (op,"%08x ", offset); // Add offset to the output string

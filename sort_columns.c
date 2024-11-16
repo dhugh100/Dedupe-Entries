@@ -40,8 +40,7 @@ int cmp_result_d(const void *a, const void *b, user_data *udp)
 		else if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_d_sec_btn)))
 			return cmp_sec(b, a); // Descending name sort on equal
 	}		
-	else 
-		return strcmp(item2->result, item1->result);
+	return strcmp(item2->result, item1->result);
 }
 // Comparison function for sort of result ascending
 // - Check for secondary sort direction
@@ -55,8 +54,7 @@ int cmp_result_a(const void *a, const void *b, user_data *udp)
 		else if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_d_sec_btn)))
 			return cmp_sec(b, a); // Descending name sort on equal
 	}		
-	else 
-		return strcmp(item1->result, item2->result);
+	return strcmp(item1->result, item2->result);
 }
 
 // Apply the sort
