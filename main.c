@@ -4,10 +4,14 @@
 #include "work_options.h"
 #include "load_entry_data.h"
 #include "get_folders.h"
+#include "search.h"
 
 // Provide standard about dialog
 
-void about_cb(GSimpleAction *action, GVariant *parm, user_data *udp)
+void
+about_cb(GSimpleAction *action,
+	 GVariant *parm,
+	 user_data *udp)
 {
 	const char *author[] = { "Author", "\nDave Hugh", NULL };
 
@@ -30,24 +34,26 @@ void about_cb(GSimpleAction *action, GVariant *parm, user_data *udp)
 // - No sort, filter, or search if no list store
 // - No search if filtering on
 
-void adjust_sfs_button_sensitivity(user_data *udp)
+void
+ adjust_sfs_button_sensitivity(user_data *udp)
 {
-	if ( udp->list_store && g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)) > 0) {
-		gtk_widget_set_sensitive (udp->sort_button, TRUE);	
+	if (udp->list_store && 
+            g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)) > 0) {
+		gtk_widget_set_sensitive(udp->sort_button, TRUE);
 		if (strlen(udp->ep->res_ebt) ||
-		    strlen(udp->ep->name_ebt)) {
-			gtk_widget_set_sensitive (udp->filter_button, TRUE);	
-			gtk_widget_set_sensitive (udp->search_bar, FALSE);	
+                    strlen(udp->ep->name_ebt)) {
+			gtk_widget_set_sensitive(udp->filter_button, TRUE);
+			gtk_widget_set_sensitive(udp->search_bar, FALSE);
 		}
-		else {
-			gtk_widget_set_sensitive (udp->filter_button, TRUE);	
-			gtk_widget_set_sensitive (udp->search_bar, TRUE);	
+		 else {
+			gtk_widget_set_sensitive(udp->filter_button, TRUE);
+			gtk_widget_set_sensitive(udp->search_bar, TRUE);
 		}
 	} 
 	else {
-		gtk_widget_set_sensitive (udp->sort_button, FALSE);		
-		gtk_widget_set_sensitive (udp->filter_button, FALSE);	
-		gtk_widget_set_sensitive (udp->search_bar, FALSE);	
+		gtk_widget_set_sensitive(udp->sort_button, FALSE);
+		gtk_widget_set_sensitive(udp->filter_button, FALSE);
+		gtk_widget_set_sensitive(udp->search_bar, FALSE);
 	}
 }
 
@@ -57,22 +63,32 @@ void adjust_sfs_button_sensitivity(user_data *udp)
 // - Show options get initialized
 // - Calls function to implement filters associated with options
 
-void option_init(user_data *udp)
+void
+option_init(user_data *udp)
 {
 	// Construct file name
 	char *name = g_malloc0(STR_NAME);
-	strcpy (name, g_get_home_dir());
-	strcat (name, "/.config/ddup.cfg"); 
+	strcpy(name, g_get_home_dir());
+	strcat(name, "/.config/ddup.cfg");
 	udp->opt_name = name;
 
 	// Read any saved options in gvariant serialized format
 	unsigned char buff[OPTION_SIZE];
-	if (read_options (buff, name)) {
-		GVariant *value = g_variant_new ("(bbbb)", buff[0], buff[1], buff[2], buff[3]);
-		g_variant_get (value, "(bbbb)", &udp->opt_include_empty,
-			      &udp->opt_include_directory, &udp->opt_include_duplicate, &udp->opt_include_unique);
+	if (read_options(buff,
+	 		 name)) {
+		GVariant *value = g_variant_new("(bbbb)",
+						buff[0],
+						buff[1],
+						buff[2],
+						buff[3]);
+		g_variant_get(value,
+			      "(bbbb)",
+			      &udp->opt_include_empty,
+			      &udp->opt_include_directory,
+			      &udp->opt_include_duplicate,
+			      &udp->opt_include_unique);
 		g_variant_unref(value);
-	} 
+	}
 	else {
 		udp->opt_include_empty = TRUE;	// Default to show empty entries
 		udp->opt_include_directory = TRUE;	// Default to show a directory
@@ -87,8 +103,8 @@ void option_init(user_data *udp)
 // - Hamburger menu with options and about
 // - Adjust sensitivity of buttons based on list store status
 // - Disallow search if filtering on
- 
-void main_window(GtkApplication *app, user_data *udp) 
+
+void main_window(GtkApplication *app, user_data *udp)
 {
 	// Initialize options from saved file or use defaults
 	option_init(udp);
@@ -110,34 +126,45 @@ void main_window(GtkApplication *app, user_data *udp)
 	// Save buttons, will have to adjust sensitivity based on list_store store
 	udp->sort_button = sort_button;
 	udp->filter_button = filter_button;
-	// udp->search_button = search_button;
 
 	// Connect buttons to signals
-	g_signal_connect(get_button, "clicked", G_CALLBACK(get_folders_cb), udp);
-	g_signal_connect(sort_button, "clicked", G_CALLBACK(get_sort_type_cb), udp);
-	g_signal_connect(filter_button, "clicked", G_CALLBACK(get_filters_cb), udp);
+	g_signal_connect(get_button,
+			 "clicked",
+			 G_CALLBACK(get_folders_cb),
+			 udp);
+	g_signal_connect(sort_button,
+			 "clicked",
+			 G_CALLBACK(get_sort_type_cb),
+			 udp);
+	g_signal_connect(filter_button,
+			 "clicked",
+			 G_CALLBACK(get_filters_cb),
+			 udp);
 
 	// Create search bar
-        GtkWidget *search_bar = gtk_search_bar_new (); 
+	GtkWidget *search_bar = gtk_search_bar_new();
 	udp->search_bar = search_bar;
 
-        // Create search box and add to search bar
-        GtkWidget *search_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6); 
-        gtk_search_bar_set_child (GTK_SEARCH_BAR (search_bar), search_box);
+	// Create search box and add to search bar
+	GtkWidget *search_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+	gtk_search_bar_set_child(GTK_SEARCH_BAR(search_bar), search_box);
 
-        // Create search entry and connect to search box
-        GtkWidget *entry = gtk_search_entry_new ();
-       	udp->search_entry = entry;	
-        gtk_box_append (GTK_BOX (search_box), entry);
-        gtk_search_bar_connect_entry (GTK_SEARCH_BAR (search_bar), GTK_EDITABLE (entry)); 
+	// Create search entry and connect to search box
+	GtkWidget *entry = gtk_search_entry_new();
+	udp->search_entry = entry;
+	gtk_box_append(GTK_BOX(search_box), entry);
+	gtk_search_bar_connect_entry(GTK_SEARCH_BAR(search_bar), GTK_EDITABLE(entry));
 
 	// Set key capture widget, search mode, and search delay
-	gtk_search_bar_set_key_capture_widget (GTK_SEARCH_BAR (search_bar), main_window);
-        gtk_search_bar_set_search_mode (GTK_SEARCH_BAR (search_bar), TRUE);
-        gtk_search_entry_set_search_delay (GTK_SEARCH_ENTRY (entry), 2000);
+	gtk_search_bar_set_key_capture_widget(GTK_SEARCH_BAR(search_bar), main_window);
+	gtk_search_bar_set_search_mode(GTK_SEARCH_BAR(search_bar), TRUE);
+	gtk_search_entry_set_search_delay(GTK_SEARCH_ENTRY(entry), 2000);
 
 	// Connect search entry to search callback (not changed signal)
-        g_signal_connect(entry, "search-changed", G_CALLBACK(work_search_entry_cb),udp);
+	g_signal_connect(entry,
+			 "search-changed",
+			 G_CALLBACK(work_search_entry_cb),
+			 udp);
 
 	// Setup hamburger menu button
 	GtkWidget *menu_button = gtk_menu_button_new();
@@ -159,8 +186,14 @@ void main_window(GtkApplication *app, user_data *udp)
 	g_action_map_add_action(G_ACTION_MAP(app), G_ACTION(action_about));
 
 	// Connect signals to menu actions
-	g_signal_connect(action_options, "activate", G_CALLBACK(work_options_cb), udp);
-	g_signal_connect(action_about, "activate", G_CALLBACK(about_cb), udp);
+	g_signal_connect(action_options,
+			 "activate",
+			 G_CALLBACK(work_options_cb),
+			 udp);
+	g_signal_connect(action_about,
+			 "activate",
+			 G_CALLBACK(about_cb),
+			 udp);
 
 	// Set the menu model for the menu button
 	gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(menu_button), (GMenuModel *) menu);
@@ -182,11 +215,16 @@ void main_window(GtkApplication *app, user_data *udp)
 	gtk_window_present(GTK_WINDOW(main_window));
 }
 
-void cmd_line_directory_cb(GApplication *app, GFile **files, gint n_files, const char *hint, user_data *udp)
+void
+cmd_line_directory_cb(GApplication *app,
+		      GFile       **files,
+		      gint          n_files,
+		      const char   *hint,
+		      user_data    *udp)
 {
-	udp->fdpp[0] = g_file_get_path (*files); // Get the path name pointer into the array
-	main_window((GtkApplication *)app, udp); // Create the main window 
-	load_entry_data(udp); // Load the list store with the folder contents						 
+	udp->fdpp[0] = g_file_get_path(*files);	// Get the path name pointer into the array
+	main_window((GtkApplication *) app, udp);	// Create the main window 
+	load_entry_data(udp);	// Load the list store with the folder contents                                            
 }
 
 // Start application
@@ -196,22 +234,24 @@ int main(int argc, char **argv)
 {
 	// Memory allocations
 	user_data *udp = g_malloc0(sizeof(user_data));
-	udp->fdpp = g_malloc0(MAX_FOLDERS * sizeof(char *)); // Allocate folder memory
-	udp->ep = g_malloc0(sizeof(filter_entry)); // Allocate filter entry memory
-	udp->sep = g_malloc0(sizeof(search_entry)); // Allocate search entry memory
-	
+	udp->fdpp = g_malloc0(MAX_FOLDERS * sizeof(char *));	// Allocate folder memory
+	udp->ep = g_malloc0(sizeof(filter_entry));	// Allocate filter entry memory
+	udp->sep = g_malloc0(sizeof(search_entry));	// Allocate search entry memory
+
 	// App setup
 	GtkApplication *app = gtk_application_new("dup.gtk.org", G_APPLICATION_DEFAULT_FLAGS);
 	udp->app = app;
 	g_signal_connect(app, "activate", G_CALLBACK(main_window), udp);
-	g_signal_connect(app, "open", G_CALLBACK(cmd_line_directory_cb), udp); // will open directory if valid
-	g_application_set_flags (G_APPLICATION(app), G_APPLICATION_HANDLES_OPEN);
-	int status = g_application_run(G_APPLICATION(app), argc, argv);
+	g_signal_connect(app, "open", G_CALLBACK(cmd_line_directory_cb), udp);	// will open directory if valid
+	g_application_set_flags(G_APPLICATION(app), G_APPLICATION_HANDLES_OPEN);
+	int status = g_application_run(G_APPLICATION(app),
+				       argc,
+				       argv);
 
 	// Clean up
 	g_object_unref(app);
-	if (udp->opt_name) g_free(udp->opt_name); // Free up search memory
-	if (udp->sep) g_free(udp->sep); // Free up search memory
+	if (udp->opt_name)g_free(udp->opt_name);
+	if (udp->sep) g_free(udp->sep);	// Free up search memory
 	if (udp->ep) g_free(udp->ep); // Free up filter memory
 	if (udp->fdpp) clear_folders(udp->fdpp); // Free up folder memory if allocated
 	if (udp) g_free(udp); // Free up main user data memory
