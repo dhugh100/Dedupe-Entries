@@ -1,0 +1,29 @@
+# test style
+
+cp ../dd/get_folders.c workfile.c
+##cp testfile2.c  workfile.c
+
+# Remove leading whitespace
+sed -i -r 's/^\s{1,}(.*)/\1/'  workfile.c
+
+# Do linux indent
+indent -l 120 -nce -linux workfile.c
+
+ftypes=("void" "boolean" "int" "char" "static void" "static const")
+
+# Put type on separate line
+for str in ${ftypes[@]}; do
+	sed -i -r  "s/^($str )/$str\n/" workfile.c
+done
+
+# Indent all comments to a least one tab
+#sed -i -r 's/^\/\/(.*)/\t\/\/\1/' workfile.c
+
+# Put a space between the ending semicolon or braces and the comment //
+sed -i -r  's/(;|\}|\{).*(\/\/.*$)/\1 \2/' workfile.c
+
+# Put a space between the function definition and opening parenthesis
+sed -i -r 's/^([a-zA-Z_]{1,})(\()(.*)/\1 \(\3/'  workfile.c
+
+# Put a space before an opening parenthesis if none exists
+sed -i -r  's/([a-zA-Z0-9_])\(/\1 \(/' workfile.c
