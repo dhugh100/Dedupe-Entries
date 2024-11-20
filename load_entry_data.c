@@ -1,7 +1,6 @@
 #include "main.h"
 #include "get_folders.h"
 #include "show_columns.h"
-#include "see_entry_data.h"
 #include "get_hash.h"
 #include "traverse.h"
 #include "get_results.h"
