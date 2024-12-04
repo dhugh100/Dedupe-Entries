@@ -114,7 +114,7 @@ typedef struct user_data {
         GtkWidget *filter_window;
         GtkFilterListModel  *filter;
         GtkCustomFilter *custom_filter;
-	filter_entry *ep;
+	filter_entry *fep;
 
 	// Search
 	GtkWidget *search_window;

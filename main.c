@@ -30,14 +30,13 @@ along with this program.  If not, see <https:www.gnu.org/licenses/>.
 // - No sort, filter, or search if no list store
 // - No search if filtering on
 
-void
- adjust_sfs_button_sensitivity(user_data *udp)
+void adjust_sfs_button_sensitivity(user_data *udp)
 {
 	if (udp->list_store && 
             g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)) > 0) {
 		gtk_widget_set_sensitive(udp->sort_button, TRUE);
-		if (strlen(udp->ep->res_ebt) ||
-                    strlen(udp->ep->name_ebt)) {
+		if (strlen(udp->fep->res_ebt) ||
+                    strlen(udp->fep->name_ebt)) {
 			gtk_widget_set_sensitive(udp->filter_button, TRUE);
 			gtk_widget_set_sensitive(udp->search_bar, FALSE);
 		}
@@ -231,7 +230,7 @@ int main(int argc, char **argv)
 	// Memory allocations
 	user_data *udp = g_malloc0(sizeof(user_data));
 	udp->fdpp = g_malloc0(MAX_FOLDERS * sizeof(char *));	// Allocate folder memory
-	udp->ep = g_malloc0(sizeof(filter_entry));	// Allocate filter entry memory
+	udp->fep = g_malloc0(sizeof(filter_entry));	// Allocate filter entry memory
 	udp->sep = g_malloc0(sizeof(search_entry));	// Allocate search entry memory
 
 	// App setup
@@ -248,7 +247,7 @@ int main(int argc, char **argv)
 	g_object_unref(app);
 	if (udp->opt_name)g_free(udp->opt_name);
 	if (udp->sep) g_free(udp->sep);	// Free up search memory
-	if (udp->ep) g_free(udp->ep); // Free up filter memory
+	if (udp->fep) g_free(udp->fep); // Free up filter memory
 	if (udp->fdpp) clear_folders(udp->fdpp); // Free up folder memory if allocated
 	if (udp) g_free(udp); // Free up main user data memory
 
