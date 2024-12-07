@@ -1,41 +1,21 @@
-/*
-This file, load_entry_data.c, is a part of the ddup program.
-ddup is a GTK program to find and take action on duplicate files.
+// This file, load_entry_data.c, is a part of the ddup program.
+// ddup is a GTK program to find and take action on duplicate files.
+// 
+// Copyright (C) 2024  David Hugh
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https:www.gnu.org/licenses/>.
 
-Copyright (C) 2024  David Hugh
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https:www.gnu.org/licenses/>.
-*/
-/*
-
- ddup - a GTK program to find and take action on duplicate files
- Copyright (C) 2024  David Hugh
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <https:www.gnu.org/licenses/>.
-
-*/
 #include "main.h"
 #include "get_folders.h"
 #include "show_columns.h"
@@ -241,8 +221,6 @@ void load_entry_data(user_data *udp)
 				if (!udp->opt_include_unique) find_and_splice(udp->list_store, STR_UNI);
 				if (!udp->opt_include_duplicate) splice_group(udp->list_store); // Remove the group entries
 
-				adjust_sfs_button_sensitivity(udp);  // Turn on the sort, filter, search bar
-			        show_columns(udp);	
 			}
 			else { // Results return is 0
 				break;
@@ -252,4 +230,10 @@ void load_entry_data(user_data *udp)
 			break;
 		}
 	} // End for
+
+	// Show columns if something to show
+	if (g_list_model_get_n_items (G_LIST_MODEL(udp->list_store))) {
+		adjust_sfs_button_sensitivity(udp);  // Turn on the sort, filter, search bar
+        	show_columns(udp);	
+	}
 }       	

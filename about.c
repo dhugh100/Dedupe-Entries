@@ -1,18 +1,18 @@
-// This progam, about.c, is a part of the ddup program.
+// This file, about.c, is a part of the ddup program.
 // ddup is a GTK program to find and take action on duplicate files.
-//
+// 
 // Copyright (C) 2024  David Hugh
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
-// (at your option)any later version.
-//
+// (at your option) any later version.
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
 
@@ -33,12 +33,13 @@ void about_cb (GSimpleAction *action, GVariant *parm, user_data *udp)
 	GdkTexture *logo_t = gdk_texture_new_from_resource ("/ddup/ddup.png");
 
 	gtk_show_about_dialog (NULL,
-			      "program-name", "ddup",
-			      "title", "About ddup",
-			      "logo", logo_t,
-			      "authors", author,
-			      "version", "Version 0.0.0 Release 1",
-			      "comments",
-			      "A program to find and take action on duplicate files.\nRelies on SHA256 hashes to identify duplicates.",
-			      "copyright", "Copyright 2024 David Hugh", "license-type", GTK_LICENSE_GPL_3_0, NULL);
+		      "program-name", "ddup",
+		      "title", "About ddup",
+		      "logo", logo_t,
+		      "authors", author,
+		      "version", "Version 0.0.0 Release 1",
+		      "comments",
+		      "A program to find and take action on duplicate files.\nRelies on SHA256 hashes to identify duplicates.",
+		      "copyright", "Copyright 2024 David Hugh",
+		      "license-type", GTK_LICENSE_GPL_3_0, NULL);
 }
