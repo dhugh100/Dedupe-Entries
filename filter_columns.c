@@ -30,7 +30,6 @@ void set_sensitivity_clear_button (filter_entry *ep)
 		gtk_widget_set_sensitive (ep->clear_btn, FALSE);
 }
 
-
 // Check if the filter text in result
 // - Return based on if a match and if a match is sought
 
@@ -72,7 +71,7 @@ gboolean subname (DupItem *item, user_data *udp)
 }
 
 // Filter check
-// - For the match truth table, treat the combination of sought and match as one factor
+// - For the match table, treat the combination of sought and match as one factor
 // - And/or logic,  result match yes/no, name match yes/no; 2^3 (8)possibilities
 
 gboolean filter_match (DupItem *item, user_data *udp)
@@ -96,7 +95,7 @@ gboolean filter_match (DupItem *item, user_data *udp)
 void apply_filters_cb (GtkWidget *self, user_data *udp)
 {
 	gtk_window_close (GTK_WINDOW(udp->filter_window));
-	gtk_filter_changed ((GtkFilter *)udp->custom_filter, GTK_FILTER_CHANGE_DIFFERENT);
+	gtk_filter_changed ((GtkFilter *) udp->custom_filter, GTK_FILTER_CHANGE_DIFFERENT);
 	set_sensitivity_clear_button (udp->fep);
 	adjust_sfs_button_sensitivity (udp);
 }
@@ -121,20 +120,28 @@ void result_buff_cb (GtkWidget *self, user_data *udp)
 
 void and_cb (GtkCheckButton *self, user_data *udp)
 {
-	if (gtk_check_button_get_active (self))
+	if (gtk_check_button_get_active (self)) {
 		udp->fep->and = TRUE;
-	else
+		udp->fep->or = FALSE;
+	}
+	else {
 		udp->fep->and = FALSE;
+		udp->fep->or = TRUE;
+	}
 }
 
 // Set the or logic radio button to true or false
 
 void or_cb (GtkCheckButton *self, user_data *udp)
 {
-	if (gtk_check_button_get_active (self))
+	if (gtk_check_button_get_active (self)) {
 		udp->fep->or = TRUE;
-	else
+		udp->fep->and = FALSE;
+	}
+	else {
 		udp->fep->or = FALSE;
+		udp->fep->and = TRUE;
+	}
 }
 
 // Set the result not radio button to true of false
@@ -171,7 +178,7 @@ void clear_filters_cb (GtkWidget *self, user_data *udp)
 	udp->fep->and = TRUE;
 	udp->fep->or = FALSE;
 
-	gtk_filter_changed ((GtkFilter *)udp->custom_filter, GTK_FILTER_CHANGE_DIFFERENT);
+	gtk_filter_changed ((GtkFilter *) udp->custom_filter, GTK_FILTER_CHANGE_DIFFERENT);
 	set_sensitivity_clear_button (udp->fep);
 	adjust_sfs_button_sensitivity (udp);
 }
@@ -216,20 +223,20 @@ void get_filters_cb (GtkWidget *self, user_data *udp)
 		udp->fep->and = TRUE;
 
 	// Have check boxes reflect stored state
-	if (udp->fep->and) 
-		gtk_check_button_set_active ((GtkCheckButton *)and_chk_box, TRUE);
-	else 
-		gtk_check_button_set_active ((GtkCheckButton *)and_chk_box, FALSE);
+	if (udp->fep->and)
+		gtk_check_button_set_active ((GtkCheckButton *) and_chk_box, TRUE);
+	else
+		gtk_check_button_set_active ((GtkCheckButton *) and_chk_box, FALSE);
 
 	if (udp->fep->res_n)
-		gtk_check_button_set_active ((GtkCheckButton *)res_n_chk_box, TRUE);
+		gtk_check_button_set_active ((GtkCheckButton *) res_n_chk_box, TRUE);
 	else
-		gtk_check_button_set_active ((GtkCheckButton *)res_n_chk_box, FALSE);
+		gtk_check_button_set_active ((GtkCheckButton *) res_n_chk_box, FALSE);
 
 	if (udp->fep->name_n)
-		gtk_check_button_set_active ((GtkCheckButton *)name_n_chk_box, TRUE);
+		gtk_check_button_set_active ((GtkCheckButton *) name_n_chk_box, TRUE);
 	else
-		gtk_check_button_set_active ((GtkCheckButton *)name_n_chk_box, FALSE);
+		gtk_check_button_set_active ((GtkCheckButton *) name_n_chk_box, FALSE);
 
 	// Setup result and entry buffs
 	// - Carry over into entry buffs any prior, uncleared filter

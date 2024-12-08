@@ -10,4 +10,7 @@ filter_match (DupItem *, user_data *);
 void
 get_filters_cb (GtkWidget *, user_data *);
 
+gboolean
+subres (DupItem *, user_data *);
+
 #endif

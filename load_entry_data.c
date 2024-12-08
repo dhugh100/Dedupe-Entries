@@ -209,7 +209,7 @@ void load_entry_data(user_data *udp)
 		if (traverse (udp->fdpp[i], udp)) {
 
 			// No show stopper (0) so get results 
-			if (get_results (udp->list_store, udp)) { 
+			if (get_results (udp)) { 
 
 				// No show stopper (0) so check to see if result type should be included
 				// Sort the list store by result so can find start and end of unique, empty, group and directory results as needed
