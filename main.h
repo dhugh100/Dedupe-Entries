@@ -15,6 +15,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
+
 #ifndef main_h
 #define main_h
 
@@ -27,13 +28,13 @@
 
 // General
 #define READ_BUFF 16384 // Arbitrary
-#define OPTION_SIZE 4 // Gboolean count for gvariant
+#define OPTION_SIZE 4 // Byte count for gvariant
 #define SHA256_DIGEST_LENGTH 32 // SHA256 hash length
 #define PRINTABLE_CHAR_SIZE 16 // Number of bytes to format for a line
 
 // Limits
-#define MAX_FOLDERS 10 // Arbitrary
-#define MAX_ENTRIES 9999999 // Arbitrary
+#define MAX_FOLDERS 20 // Arbitrary
+#define MAX_ENTRIES 9999999 // Arbitrary 
 #define MAX_GROUPS (MAX_ENTRIES / 2) // Arbitrary
 
 // Char buffer sizes for strings
@@ -43,6 +44,7 @@
 #define STR_HASH (SHA256_DIGEST_LENGTH * 2) + 1 // Two asci hex digits for hash byte + Null
 #define STR_CLIP (STR_PATH * 1000) // Clipboard mostly for small groups
 
+// Avoid typos by using
 #define STR_DIR "Directory\0"
 #define STR_EMP "Empty\0"
 #define STR_ERR "Error\0"
@@ -52,6 +54,8 @@
 #define DUP_TYPE_ITEM (dup_item_get_type ())
 G_DECLARE_FINAL_TYPE (DupItem, dup_item, DUP, ITEM, GObject)
 
+// Key type
+
 struct _DupItem {
         GObject parent_instance;
         const char *result;
@@ -60,6 +64,8 @@ struct _DupItem {
         const char *file_size;
         const char *modified;
 };
+
+// Use when searching columns
 
 typedef struct search_entry {
         GtkWidget *res_e;
@@ -75,6 +81,8 @@ typedef struct search_entry {
         gboolean and;
         gboolean or; 
 } search_entry;
+
+// Use when filtering columns
 
 typedef struct filter_entry {
         GtkWidget *res_e;
@@ -93,7 +101,7 @@ typedef struct filter_entry {
         gboolean name_n;	
 } filter_entry;
 
-// A key structure to pass between API calls
+// The key structure to pass between API calls
 typedef struct user_data {
 
 	// Application
@@ -123,7 +131,7 @@ typedef struct user_data {
 
 	// Selection processing fields
 	DupItem *sel_item;
-	guint sel_item_position;
+	uint32_t sel_item_position;
         GtkMultiSelection *selection;
 	GtkBitset *sel_bitset;
 
@@ -148,12 +156,8 @@ typedef struct user_data {
         GtkWidget *name_a_sec_btn;
         GtkWidget *name_d_sec_btn;
 
-
-
-        // Switches
+	// Switches
         gboolean cancel_request; // True if user has requested a cancel
-        gboolean changed_list; // True if sorted, filtered or searched or selected option that filters
-        gboolean mem_alloc_err; // True if bad error and need to stop processing - useful for recursion functions which will overlay return
 
 	// Options
 	char *opt_name;
@@ -167,10 +171,6 @@ typedef struct user_data {
 
 // Function prototypes
 
-void main_window(GtkApplication *, user_data *);
 void adjust_sfs_button_sensitivity(user_data *);
-void adjust_restore_button_sensitivity(user_data *);
-void work_search_entry_cb(GtkWidget *, user_data *);
-void option_init(user_data *);
 
 #endif

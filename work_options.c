@@ -15,6 +15,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
+
 #include "main.h"
 #include "show_columns.h"
 #include "work_options.h"
@@ -65,7 +66,6 @@ gboolean read_options(unsigned char *buff, char *name)
         struct stat attr;
         stat(name, &attr);
         if (attr.st_size != OPTION_SIZE) {
-		g_print("error in read option stat");
                 return FALSE;
         }
 

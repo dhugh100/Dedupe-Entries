@@ -15,9 +15,10 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
+
 #ifndef install_property_h
 #define install_property_h
 
-static void dup_item_class_init (DupItemClass *);
+static void dup_item_class_init(DupItemClass *);
 
 #endif

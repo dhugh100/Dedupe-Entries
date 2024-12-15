@@ -20,37 +20,37 @@
 #include "get_results.h"
 
 // Comparison function to sort list store by hash
-int cmp_function (const void * a, const void * b)
+int cmp_function (const void *a, const void *b)
 {
 	DupItem const *a_item = a;
 	DupItem const *b_item = b;
-	return (memcmp(a_item->hash, b_item->hash, sizeof(a_item->hash))); // compare hash 
+	return (memcmp(a_item->hash, b_item->hash, sizeof(a_item->hash))); // Compare hash 
 }
 
 // Get group designation into the result field of the item
 // - Field could have been initialed with error or directory prior to call
 
-int get_results(user_data *udp) 
+int get_results (user_data *udp)
 {
 	// Use quick sort - sort by hash to enable finding dup groups
 	g_list_store_sort(udp->list_store, (GCompareDataFunc) cmp_function, NULL);
 
 	// String work buff
-	char buff[100] = {0x00};
+	char buff[100] = { 0x00 };
 
 	// Loop through sorted file to get unqiue groups assigned to each file based on hash
-	char cghash[65] = "a hash"; // will store current group hash while looping
-	memset(&cghash,0x00,sizeof(cghash));
-	uint32_t group = 0; // will serve as the group identifier
-	uint32_t i = 0; // loop counter
-	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)); 
+	char cghash[65] = "a hash"; // Will store current group hash while looping
+	memset(&cghash, 0x00, sizeof(cghash));
+	uint32_t group = 0; // Will serve as the group identifier
+	uint32_t i = 0; // Loop counter
+	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(udp->list_store));
 
-	DupItem *item = g_object_new (DUP_TYPE_ITEM, NULL);
-	DupItem *next_item = g_object_new (DUP_TYPE_ITEM, NULL);
+	DupItem *item = g_object_new(DUP_TYPE_ITEM, NULL);
+	DupItem *next_item = g_object_new(DUP_TYPE_ITEM, NULL);
 
 	// Edge case of 1 entry
 	if (cnt == 1) {
-		item = g_list_model_get_item((GListModel *)udp->list_store,0);
+		item = g_list_model_get_item((GListModel *) udp->list_store, 0);
 		if (strlen(item->result) != 0x00) { // Skip if a directory or an error
 			g_object_unref(item);
 			return 1;
@@ -61,30 +61,30 @@ int get_results(user_data *udp)
 	}
 
 	// Main loop to determine groups
-	while ( (i+1) < cnt ) { // Since look ahead to determine group, last struct handled outside loop
-		
-		if (udp->cancel_request == TRUE ) return 0; // Stop processing if cancel requested
+	while ((i + 1) < cnt) { // Since look ahead to determine group, last struct handled outside loop
 
-		item = g_list_model_get_item((GListModel *)udp->list_store,i);
+		if (udp->cancel_request == TRUE) return 0; // Stop processing if cancel requested
+
+		item = g_list_model_get_item((GListModel *) udp->list_store, i);
 
 		// Skip if a directory or an error already in result, otherwise should be 1 or more
 		if (strlen(item->result) > 0) {
 			i++;
 			g_object_unref(item);
-			continue; 
-		}	
+			continue;
+		}
 
-		next_item =  g_list_model_get_item((GListModel *)udp->list_store,i+1);
-	
-		// See if current item equal to saved current group hash	
-		if (!strcmp((const char *)cghash, item->hash)) { // true if not equal to current group 
-			sprintf(buff,"%07d",group);
+		next_item = g_list_model_get_item((GListModel *) udp->list_store, i + 1);
+
+		// See if current item equal to saved current group hash        
+		if (!strcmp((const char *)cghash, item->hash)) { // True if not equal to current group 
+			sprintf(buff, "%07d", group);
 			g_object_set(item, "result", buff, NULL);
 		}
-		else { // current hash = previous hash
-			if (!strcmp(item->hash, next_item->hash)) { // see if next hash =, if so means a group
-				group++; // found a group
-				sprintf(buff,"%07d",group);
+		else { // Current hash = previous hash
+			if (!strcmp(item->hash, next_item->hash)) { // See if next hash =, if so means a group
+				group++; // Found a group
+				sprintf(buff, "%07d", group);
 				g_object_set(item, "result", buff, NULL);
 				strcpy(cghash, item->hash);
 			}
@@ -98,7 +98,7 @@ int get_results(user_data *udp)
 	}
 
 	// Handle last file struct outside of loop
-	item = g_list_model_get_item((GListModel *)udp->list_store,i);
+	item = g_list_model_get_item((GListModel *) udp->list_store, i);
 
 	// First see if result already there
 	if (strlen(item->result) > 0) { // Skip if a directory or an error
@@ -107,8 +107,8 @@ int get_results(user_data *udp)
 	}
 
 	// Create a result
-	if ( !strcmp((const char *)cghash, item->hash) ) { // false if equal 
-		sprintf(buff,"%07d",group);
+	if (!strcmp((const char *)cghash, item->hash)) { // False if equal 
+		sprintf(buff, "%07d", group);
 		g_object_set(item, "result", buff, NULL);
 		g_object_unref(item);
 	}
@@ -117,4 +117,4 @@ int get_results(user_data *udp)
 		g_object_unref(item);
 	}
 	return 1;
-}	
+}

@@ -25,10 +25,10 @@
 // - Check for cancel request and max entries in loops, return if hit
 // - Return of 1 means continue working, 0 means stop
 
-int traverse(char *dir_str, user_data *udp) 
+int traverse (char *dir_str, user_data *udp)
 {
-        char full_name[STR_NAME] = {0x00}; // Create full names from passed dir and dir entry
-	char buff[100] = {0x00}; // Buffer for conversions
+	char full_name[STR_NAME] = { 0x00 }; // Create full names from passed dir and dir entry
+	char buff[100] = { 0x00 }; // Buffer for conversions
 
 	// Attribute and time structures
 	struct stat attr; // Structue for the stat command
@@ -36,97 +36,96 @@ int traverse(char *dir_str, user_data *udp)
 
 	// Directory structure and pointers
 	struct dirent *entry = NULL; // Directory entry ptr
-        DIR *dir; // Directory ptr
+	DIR *dir; // Directory ptr
 
 	// Check max entries before storing folder name
 	if (g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)) >= MAX_ENTRIES) {
 		return 0;
-	}	
+	}
 
 	// Setup directory item
-	DupItem *item =g_object_new (DUP_TYPE_ITEM, "result", STR_DIR, "name", dir_str, "hash", "", "file_size", "", "modified", "", NULL);
+	DupItem *item =
+	    g_object_new(DUP_TYPE_ITEM, "result", STR_DIR, "name", dir_str, "hash", "", "file_size", "", "modified", "", NULL);
 
 	// Open the directory in preparation for loop
-        dir = opendir(dir_str);
-        if (!dir) {
+	dir = opendir(dir_str);
+	if (!dir) {
 		// Store the result on bad open
-		g_object_set (item, "result", "Error: can't open directory", NULL);
-		g_list_store_append (udp->list_store, item);
-		g_object_unref (item);
-                return 1;
-        }
+		g_object_set(item, "result", "Error: can't open directory", NULL);
+		g_list_store_append(udp->list_store, item);
+		g_object_unref(item);
+		return 1;
+	}
 
 	// Store the result on good open
-	g_object_set (item, "result", STR_DIR, NULL);
-	g_list_store_append (udp->list_store, item);
-	g_object_unref (item);
+	g_object_set(item, "result", STR_DIR, NULL);
+	g_list_store_append(udp->list_store, item);
+	g_object_unref(item);
 
 	// Loop through the directory and store the files - recurse when hit a directory
-        while ((entry = readdir(dir))) {
+	while ((entry = readdir(dir))) {
 
-                // Skip . and .. entries, nothing to store
-                if (strcmp(entry->d_name,".") == 0 || strcmp(entry->d_name,"..") == 0) {
-                        continue;
-                }
+		// Skip . and .. entries, nothing to store
+		if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue; 
 
 		// Don't want to add a forward slash if root was the passed directory
-                if (dir_str[strlen (dir_str) - 1] != '/') sprintf (full_name,"%s/%s", dir_str, entry->d_name);
-                else sprintf (full_name,"%s%s", dir_str, entry->d_name);
-
+		if (dir_str[strlen(dir_str) - 1] != '/') sprintf(full_name, "%s/%s", dir_str, entry->d_name);
+		else sprintf(full_name, "%s%s", dir_str, entry->d_name);
 
 		// If the entry is a directory, recurse
-                if (entry->d_type == DT_DIR) {  
+		if (entry->d_type == DT_DIR) {
 			// If return from lower level is 0, then pass 0 back up
-                        if (!traverse(full_name, udp)) return 0; 
-                }
-                else {  
-			// Only working on POSIX regular files and directories, ignore all others
-			if (entry->d_type != DT_REG) continue;
-		
-			// Check for cancel request and max entries hit before storing file name
-			if (udp->cancel_request == TRUE) return 0;
+			if (!traverse(full_name, udp)) return 0;
+		}
 
-			if (g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)) >= MAX_ENTRIES) {
-                		g_idle_add ((GSourceFunc) clean_up, udp);
-		                GtkAlertDialog *alert = gtk_alert_dialog_new ("Max entries of %d hit - Pick folders with fewer entries", MAX_ENTRIES);
-		                gtk_alert_dialog_show (alert, GTK_WINDOW (udp->main_window));
-		                return 0; 
-			}
+		// Only working on POSIX regular files and directories, ignore all others
+		if (entry->d_type != DT_REG) continue;
 
-			// Create object to store
-			item = g_object_new (DUP_TYPE_ITEM, "result", "", "name", full_name, "hash", "", "file_size", "", "modified", "", NULL);
+		// Check for cancel request and max entries hit before storing file name
+		if (udp->cancel_request == TRUE) return 0;
 
-			// Get stat structure initialed with current entry
-                        if (stat (full_name, &attr) == -1 ) { // -1 is error on stat
-				g_object_set (item, "result", "Error: stat failed", NULL);
-                                g_list_store_append (udp->list_store, item);
-				g_object_unref (item);
-                                continue; 
-                        }
+		if (g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)) >= MAX_ENTRIES) {
+			g_idle_add((GSourceFunc) clean_up, udp);
+			GtkAlertDialog *alert =
+			    gtk_alert_dialog_new("Max entries of %d hit - Pick folders with fewer entries", MAX_ENTRIES);
+			gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+			return 0;
+		}
 
-                        // Get file size in Bytes
-                        sprintf (buff, "%lu", attr.st_size);
-			g_object_set (item, "file_size", buff, NULL);
+		// Create object to store
+		item =
+		    g_object_new(DUP_TYPE_ITEM, "result", "", "name", full_name, "hash", "", "file_size", "", "modified", "", NULL);
 
-                        // Convert to local time, and then to a string
-                        tinfo = localtime (&attr.st_mtim.tv_sec);
-                        strftime (buff, sizeof(buff), "%F %H:%M:%S", tinfo);
-			g_object_set (item, "modified", buff, NULL);
+		// Get stat structure initialed with current entry
+		if (stat(full_name, &attr) == -1) { // -1 is error on stat
+			g_object_set(item, "result", "Error: stat failed", NULL);
+			g_list_store_append(udp->list_store, item);
+			g_object_unref(item);
+			continue;
+		}
 
-			// Get the hash into item and record any error in result
-			if (attr.st_size != 0) {
-				getsha256 (item, udp); // Will store hex digits representing hash in item
-				g_list_store_append (udp->list_store, item);
-				g_object_unref (item);
-			}
-			else {
-				g_object_set(item, "result", STR_EMP, NULL);
-				g_list_store_append (udp->list_store, item);
-				g_object_unref (item);
-			}
-                }    
-        }    
+		// Get file size in Bytes
+		sprintf(buff, "%lu", attr.st_size);
+		g_object_set(item, "file_size", buff, NULL);
 
-        if (dir) closedir(dir);
-        return 1;
+		// Convert to local time, and then to a string
+		tinfo = localtime(&attr.st_mtim.tv_sec);
+		strftime(buff, sizeof(buff), "%F %H:%M:%S", tinfo);
+		g_object_set(item, "modified", buff, NULL);
+
+		// Get the hash into item and record any error in result
+		if (attr.st_size != 0) {
+			getsha256(item, udp); // Will store hex digits representing hash in item
+			g_list_store_append(udp->list_store, item);
+			g_object_unref(item);
+		}
+		else {
+			g_object_set(item, "result", STR_EMP, NULL);
+			g_list_store_append(udp->list_store, item);
+			g_object_unref(item);
+		}
+	} // End Dir read while   
+
+	if (dir) closedir(dir);
+	return 1;
 }
