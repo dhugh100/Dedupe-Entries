@@ -15,10 +15,11 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
+
 #ifndef load_file_data_h
 #define load_file_data_h
 
-void clean_up(user_data *);
-void load_entry_data(user_data *);
+void clean_up (user_data *);
+void load_entry_data (user_data *);
 
 #endif
