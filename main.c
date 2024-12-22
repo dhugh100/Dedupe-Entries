@@ -94,7 +94,7 @@ void main_window (GtkApplication *app, user_data *udp)
 	// Create main window
 	GtkWidget *main_window = gtk_application_window_new(app);
 	udp->main_window = main_window;
-	gtk_window_set_title(GTK_WINDOW(main_window), "Deduplicate");
+	gtk_window_set_title(GTK_WINDOW(main_window), "ddup");
 	gtk_window_set_default_size(GTK_WINDOW(main_window), 1024, 256);
 
 	// Create header bar to use as titlebar
