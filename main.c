@@ -1,5 +1,4 @@
-// This file, main.c, is a part of the ddup program.
-// ddup is a GTK program to find and take action on duplicate files.
+// This file, main.c, is a part of the Dedupe Entries program.
 // 
 // Copyright (C) 2024  David Hugh
 // 
@@ -17,13 +16,14 @@
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
 
 #include "main.h"
-#include "get_folders.h"
-#include "sort_columns.h"
-#include "filter_columns.h"
-#include "work_options.h"
-#include "load_entry_data.h"
+#include "get-folders.h"
+#include "sort-columns.h"
+#include "filter-columns.h"
+#include "work-options.h"
+#include "load-entry-data.h"
 #include "search.h"
 #include "about.h"
+#include "see-entry-data.h"
 
 // Adjust the sensitivity of the sort, filter buttons and search bar based on the status of the list store
 // - No sort, filter, or search if no list store
@@ -60,7 +60,7 @@ void option_init (user_data *udp)
 	// Construct file name
 	char *name = g_malloc0(STR_NAME);
 	strcpy(name, g_get_home_dir());
-	strcat(name, "/.config/ddup.cfg");
+	strcat(name, "/.config/dedupe-entries.cfg");
 	udp->opt_name = name;
 
 	// Read any saved options in gvariant serialized format
@@ -94,7 +94,7 @@ void main_window (GtkApplication *app, user_data *udp)
 	// Create main window
 	GtkWidget *main_window = gtk_application_window_new(app);
 	udp->main_window = main_window;
-	gtk_window_set_title(GTK_WINDOW(main_window), "ddup");
+	gtk_window_set_title(GTK_WINDOW(main_window), "Dedupe Entries");
 	gtk_window_set_default_size(GTK_WINDOW(main_window), 1024, 256);
 
 	// Create header bar to use as titlebar

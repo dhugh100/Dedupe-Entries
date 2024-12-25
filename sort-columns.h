@@ -1,4 +1,4 @@
-// This file, search.h, is a part of the Entry Dedupe program.
+// This file, sort-columns.h, is a part of the Entry Dedupe program.
 // 
 // Copyright (C) 2024  David Hugh
 // 
@@ -14,9 +14,10 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
-#ifndef search_h
-#define search_h
+#ifndef sort_columns_h
+#define sort_columns_h
 
-void work_search_entry_cb(GtkWidget *, user_data *);
+int cmp_result_a (const void *, const void *, user_data *);
+void get_sort_type_cb (GtkWidget *, user_data *);
 
 #endif

@@ -1,4 +1,4 @@
-// This file, search.h, is a part of the Entry Dedupe program.
+// This file, work-trash.h, is a part of the Entry Dedupe program.
 // 
 // Copyright (C) 2024  David Hugh
 // 
@@ -14,9 +14,9 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
-#ifndef search_h
-#define search_h
+#ifndef work_trash_h
+#define work_trash_h
 
-void work_search_entry_cb(GtkWidget *, user_data *);
+void work_trash_cb (GtkWidget *, user_data *);
 
 #endif

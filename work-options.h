@@ -1,4 +1,4 @@
-// This file, search.h, is a part of the Entry Dedupe program.
+// This file, work-options.h, is a part of the Entry Dedupe program.
 // 
 // Copyright (C) 2024  David Hugh
 // 
@@ -14,9 +14,10 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
-#ifndef search_h
-#define search_h
+#ifndef work_options_h
+#define work_options_h
 
-void work_search_entry_cb(GtkWidget *, user_data *);
+void work_options_cb (GSimpleAction *, GVariant *, user_data *);
+int read_options (unsigned char *, char *);
 
 #endif

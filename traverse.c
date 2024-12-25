@@ -1,5 +1,4 @@
-// This file, traverse.c, is a part of the ddup program.
-// ddup is a GTK program to find and take action on duplicate files.
+// This file, traverse.c, is a part of the Dedupe Entries program.
 // 
 // Copyright (C) 2024  David Hugh
 // 
@@ -17,8 +16,8 @@
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
 
 #include "main.h"
-#include "load_entry_data.h"
-#include "get_hash.h"
+#include "load-entry-data.h"
+#include "get-hash.h"
 #include "traverse.h"
 
 // Re-entrant traverse and data store of entry information

@@ -1,5 +1,4 @@
-// This file, traverse.h, is a part of the ddup program.
-// ddup is a GTK program to find and take action on duplicate files.
+// This file, traverse.h, is a part of the Entry Dedupe program.
 // 
 // Copyright (C) 2024  David Hugh
 // 

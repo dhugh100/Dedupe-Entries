@@ -1,5 +1,4 @@
-// This file, main.h, is a part of the ddup program.
-// ddup is a GTK program to find and take action on duplicate files.
+// This file, main.h, is a part of the Entry Dedupe program.
 // 
 // Copyright (C) 2024  David Hugh
 // 
@@ -25,6 +24,7 @@
 #include <limits.h>
 #include <openssl/evp.h> // For hash calculation
 #include <assert.h> // for debugging
+#include <regex.h> // for debugging
 
 // General
 #define READ_BUFF 16384 // Arbitrary
@@ -118,6 +118,8 @@ typedef struct user_data {
 
 	// Entry data
 	GListStore *list_store;
+	GListStore *saved_list_store;
+	GListStore *filtered_list_store;
 
 	// Buttons - need to adjust sensivity
 	GtkWidget *sort_button;
@@ -136,6 +138,7 @@ typedef struct user_data {
 	GtkBitset *sel_bitset;
 
 	// Filter 
+	uint32_t remove_position;
         GtkWidget *filter_window;
         GtkFilterListModel  *filter;
         GtkCustomFilter *custom_filter;

@@ -1,5 +1,4 @@
-// This file, about.c, is a part of the ddup program.
-// ddup is a GTK program to find and take action on duplicate files.
+// This file, about.c, is a part of the Dedupe Entries program.
 // 
 // Copyright (C) 2024  David Hugh
 // 
@@ -28,13 +27,13 @@ void about_cb (GSimpleAction *action, GVariant *parm, user_data *udp)
 {
 	const char *author[] = { "Author", "\nDavid Hugh", NULL };
 
-	// Get logo from inline resource compiled into ddup binary
+	// Get logo from inline resource compiled into Dedupe Entries binary
 	GResource *logo_r = logo_get_resource ();
-	GdkTexture *logo_t = gdk_texture_new_from_resource ("/ddup/ddup.png");
+	GdkTexture *logo_t = gdk_texture_new_from_resource ("/Dedupe Entries/ddup.png");
 
 	gtk_show_about_dialog (NULL,
-		      "program-name", "ddup",
-		      "title", "About ddup",
+		      "program-name", "Dedupe Entries",
+		      "title", "About Dedupe Entries",
 		      "logo", logo_t,
 		      "authors", author,
 		      "version", "Version 0.0.0 Release 1",

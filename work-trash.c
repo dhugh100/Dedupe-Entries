@@ -1,0 +1,317 @@
+// This file, work_trash.c, is a part of the Dedupe Entries program.
+// 
+// Copyright (C) 2024  David Hugh
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https:www.gnu.org/licenses/>.
+#include "main.h"
+#include "load-entry-data.h"
+#include "work-selected.h"
+#include "work-trash.h"
+
+// Forward declaration
+void prompt_trash(user_data * udp);
+
+// Put minimum value from bitset into passed unsigned int
+// - Called to see if there is another item to trash following a trash/removal
+// - Return true if a) got and then b) removed that value, false if not
+// - A poor man's loop: seek another item to trash AFTER trashing the last found item
+// - Loop approach accommodates the prompt to continue
+
+gboolean get_remove_min(GtkBitset *bitset, guint *pos)
+{
+	gboolean get = FALSE, remove = FALSE;
+	GtkBitsetIter iter;
+
+	get = gtk_bitset_iter_init_first(&iter, bitset, pos);
+	if (get) remove = gtk_bitset_remove(bitset, *pos);
+
+	if (get && remove) return TRUE;	
+	else return FALSE; 
+}
+
+// Count the number of items in a group of dups
+// - Called to determine how many items are in the same group of dups
+
+uint32_t count_match(GListStore *list_store, const char *result)
+{
+	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(list_store));
+	uint32_t found = 0;
+
+	// Loop through list store and count matches to result
+	for (uint32_t i = 0; i < cnt; i++) {
+		DupItem *item = g_list_model_get_item(G_LIST_MODEL(list_store), i);
+		if (item && !strcmp(item->result, result)) {
+			found++;
+		}
+		g_object_unref(item);
+	}
+	return found;
+}
+
+// Change item result from a group number to unique
+// - Called when an item in a group of two items is being removed
+// - Remaining item must be changed to STR_UNI
+
+void change_result_to_unique(GListStore *list_store, const char *result)
+{
+	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(list_store));
+
+	// Loop through list store and change result to STR_UNI if match
+	for (uint32_t i = 0; i < cnt; i++) {
+		DupItem *item = g_list_model_get_item(G_LIST_MODEL(list_store), i);
+		if (!strcmp(item->result, result)) {
+			g_object_set(item, "result", STR_UNI, NULL);
+			g_object_unref(item);
+			break;	// Only one change needed
+		}
+		g_object_unref(item);
+	}
+	return;
+}
+
+// Count a result string in selected items
+// - Returns the count of the result string in the selected items
+// - Limit the number of iterations by setting a cnt limit, ignore if limit is 0
+
+uint32_t count_selected_result(GtkBitset *bitset, GListStore *list_store, const char *result, uint32_t limit)
+{
+	uint32_t cnt = 0;
+	
+        // Seed the iterator
+        GtkBitsetIter iter;
+        guint value = 0;  
+        gtk_bitset_iter_init_first (&iter, bitset, &value);
+
+	do {
+        	DupItem *item = g_list_model_get_item (G_LIST_MODEL (list_store), value);
+		if (!strcmp(item->result, result)) cnt++;
+		if (limit && 
+		    cnt >= limit) break;
+		g_object_unref(item);
+	} while (gtk_bitset_iter_next(&iter, &value)); 
+
+	return cnt;
+}
+
+
+// See if another to trash, if so get and prompt
+// - Called after an item is trashed
+// - If found another  update udp with found and call prompt
+
+void try_another(user_data *udp)
+{
+	if (get_remove_min(udp->sel_bitset, &udp->sel_item_position)) {
+		DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store),
+						      udp->sel_item_position);
+		udp->sel_item = item;
+		prompt_trash(udp);
+	} 
+	else {
+		wipe_selected(udp); // All done, clear selected
+	}				    
+}
+
+// Remove all items from the list store
+// - Called via idle when a directory is being removed
+// - Don't look for more, just remove all and end
+
+gboolean remove_all_items(user_data *udp)
+{
+	g_list_store_remove_all(udp->list_store);
+	return FALSE; // g_idle_add requires a false return to end
+}
+
+// Remove an item from the saved store
+// - Called via idle add when an item from saved store should be removed
+// - Have to keep saved store in sync with filtered store for clear filter to work
+
+gboolean remove_an_item_from_saved_store(GListStore *saved, const char *name)
+{
+	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(saved));
+	DupItem *item = g_object_new(DUP_TYPE_ITEM, NULL);
+	for (uint32_t i = 0; i < cnt; i++) {
+		DupItem *saved_item = g_list_model_get_item(G_LIST_MODEL(saved), i);
+		if (saved_item && !strcmp(saved_item->name, name)) {
+			g_list_store_remove(saved, i);
+			g_object_unref(saved_item);
+			break;
+		}
+		g_object_unref(saved_item);
+	}
+	return FALSE; // g_idle_add requires a false return to end
+}
+
+// Remove an item from the list store
+// - Called via idle add when an item should be removed
+// - Then see if there is another item to trash and remove
+
+gboolean remove_an_item(user_data *udp)
+{
+	const char *name = udp->sel_item->name;
+	g_list_store_remove(udp->list_store, udp->sel_item_position);
+
+	// Keep saved store in sync with filtered store
+	if (udp->filtered_list_store) {
+		remove_an_item_from_saved_store(udp->saved_list_store, name);
+	}
+
+	try_another(udp);
+	return FALSE; // g_idle_add requires a false return to end
+}
+
+// Remove an item and change the other entry to unique
+// - Called via idle add when item should be remove
+// - Look for partner item to change to unique
+// - Then see if there is another item to trash and remove
+
+gboolean remove_item_and_change(user_data *udp)
+{
+	const char *result = udp->sel_item->result;
+	const char *name = udp->sel_item->name;
+	g_list_store_remove(udp->list_store, udp->sel_item_position);
+
+	// Keep saved store in sync with filtered store
+	if (udp->filtered_list_store) {
+		remove_an_item_from_saved_store(udp->saved_list_store, name);
+	}
+
+	change_result_to_unique(udp->list_store, result);
+
+	if (udp->filtered_list_store) {
+		change_result_to_unique(udp->saved_list_store, result);
+	}
+
+	try_another(udp);
+	return FALSE; // g_idle_add requires a false return to end
+}
+
+// Trash on system and remove item  
+// - Trash, not delete, the selected item
+// - Called when user elects to proceed with trash
+// - Selected item may be a Directory, Empty, Unique or duplicate (group numbers)
+// - Process adjustments to list store after successful trash
+// - Idle call back is required to avoid segment fault when removing last item in list store
+
+void trash_and_remove(user_data *udp)
+{
+	if (!udp->sel_item) return; // Nothing to do
+
+	// Trash the file
+	GFile *gf = g_file_new_for_path(udp->sel_item->name);	// Get the name
+	if (!g_file_trash(gf, NULL, NULL)) {
+		GtkAlertDialog *alert = gtk_alert_dialog_new("Can't trash entry");
+		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+		wipe_selected(udp); // Clear selected			
+		return;
+	}
+	g_object_unref(gf);
+
+	// If trash is good remove perform follow-on actions
+	const char *selected_result = udp->sel_item->result;
+	const char *selected_name = udp->sel_item->name;
+
+	// Rather then update two stores (when trash from filtered store), just update one
+	// - Restore saved and clear filter
+
+	if (udp->filtered_list_store) {
+	       g_list_store_remove_all(udp->list_store);	
+	       copy_store(saved_list_store, udp->list_store);
+	       clear_filters(udp);
+	}       
+
+	//
+	if (!strcmp(selected_result, STR_UNI) || 
+	    !strcmp(selected_result, STR_EMP)) 
+		g_idle_add((GSourceFunc) remove_an_item, udp);
+
+	else if (!strcmp(selected_result, STR_DIR)) 
+		g_idle_add((GSourceFunc) remove_all_items, udp);
+
+	else if (count_match(udp->list_store, selected_result) == 2) 
+		// If here must be a group of dups, if two dups then change other to unique
+		g_idle_add((GSourceFunc) remove_item_and_change, udp);
+	else 
+	 	 // If here, more than two items in group
+		g_idle_add((GSourceFunc) remove_an_item, udp);
+	
+}
+
+// Process choice for trash proceed or cancel prompt
+// - Called by prompt function
+// - Proceed is button 0, cancel is 1 (default and escape)
+// - If proceed then trash and remove
+
+void work_trash_choice(GObject *source_object, GAsyncResult *res, void *ptr)
+{
+	GtkAlertDialog *dialog = GTK_ALERT_DIALOG(source_object);
+	user_data *udp = ptr;
+
+	int button = gtk_alert_dialog_choose_finish(dialog, res, NULL);
+	if (button == 0) trash_and_remove(udp);
+}
+
+// Trash (or not) prompt for the selected item
+// - Called by seed function and after a trash/remove
+// - Cancel is default and escape
+
+void prompt_trash(user_data *udp)
+{
+
+	// Don't try to trash an error entry
+	if (!strncmp(udp->sel_item->result, STR_ERR, 5)) {
+		GtkAlertDialog *alert = gtk_alert_dialog_new("Can't trash an error entry");
+		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+		wipe_selected(udp); // Clear selected
+		return;
+	}
+
+	// Null terminated button list
+	const char *buttons[] = { "Proceed", "Cancel", NULL };
+
+	GtkAlertDialog *alert = gtk_alert_dialog_new("Trash ???");
+	gtk_alert_dialog_set_detail(alert, udp->sel_item->name);
+	gtk_alert_dialog_set_buttons(alert, buttons);
+	gtk_alert_dialog_set_cancel_button(alert, 1);	// For escape
+	gtk_alert_dialog_set_default_button(alert, 1);
+	gtk_alert_dialog_set_modal(alert, FALSE);
+	gtk_alert_dialog_choose(alert, GTK_WINDOW(udp->main_window), NULL, work_trash_choice, udp);
+}
+
+ 
+// Seed the trash process
+// - Called by the trash button in the action window
+// - Close the action window
+// - Get the item to trash
+// - Prompt to trash the item
+
+void work_trash_cb(GtkWidget *self, user_data *udp)
+{
+	gtk_window_close(GTK_WINDOW(udp->action_window));
+
+	// A directory trash should be associated with just one request
+	if (gtk_bitset_get_size(udp->sel_bitset) > 1 &&
+	    count_selected_result(udp->sel_bitset, udp->list_store, STR_DIR, 1 ) > 0) { 
+		GtkAlertDialog *alert = gtk_alert_dialog_new("Directory removals can't be combined");
+		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+		wipe_selected(udp); // Clear selected
+		return;
+	}
+
+	if (get_remove_min(udp->sel_bitset, &udp->sel_item_position)) {
+		DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store),
+						      udp->sel_item_position);
+		udp->sel_item = item;
+		prompt_trash(udp);
+	}
+}

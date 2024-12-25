@@ -1,4 +1,4 @@
-// This file, search.h, is a part of the Entry Dedupe program.
+// This file, load-entry-data.h, is a part of the Entry Dedupe program.
 // 
 // Copyright (C) 2024  David Hugh
 // 
@@ -14,9 +14,11 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
-#ifndef search_h
-#define search_h
 
-void work_search_entry_cb(GtkWidget *, user_data *);
+#ifndef load_file_data_h
+#define load_file_data_h
+
+void clean_up (user_data *);
+void load_entry_data (user_data *);
 
 #endif
