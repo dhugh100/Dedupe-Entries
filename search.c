@@ -1,5 +1,4 @@
-// This file, search.c, is a part of the ddup program.
-// ddup is a GTK program to find and take action on duplicate files.
+// This file, search.c, is a part of the Dedupe Entries program.
 // 
 // Copyright (C) 2024  David Hugh
 // 
@@ -15,6 +14,7 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
+
 #include "main.h"
 #include "search.h"
 
@@ -111,7 +111,6 @@ void work_search_entry_cb (GtkWidget *self, user_data *udp)
 	}
 	else if (udp->next_check > 0 && i == cnt) { // Found at least once, but not this time, rollover automatically and search from 0 
 		udp->next_check = 0;
-		// GtkWidget *nada = NULL;
 		work_search_entry_cb((GtkWidget *)NULL, udp);
 	}
 }

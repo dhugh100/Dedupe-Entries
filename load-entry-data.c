@@ -172,6 +172,12 @@ void load_entry_data (user_data *udp)
 		udp->list_store = list_store; // Save pointer to list store
 	}
 
+	// No point keeping if still there post filter 
+	if (udp->saved_list_store) {
+		g_object_unref(udp->saved_list_store);
+		udp->saved_list_store = NULL;
+	}
+
 	// If have entries in the list store, time to remove since working new directories
 	if (g_list_model_get_n_items(G_LIST_MODEL(udp->list_store))) g_list_store_remove_all(udp->list_store);
 
