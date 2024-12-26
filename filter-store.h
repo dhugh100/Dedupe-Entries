@@ -20,6 +20,7 @@
 
 // For external call
 void get_filters_cb (GtkWidget *, user_data *);
+void clear_filters_cb (GtkWidget *, user_data *);
 
 // Forward declarations
 gboolean filter_match (DupItem *, user_data *);

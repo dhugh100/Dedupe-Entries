@@ -128,18 +128,14 @@ void build_filtered_store(GListStore *current, GListStore *new, user_data *udp)
 void apply_filters_cb (GtkWidget *self, user_data *udp)
 {
 	gtk_window_close(GTK_WINDOW(udp->filter_window));
+	udp->filter_window = NULL;
 
 	// If first filter
 	if (!udp->saved_list_store) { 
 		udp->saved_list_store = g_list_store_new(G_TYPE_OBJECT);
-		udp->filtered_list_store = g_list_store_new(G_TYPE_OBJECT);
 		copy_store(udp->list_store, udp->saved_list_store);
-		build_filtered_store(udp->saved_list_store, udp->list_store, udp);
 	}	
-	else {  // Filter on filter
-		copy_store(udp->list_store, udp->filtered_list_store);
-		build_filtered_store(udp->filtered_list_store, udp->list_store, udp);
-	}
+	build_filtered_store(udp->saved_list_store, udp->list_store, udp);
 }
 
 // Callback to get text from the name entry buffer
@@ -206,40 +202,43 @@ void name_n_cb (GtkCheckButton *self, user_data *udp)
 		udp->fep->name_n = FALSE;
 }
 
-// Null the entry to clear the buffers, reset clear button sensitivity
-// - Also clear any match negation, and logic
+
+void initialize_filter (user_data *udp)
+{
+	// Clear the entry buffers if initialed and set defaults
+	if (udp->fep->res_eb) {
+		g_object_unref(udp->fep->res_eb); 
+		g_object_unref(udp->fep->name_eb);
+	}       	
+
+	memset(udp->fep, 0x00, sizeof(filter_entry));
+	udp->fep->and = TRUE;
+
+	// Copy the saved store to list store if there
+	if (udp->saved_list_store) {
+		g_list_store_remove_all(udp->list_store);
+		copy_store(udp->saved_list_store, udp->list_store);
+
+		// Now clear the saved store
+		g_list_store_remove_all(udp->saved_list_store);
+		g_object_unref(udp->saved_list_store);
+		udp->saved_list_store = NULL;
+	}
+}
 
 void clear_filters_cb (GtkWidget *self, user_data *udp)
-{
+{	
 	gtk_window_close(GTK_WINDOW(udp->filter_window));
-
-	// Clear the entry buffers
-	gtk_entry_buffer_set_text(udp->fep->res_eb, "", -1);
-	gtk_entry_buffer_set_text(udp->fep->name_eb, "", -1);
-	udp->fep->res_n = FALSE;
-	udp->fep->name_n = FALSE;
-	udp->fep->and = TRUE;
-	udp->fep->or = FALSE;
-
-	// Copy the saved store to list store
-	g_list_store_remove_all(udp->list_store);
-	copy_store(udp->saved_list_store, udp->list_store);
-
-	// Now clear the saved store
-	g_list_store_remove_all(udp->saved_list_store);
-	g_object_unref(udp->saved_list_store);
-	udp->saved_list_store = NULL;
-
-	// And the filtered store
-	g_list_store_remove_all(udp->filtered_list_store);
-	g_object_unref(udp->filtered_list_store);
-	udp->filtered_list_store = NULL;
+	initialize_filter(udp);
 }
 
 // Prompt filter choice
 
 void get_filters_cb (GtkWidget *self, user_data *udp)
 {
+	// Don't do succesive filters
+	initialize_filter(udp);
+
 	// Create window and add title
 	GtkWidget *filter_window = gtk_window_new();
 	udp->filter_window = filter_window;

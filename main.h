@@ -119,7 +119,6 @@ typedef struct user_data {
 	// Entry data
 	GListStore *list_store;
 	GListStore *saved_list_store;
-	GListStore *filtered_list_store;
 
 	// Buttons - need to adjust sensivity
 	GtkWidget *sort_button;

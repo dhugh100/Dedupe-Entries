@@ -14,9 +14,11 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
+
 #include "main.h"
 #include "load-entry-data.h"
 #include "work-selected.h"
+#include "filter-store.h"
 #include "work-trash.h"
 
 // Forward declaration
@@ -126,9 +128,12 @@ void try_another(user_data *udp)
 // - Called via idle when a directory is being removed
 // - Don't look for more, just remove all and end
 
-gboolean remove_all_items(user_data *udp)
+gboolean remove_and_reload(user_data *udp)
 {
-	g_list_store_remove_all(udp->list_store);
+	if (udp->filtered_list_store) {
+		clear_filters_cb((GtkWidget *)NULL, udp); 
+	}	
+	load_entry_data(udp);
 	return FALSE; // g_idle_add requires a false return to end
 }
 
@@ -219,24 +224,18 @@ void trash_and_remove(user_data *udp)
 
 	// If trash is good remove perform follow-on actions
 	const char *selected_result = udp->sel_item->result;
-	const char *selected_name = udp->sel_item->name;
 
-	// Rather then update two stores (when trash from filtered store), just update one
-	// - Restore saved and clear filter
-
-	if (udp->filtered_list_store) {
-	       g_list_store_remove_all(udp->list_store);	
-	       copy_store(saved_list_store, udp->list_store);
-	       clear_filters(udp);
-	}       
-
-	//
+	// For simple changes update list store (and saved list store if running from filter) 
+	// - 1 or more unique and empty entry deletes are simple
+	// - 2 member duplicate groups are simple
+	// - 3 or more member duplicate groups or directories get complicated, just reload from filesystem
+	
 	if (!strcmp(selected_result, STR_UNI) || 
 	    !strcmp(selected_result, STR_EMP)) 
 		g_idle_add((GSourceFunc) remove_an_item, udp);
 
 	else if (!strcmp(selected_result, STR_DIR)) 
-		g_idle_add((GSourceFunc) remove_all_items, udp);
+		g_idle_add((GSourceFunc) remove_and_reload, udp);
 
 	else if (count_match(udp->list_store, selected_result) == 2) 
 		// If here must be a group of dups, if two dups then change other to unique
@@ -244,7 +243,6 @@ void trash_and_remove(user_data *udp)
 	else 
 	 	 // If here, more than two items in group
 		g_idle_add((GSourceFunc) remove_an_item, udp);
-	
 }
 
 // Process choice for trash proceed or cancel prompt
