@@ -18,7 +18,7 @@
 #include "main.h"
 #include "show-columns.h"
 #include "work-options.h"
-#include "load-entry-data.h"
+#include "load-store.h"
 
 void apply_cb(GtkCheckButton *self, user_data *udp)
 {

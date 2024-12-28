@@ -22,6 +22,7 @@ void see_entry_data (GListStore *list_store, GtkMultiSelection *selection)
 		printf (" Size: %u", item->file_size);
 		printf (" Modified: %s\n", item->modified);
 
-		printf (" Selected?: %s\n", gtk_selection_model_is_selected(GTK_SELECTION_MODEL (selection) , i) ? "Yes" : "No");
+		if (selection) 
+			printf ("Selected?: %s\n", gtk_selection_model_is_selected(GTK_SELECTION_MODEL (selection) , i) ? "Yes" : "No");
 	}
 }

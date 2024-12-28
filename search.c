@@ -65,6 +65,27 @@ void prompt_next (user_data *udp)
 	gtk_alert_dialog_choose(alert, GTK_WINDOW(udp->main_window), NULL, work_next_choice, udp);
 }
 
+// Loop through list store to find match
+// - Called by search entry callback
+// - Returns index of match or end of list
+// - If target text is substring of name or results then a match
+
+uint32_t search_match_loop (GListStore *list_store, uint32_t cnt, uint32_t *next_check, const char *text)
+{
+	uint32_t i = *next_check;
+	DupItem *item = g_object_new(DUP_TYPE_ITEM, NULL);
+	for (; i < cnt; i++) {
+		item = g_list_model_get_item(G_LIST_MODEL(list_store), i);
+		if (strstr(item->result, text) || strstr(item->name, text)) {
+			*next_check = i + 1;
+			g_object_unref(item);
+			break;
+		}
+		g_object_unref(item);
+	}
+	return i;
+}
+
 // Find search entry match in list store
 // - Matching based on substring of either result or name
 // - Will scroll to first match found to make sure visible
@@ -89,27 +110,18 @@ void work_search_entry_cb (GtkWidget *self, user_data *udp)
 	if (!cnt) return; // Bug out if list_store is empty
 
 	// Loop through list store and find match
-	uint32_t i = udp->next_check;
-	udp->a_match = FALSE;
-
-	for (; i < cnt; i++) {
-		DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), i);
-		if (strstr(item->result, text) || strstr(item->name, text)) {
-			udp->next_check = i + 1;
-			udp->a_match = TRUE;
-			gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), i, NULL, GTK_LIST_SCROLL_SELECT, NULL);
-			break;
-		}
-	}
+	uint32_t i = search_match_loop (udp->list_store, cnt, &udp->next_check, text);
 
 	if (udp->next_check == 0 && i == cnt) { // Did not find a match
 		GtkAlertDialog *alert = gtk_alert_dialog_new("No match found");
 		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
 	}
 	else if (udp->next_check > 0 && i < cnt) { // Found at least once, need to see if want to go again
+		gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), i, NULL, GTK_LIST_SCROLL_SELECT, NULL);
 		prompt_next(udp);
 	}
 	else if (udp->next_check > 0 && i == cnt) { // Found at least once, but not this time, rollover automatically and search from 0 
+		gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), i, NULL, GTK_LIST_SCROLL_SELECT, NULL);
 		udp->next_check = 0;
 		work_search_entry_cb((GtkWidget *)NULL, udp);
 	}

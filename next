@@ -1,0 +1,384 @@
+filter-columns.c:        g_list_store_remove(udp->list_store, udp->remove_position);
+filter-columns.c:	if (udp->fep->res_n) {
+filter-columns.c:		if (strstr (item->result, udp->fep->res_ebt))
+filter-columns.c:		if (strstr (item->result, udp->fep->res_ebt))
+filter-columns.c:	if (udp->fep->name_n) {
+filter-columns.c:		if (strstr (item->name, udp->fep->name_ebt))
+filter-columns.c:		if (strstr (item->name, udp->fep->name_ebt))
+filter-columns.c:	gboolean state = (udp->fep->and && subres (item, udp) && subname(item, udp) ? TRUE : FALSE) ||	// T T T = T
+filter-columns.c:	    (udp->fep->and && subres (item, udp) && !subname(item, udp) ? FALSE : FALSE) ||	// T T F = F
+filter-columns.c:	    (udp->fep->and && !subres (item, udp) && subname(item, udp) ? FALSE : FALSE) ||	// T F T = F
+filter-columns.c:	    (udp->fep->and && !subres (item, udp) && !subname(item, udp) ? FALSE : FALSE) ||	// T F F = F
+filter-columns.c:	    (!udp->fep->and && subres (item, udp) && subname(item, udp) ? TRUE : FALSE) ||	// F T T = T
+filter-columns.c:	    (!udp->fep->and && subres (item, udp) && !subname(item, udp) ? TRUE : FALSE) ||	// F T F = T
+filter-columns.c:	    (!udp->fep->and && !subres (item, udp) && subname(item, udp) ? TRUE : FALSE) ||	// F F T = T
+filter-columns.c:	    (!udp->fep->and && !subres (item, udp) && !subname(item, udp) ? FALSE : FALSE); // F F F = F
+filter-columns.c:	gtk_window_close (GTK_WINDOW(udp->filter_window));
+filter-columns.c:	udp->saved_list_store = g_list_store_new(G_TYPE_OBJECT);
+filter-columns.c:	guint32 cnt = g_list_model_get_n_items (G_LIST_MODEL(udp->list_store));
+filter-columns.c:		item = g_list_model_get_item (G_LIST_MODEL(udp->list_store), i);
+filter-columns.c:		g_list_store_append (udp->saved_list_store, item);
+filter-columns.c:	g_list_store_remove_all (udp->list_store);
+filter-columns.c:		item = g_list_model_get_item (G_LIST_MODEL(udp->saved_list_store), i);
+filter-columns.c:			g_list_store_append (udp->list_store, item);
+filter-columns.c:	gtk_window_close (GTK_WINDOW(udp->filter_window));
+filter-columns.c:	gtk_filter_changed ((GtkFilter *) udp->custom_filter, GTK_FILTER_CHANGE_DIFFERENT);
+filter-columns.c:	set_sensitivity_clear_button (udp->fep);
+filter-columns.c:	const gchar *text = gtk_entry_buffer_get_text (udp->fep->name_eb);
+filter-columns.c:	strcpy (udp->fep->name_ebt, text);
+filter-columns.c:	const gchar *text = gtk_entry_buffer_get_text (udp->fep->res_eb);
+filter-columns.c:	strcpy (udp->fep->res_ebt, text);
+filter-columns.c:		udp->fep->and = TRUE;
+filter-columns.c:		udp->fep->or = FALSE;
+filter-columns.c:		udp->fep->and = FALSE;
+filter-columns.c:		udp->fep->or = TRUE;
+filter-columns.c:		udp->fep->or = TRUE;
+filter-columns.c:		udp->fep->and = FALSE;
+filter-columns.c:		udp->fep->or = FALSE;
+filter-columns.c:		udp->fep->and = TRUE;
+filter-columns.c:		udp->fep->res_n = TRUE;
+filter-columns.c:		udp->fep->res_n = FALSE;
+filter-columns.c:		udp->fep->name_n = TRUE;
+filter-columns.c:		udp->fep->name_n = FALSE;
+filter-columns.c:	gtk_window_close (GTK_WINDOW(udp->filter_window));
+filter-columns.c:	gtk_entry_buffer_set_text (udp->fep->res_eb, "", -1);
+filter-columns.c:	gtk_entry_buffer_set_text (udp->fep->name_eb, "", -1);
+filter-columns.c:	udp->fep->res_n = FALSE;
+filter-columns.c:	udp->fep->name_n = FALSE;
+filter-columns.c:	udp->fep->and = TRUE;
+filter-columns.c:	udp->fep->or = FALSE;
+filter-columns.c:	guint32 cnt = g_list_model_get_n_items (G_LIST_MODEL(udp->saved_list_store));
+filter-columns.c:                item = g_list_model_get_item (G_LIST_MODEL(udp->saved_list_store), i); 
+filter-columns.c:                g_list_store_append (udp->list_store, item);
+filter-columns.c:	//gtk_filter_changed ((GtkFilter *) udp->custom_filter, GTK_FILTER_CHANGE_DIFFERENT);
+filter-columns.c:	//set_sensitivity_clear_button (udp->fep);
+filter-columns.c:	udp->filter_window = filter_window;
+filter-columns.c:	if (!udp->fep->and && !udp->fep->or)
+filter-columns.c:		udp->fep->and = TRUE;
+filter-columns.c:	if (udp->fep->and)
+filter-columns.c:	if (udp->fep->res_n)
+filter-columns.c:	if (udp->fep->name_n)
+filter-columns.c:	udp->fep->res_eb = gtk_entry_buffer_new ((const char *)udp->fep->res_ebt, strlen(udp->fep->res_ebt));
+filter-columns.c:	udp->fep->res_e = gtk_entry_new_with_buffer (udp->fep->res_eb);
+filter-columns.c:	udp->fep->name_eb = gtk_entry_buffer_new ((const char *)udp->fep->name_ebt, strlen(udp->fep->name_ebt));
+filter-columns.c:	udp->fep->name_e = gtk_entry_new_with_buffer (udp->fep->name_eb);
+filter-columns.c:	udp->fep->clear_btn = gtk_button_new_with_label ("Clear");
+filter-columns.c:	gtk_widget_set_halign (udp->fep->clear_btn, GTK_ALIGN_CENTER);
+filter-columns.c:	gtk_grid_attach (GTK_GRID(grid), GTK_WIDGET(udp->fep->res_e), 2, 1, 1, 1);
+filter-columns.c:	gtk_grid_attach (GTK_GRID(grid), GTK_WIDGET(udp->fep->name_e), 2, 2, 1, 1);
+filter-columns.c:	gtk_grid_attach (GTK_GRID(grid), GTK_WIDGET(udp->fep->clear_btn), 3, 5, 1, 1);
+filter-columns.c:	g_signal_connect (udp->fep->res_e, "changed", G_CALLBACK(result_buff_cb), udp);
+filter-columns.c:	g_signal_connect (udp->fep->name_e, "changed", G_CALLBACK(name_buff_cb), udp);
+filter-columns.c:	g_signal_connect (udp->fep->clear_btn, "clicked", G_CALLBACK(clear_filters_cb), udp);
+filter-columns.c:	set_sensitivity_clear_button (udp->fep);
+filter-store.c:	if (udp->fep->res_n) {
+filter-store.c:		if (strstr(item->result, udp->fep->res_ebt))
+filter-store.c:		if (strstr(item->result, udp->fep->res_ebt))
+filter-store.c:	if (udp->fep->name_n) {
+filter-store.c:		if (strstr(item->name, udp->fep->name_ebt))
+filter-store.c:		if (strstr(item->name, udp->fep->name_ebt))
+filter-store.c:	gboolean state = (udp->fep->and && subres(item, udp) && subname(item, udp) ? TRUE : FALSE) ||	// T T T = T
+filter-store.c:	    (udp->fep->and && subres(item, udp) && !subname(item, udp) ? FALSE : FALSE) ||	// T T F = F
+filter-store.c:	    (udp->fep->and && !subres(item, udp) && subname(item, udp) ? FALSE : FALSE) ||	// T F T = F
+filter-store.c:	    (udp->fep->and && !subres(item, udp) && !subname(item, udp) ? FALSE : FALSE) ||	// T F F = F
+filter-store.c:	    (!udp->fep->and && subres(item, udp) && subname(item, udp) ? TRUE : FALSE) ||	// F T T = T
+filter-store.c:	    (!udp->fep->and && subres(item, udp) && !subname(item, udp) ? TRUE : FALSE) ||	// F T F = T
+filter-store.c:	    (!udp->fep->and && !subres(item, udp) && subname(item, udp) ? TRUE : FALSE) ||	// F F T = T
+filter-store.c:	    (!udp->fep->and && !subres(item, udp) && !subname(item, udp) ? FALSE : FALSE); // F F F = F
+filter-store.c:	gtk_window_close(GTK_WINDOW(udp->filter_window));
+filter-store.c:	udp->filter_window = NULL;
+filter-store.c:	if (!udp->saved_list_store) { 
+filter-store.c:		udp->saved_list_store = g_list_store_new(G_TYPE_OBJECT);
+filter-store.c:		copy_store(udp->list_store, udp->saved_list_store);
+filter-store.c:	build_filtered_store(udp->saved_list_store, udp->list_store, udp);
+filter-store.c:	const gchar *text = gtk_entry_buffer_get_text(udp->fep->name_eb);
+filter-store.c:	strcpy(udp->fep->name_ebt, text);
+filter-store.c:	const gchar *text = gtk_entry_buffer_get_text(udp->fep->res_eb);
+filter-store.c:	strcpy(udp->fep->res_ebt, text);
+filter-store.c:		udp->fep->and = TRUE;
+filter-store.c:		udp->fep->or = FALSE;
+filter-store.c:		udp->fep->and = FALSE;
+filter-store.c:		udp->fep->or = TRUE;
+filter-store.c:		udp->fep->or = TRUE;
+filter-store.c:		udp->fep->and = FALSE;
+filter-store.c:		udp->fep->or = FALSE;
+filter-store.c:		udp->fep->and = TRUE;
+filter-store.c:		udp->fep->res_n = TRUE;
+filter-store.c:		udp->fep->res_n = FALSE;
+filter-store.c:		udp->fep->name_n = TRUE;
+filter-store.c:		udp->fep->name_n = FALSE;
+filter-store.c:	if (udp->fep->res_eb) {
+filter-store.c:		g_object_unref(udp->fep->res_eb); 
+filter-store.c:		g_object_unref(udp->fep->name_eb);
+filter-store.c:	memset(udp->fep, 0x00, sizeof(filter_entry));
+filter-store.c:	udp->fep->and = TRUE;
+filter-store.c:	if (udp->saved_list_store) {
+filter-store.c:		g_list_store_remove_all(udp->list_store);
+filter-store.c:		copy_store(udp->saved_list_store, udp->list_store);
+filter-store.c:		g_list_store_remove_all(udp->saved_list_store);
+filter-store.c:		g_object_unref(udp->saved_list_store);
+filter-store.c:		udp->saved_list_store = NULL;
+filter-store.c:	gtk_window_close(GTK_WINDOW(udp->filter_window));
+filter-store.c:	udp->filter_window = filter_window;
+filter-store.c:	if (!udp->fep->and && !udp->fep->or)
+filter-store.c:		udp->fep->and = TRUE;
+filter-store.c:	if (udp->fep->and)
+filter-store.c:	if (udp->fep->res_n)
+filter-store.c:	if (udp->fep->name_n)
+filter-store.c:	udp->fep->res_eb = gtk_entry_buffer_new((const char *)udp->fep->res_ebt, strlen(udp->fep->res_ebt));
+filter-store.c:	udp->fep->res_e = gtk_entry_new_with_buffer(udp->fep->res_eb);
+filter-store.c:	udp->fep->name_eb = gtk_entry_buffer_new((const char *)udp->fep->name_ebt, strlen(udp->fep->name_ebt));
+filter-store.c:	udp->fep->name_e = gtk_entry_new_with_buffer(udp->fep->name_eb);
+filter-store.c:	udp->fep->clear_btn = gtk_button_new_with_label("Clear");
+filter-store.c:	gtk_widget_set_halign(udp->fep->clear_btn, GTK_ALIGN_CENTER);
+filter-store.c:	gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(udp->fep->res_e), 2, 1, 1, 1);
+filter-store.c:	gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(udp->fep->name_e), 2, 2, 1, 1);
+filter-store.c:	gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(udp->fep->clear_btn), 3, 5, 1, 1);
+filter-store.c:	g_signal_connect(udp->fep->res_e, "changed", G_CALLBACK(result_buff_cb), udp);
+filter-store.c:	g_signal_connect(udp->fep->name_e, "changed", G_CALLBACK(name_buff_cb), udp);
+filter-store.c:	g_signal_connect(udp->fep->clear_btn, "clicked", G_CALLBACK(clear_filters_cb), udp);
+filter-store.c:	set_sensitivity_clear_button(udp->fep);
+get-folders.c:			diff = get_count (udp->fdpp[i], '/') - get_count(udp->fdpp[j], '/');
+get-folders.c:			if (diff == 1 && strstr(udp->fdpp[i], udp->fdpp[j])) {
+get-folders.c:	clear_folders (udp->fdpp); // Could be calling multiple times so free if already allocated
+get-folders.c:		udp->fdpp[i] = g_file_get_path (file); // Get the path name pointer into the array
+get-folders.c:		gtk_alert_dialog_show (alert, GTK_WINDOW(udp->main_window));
+get-folders.c:		clear_folders (udp->fdpp);
+get-folders.c:	if (!udp->fdpp) udp->fdpp = g_malloc0 (MAX_FOLDERS * sizeof(char *)); // Allocate folder memory
+get-hash.c:		if (udp->cancel_request == TRUE) break; // Stop processing if cancel requested
+get-hash.c:		do_progress_bar((GtkProgressBar *) udp->progress_bar, percent_read, g_file_get_basename(file)); // Show progress bar
+get-results.c:	g_list_store_sort(udp->list_store, (GCompareDataFunc) cmp_function, NULL);
+get-results.c:	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(udp->list_store));
+get-results.c:		item = g_list_model_get_item((GListModel *) udp->list_store, 0);
+get-results.c:		if (udp->cancel_request == TRUE) return 0; // Stop processing if cancel requested
+get-results.c:		item = g_list_model_get_item((GListModel *) udp->list_store, i);
+get-results.c:		next_item = g_list_model_get_item((GListModel *) udp->list_store, i + 1);
+get-results.c:	item = g_list_model_get_item((GListModel *) udp->list_store, i);
+load-entry-data.c:	udp->cancel_request = FALSE;
+load-entry-data.c:	gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
+load-entry-data.c:	if (udp->list_store) {
+load-entry-data.c:		if (g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)))
+load-entry-data.c:			g_list_store_remove_all(udp->list_store); // Remove all entries from list store
+load-entry-data.c:	if (udp->fdpp) clear_folders(udp->fdpp);
+load-entry-data.c:	udp->cancel_request = TRUE;
+load-entry-data.c:	if (!udp->list_store) {
+load-entry-data.c:		udp->list_store = list_store; // Save pointer to list store
+load-entry-data.c:	if (udp->saved_list_store) {
+load-entry-data.c:		g_object_unref(udp->saved_list_store);
+load-entry-data.c:		udp->saved_list_store = NULL;
+load-entry-data.c:	if (g_list_model_get_n_items(G_LIST_MODEL(udp->list_store))) g_list_store_remove_all(udp->list_store);
+load-entry-data.c:	gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
+load-entry-data.c:	gtk_window_set_child(GTK_WINDOW(udp->main_window), progress_box);
+load-entry-data.c:	udp->progress_bar = progress_bar; // Save pointer to progress bar
+load-entry-data.c:	udp->cancel_button = cancel_button;
+load-entry-data.c:	for (int i = 0; udp->fdpp[i]; i++) { // If fdpp[i] is NULL, then no more directories
+load-entry-data.c:		if (traverse(udp->fdpp[i], udp)) {
+load-entry-data.c:				g_list_store_sort(udp->list_store, (GCompareDataFunc) cmp_a, udp); // Sort by result column ascending
+load-entry-data.c:				if (!udp->opt_include_empty) find_and_splice(udp->list_store, STR_EMP);
+load-entry-data.c:				if (!udp->opt_include_directory) find_and_splice(udp->list_store, STR_DIR);
+load-entry-data.c:				if (!udp->opt_include_unique) find_and_splice(udp->list_store, STR_UNI);
+load-entry-data.c:				if (!udp->opt_include_duplicate) splice_group(udp->list_store); // Remove the group entries
+load-entry-data.c:	if (g_list_model_get_n_items(G_LIST_MODEL(udp->list_store))) {
+main.c:	if (udp->list_store && g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)) > 0) {
+main.c:		gtk_widget_set_sensitive(udp->sort_button, TRUE);
+main.c:		gtk_widget_set_sensitive(udp->filter_button, TRUE);
+main.c:		gtk_widget_set_sensitive(udp->search_bar, TRUE);
+main.c:		if (strlen(udp->fep->res_ebt) || strlen(udp->fep->name_ebt)) {
+main.c:			gtk_widget_set_sensitive(udp->filter_button, TRUE);
+main.c:			gtk_widget_set_sensitive(udp->search_bar, FALSE);
+main.c:			gtk_widget_set_sensitive(udp->filter_button, TRUE);
+main.c:			gtk_widget_set_sensitive(udp->search_bar, TRUE);
+main.c:		gtk_widget_set_sensitive(udp->sort_button, FALSE);
+main.c:		gtk_widget_set_sensitive(udp->filter_button, FALSE);
+main.c:		gtk_widget_set_sensitive(udp->search_bar, FALSE);
+main.c:	udp->opt_name = name;
+main.c:		g_variant_get(value, "(bbbb)", &udp->opt_include_empty, &udp->opt_include_directory, &udp->opt_include_duplicate,
+main.c:			      &udp->opt_include_unique);
+main.c:		udp->opt_include_empty = TRUE; // Default to show empty entries
+main.c:		udp->opt_include_directory = TRUE; // Default to show a directory
+main.c:		udp->opt_include_duplicate = TRUE; // Default to show duplicate files
+main.c:		udp->opt_include_unique = TRUE; // Default to show unqiue files
+main.c:	udp->main_window = main_window;
+main.c:	udp->sort_button = sort_button;
+main.c:	udp->filter_button = filter_button;
+main.c:	udp->search_bar = search_bar;
+main.c:	udp->search_entry = entry;
+main.c:	udp->fdpp[0] = g_file_get_path(*files); // Get the path name pointer into the array
+main.c:	udp->fdpp = g_malloc0(MAX_FOLDERS * sizeof(char *)); // Allocate folder memory
+main.c:	udp->fep = g_malloc0(sizeof(filter_entry)); // Allocate filter entry memory
+main.c:	udp->sep = g_malloc0(sizeof(search_entry)); // Allocate search entry memory
+main.c:	udp->app = app;
+main.c:	g_free(udp->opt_name);
+main.c:	g_free(udp->sep); // Free up search memory
+main.c:	g_free(udp->fep); // Free up filter memory
+main.c:	clear_folders(udp->fdpp); // Free up folder memory if allocated
+search.c:		if (udp->next_check < g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)))
+search.c:			gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view),
+search.c:						  udp->next_check, NULL, GTK_LIST_SCROLL_NONE, NULL);
+search.c:			gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), 0, NULL, GTK_LIST_SCROLL_NONE, NULL);
+search.c:		gtk_selection_model_unselect_all(GTK_SELECTION_MODEL(udp->selection));
+search.c:		udp->next_check = 0;
+search.c:		gtk_editable_set_text(GTK_EDITABLE(udp->search_entry), ""); // Clear search entry
+search.c:		udp->a_match = FALSE;
+search.c:	gtk_alert_dialog_set_detail(alert, gtk_editable_get_text(GTK_EDITABLE(udp->search_entry)));
+search.c:	gtk_alert_dialog_choose(alert, GTK_WINDOW(udp->main_window), NULL, work_next_choice, udp);
+search.c:		DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), i);
+search.c:			udp->next_check = i + 1;
+search.c:			udp->a_match = TRUE;
+search.c:			gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), i, NULL, GTK_LIST_SCROLL_SELECT, NULL);
+search.c:	if (!udp->list_store) return; // Bug out if no list store
+search.c:	if (!udp->search_entry) return; // Bug out if no entry
+search.c:	if (self) udp->next_check = 0;
+search.c:	else gtk_selection_model_unselect_all(GTK_SELECTION_MODEL(udp->selection));
+search.c:	const char *text = gtk_editable_get_text(GTK_EDITABLE(udp->search_entry));
+search.c:	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(udp->list_store));
+search.c:	uint32_t i = udp->next_check;
+search.c:	udp->a_match = FALSE;
+search.c:	if (udp->next_check == 0 && i == cnt) { // Did not find a match
+search.c:		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+search.c:	else if (udp->next_check > 0 && i < cnt) { // Found at least once, need to see if want to go again
+search.c:	else if (udp->next_check > 0 && i == cnt) { // Found at least once, but not this time, rollover automatically and search from 0 
+search.c:		udp->next_check = 0;
+show-columns.c:        gtk_window_set_child(GTK_WINDOW (udp->main_window), NULL);
+show-columns.c:	gtk_window_set_child (GTK_WINDOW (udp->main_window), scrolled_window);
+show-columns.c:	udp->column_view = column_view;							     
+show-columns.c:	// GtkFilterListModel *filter = gtk_filter_list_model_new (G_LIST_MODEL(udp->list_store), NULL);	
+show-columns.c:        // udp->filter = filter;
+show-columns.c:        // udp->custom_filter = custom_filter;
+show-columns.c:	GtkMultiSelection *selection = gtk_multi_selection_new (G_LIST_MODEL (udp->list_store));
+show-columns.c:	udp->selection = selection;
+show-columns.c:	gtk_window_present (GTK_WINDOW (udp->main_window));
+sort-columns.c:		if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_sec_btn)))
+sort-columns.c:		else if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_d_sec_btn)))
+sort-columns.c:		if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_sec_btn)))
+sort-columns.c:		else if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_d_sec_btn)))
+sort-columns.c:	gtk_window_close(GTK_WINDOW(udp->sort_window));
+sort-columns.c:	if ((gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_button)) || // If either name selected for primary
+sort-columns.c:	    gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_button))) &&
+sort-columns.c:	   (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_sec_btn)) || // And either name selected for secondary
+sort-columns.c:	    gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_d_sec_btn)))) {
+sort-columns.c:		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+sort-columns.c:	if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->result_a_button))) 
+sort-columns.c:		g_list_store_sort (udp->list_store, (GCompareDataFunc)cmp_result_a, udp);
+sort-columns.c:	else if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->result_d_button))) 
+sort-columns.c:		g_list_store_sort (udp->list_store, (GCompareDataFunc)cmp_result_d, udp);
+sort-columns.c:	else if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_button))) 
+sort-columns.c:		g_list_store_sort (udp->list_store, (GCompareDataFunc)cmp_name_a, udp);
+sort-columns.c:	else if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_d_button))) 
+sort-columns.c:		g_list_store_sort (udp->list_store, (GCompareDataFunc)cmp_name_d, udp);
+sort-columns.c:	gtk_column_view_scroll_to(GTK_COLUMN_VIEW(udp->column_view), 1, NULL, GTK_LIST_SCROLL_NONE, NULL);
+sort-columns.c:	if (gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_button)) || gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_d_button))) {
+sort-columns.c:		gtk_widget_set_sensitive(udp->name_a_sec_btn, FALSE);
+sort-columns.c:		gtk_widget_set_sensitive(udp->name_d_sec_btn, FALSE);
+sort-columns.c:		gtk_check_button_set_active(GTK_CHECK_BUTTON(udp->name_a_sec_btn), FALSE);
+sort-columns.c:		gtk_check_button_set_active(GTK_CHECK_BUTTON(udp->name_d_sec_btn), FALSE);
+sort-columns.c:		gtk_widget_set_sensitive(udp->name_a_sec_btn, TRUE);
+sort-columns.c:		gtk_widget_set_sensitive(udp->name_d_sec_btn, TRUE);
+sort-columns.c:		if (!gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_a_sec_btn)) || !gtk_check_button_get_active(GTK_CHECK_BUTTON(udp->name_d_sec_btn))) {
+sort-columns.c:			gtk_check_button_set_active(GTK_CHECK_BUTTON(udp->name_a_sec_btn), TRUE);
+sort-columns.c:	udp->result_a_button = gtk_check_button_new_with_label("Result Ascending");
+sort-columns.c:	gtk_check_button_set_active(GTK_CHECK_BUTTON(udp->result_a_button), TRUE);
+sort-columns.c:        udp->result_d_button = gtk_check_button_new_with_label("Result Descending");
+sort-columns.c:        udp->name_a_button = gtk_check_button_new_with_label("Name Ascending");
+sort-columns.c:        udp->name_d_button = gtk_check_button_new_with_label("Name Descending");
+sort-columns.c:        udp->name_a_sec_btn = gtk_check_button_new_with_label("Name Ascending");
+sort-columns.c:	gtk_check_button_set_active(GTK_CHECK_BUTTON(udp->name_a_sec_btn), TRUE);
+sort-columns.c:        udp->name_d_sec_btn = gtk_check_button_new_with_label("Name Descending");
+sort-columns.c:	gtk_grid_attach(GTK_GRID(grid), udp->result_a_button, 0, 1, 1, 1);
+sort-columns.c:	gtk_grid_attach(GTK_GRID(grid), udp->result_d_button, 1, 1, 1, 1);
+sort-columns.c:	gtk_grid_attach(GTK_GRID(grid), udp->name_a_button, 0, 2, 1, 1);
+sort-columns.c:	gtk_grid_attach(GTK_GRID(grid), udp->name_d_button, 1, 2, 1, 1);
+sort-columns.c:	gtk_grid_attach(GTK_GRID(grid), udp->name_a_sec_btn, 0, 4, 1, 1);
+sort-columns.c:	gtk_grid_attach(GTK_GRID(grid), udp->name_d_sec_btn, 1, 4, 1, 1);
+sort-columns.c:       gtk_check_button_set_group(GTK_CHECK_BUTTON(udp->result_a_button), GTK_CHECK_BUTTON(udp->result_d_button));
+sort-columns.c:       gtk_check_button_set_group(GTK_CHECK_BUTTON(udp->name_a_button), GTK_CHECK_BUTTON(udp->result_a_button));
+sort-columns.c:       gtk_check_button_set_group(GTK_CHECK_BUTTON(udp->name_d_button), GTK_CHECK_BUTTON(udp->result_a_button));
+sort-columns.c:	gtk_check_button_set_group(GTK_CHECK_BUTTON(udp->name_a_sec_btn), GTK_CHECK_BUTTON(udp->name_d_sec_btn));
+sort-columns.c:	g_signal_connect(udp->name_a_button, "toggled", G_CALLBACK(alter_secondary_sensitvity),udp);
+sort-columns.c:	g_signal_connect(udp->name_d_button, "toggled", G_CALLBACK(alter_secondary_sensitvity),udp);
+sort-columns.c:	g_signal_connect(udp->result_a_button, "toggled", G_CALLBACK(alter_secondary_sensitvity),udp);
+sort-columns.c:	g_signal_connect(udp->result_d_button, "toggled", G_CALLBACK(alter_secondary_sensitvity),udp);
+sort-columns.c:       udp->sort_window = sort_window;
+traverse.c:	if (g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)) >= MAX_ENTRIES) {
+traverse.c:		g_list_store_append(udp->list_store, item);
+traverse.c:	g_list_store_append(udp->list_store, item);
+traverse.c:		if (udp->cancel_request == TRUE) return 0;
+traverse.c:		if (g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)) >= MAX_ENTRIES) {
+traverse.c:			gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+traverse.c:			g_list_store_append(udp->list_store, item);
+traverse.c:			g_list_store_append(udp->list_store, item);
+traverse.c:			g_list_store_append(udp->list_store, item);
+work-options.c:	if (udp->opt_changed) {
+work-options.c:		udp->opt_changed = FALSE;
+work-options.c:        gtk_window_close (GTK_WINDOW (udp->option_window));  
+work-options.c:        GFile *file = g_file_new_for_path (udp->opt_name);
+work-options.c:        	gtk_alert_dialog_show (alert, GTK_WINDOW (udp->main_window));
+work-options.c:        GVariant *value = g_variant_new ("(bbbb)", udp->opt_include_empty, udp->opt_include_directory, udp->opt_include_duplicate, udp->opt_include_unique);
+work-options.c:        	gtk_alert_dialog_show (alert, GTK_WINDOW (udp->main_window));
+work-options.c:        gtk_window_close (GTK_WINDOW (udp->option_window));  
+work-options.c:	udp->opt_changed = TRUE;
+work-options.c:		udp->opt_include_unique = TRUE;
+work-options.c:		udp->opt_include_unique = FALSE;
+work-options.c:	udp->opt_changed = TRUE;
+work-options.c:		udp->opt_include_empty = TRUE;
+work-options.c:		udp->opt_include_empty = FALSE;
+work-options.c:	udp->opt_changed = TRUE;
+work-options.c:		udp->opt_include_duplicate = TRUE;
+work-options.c:		udp->opt_include_duplicate = FALSE;
+work-options.c:	udp->opt_changed = TRUE;
+work-options.c:		udp->opt_include_directory = TRUE;
+work-options.c:		udp->opt_include_directory = FALSE;
+work-options.c:	if (udp->opt_include_empty)
+work-options.c:	if (udp->opt_include_unique)
+work-options.c:	if (udp->opt_include_duplicate)
+work-options.c:	if (udp->opt_include_directory)
+work-options.c:	udp->option_window = gtk_window_new();
+work-options.c:	gtk_window_set_title(GTK_WINDOW(udp->option_window), "Options");
+work-options.c:	gtk_window_set_titlebar(GTK_WINDOW(udp->option_window), header);
+work-options.c:	gtk_window_set_child(GTK_WINDOW(udp->option_window), box);
+work-options.c:	gtk_window_present(GTK_WINDOW(udp->option_window));
+work-selected.c:	gtk_selection_model_unselect_all(GTK_SELECTION_MODEL (udp->selection));
+work-selected.c:	gtk_bitset_remove_all (udp->sel_bitset);
+work-selected.c:  	gtk_bitset_unref (udp->sel_bitset);
+work-selected.c:  	udp->sel_bitset = NULL;
+work-selected.c:	gtk_window_close(GTK_WINDOW(udp->action_window));
+work-selected.c:	udp->sel_item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), 
+work-selected.c:				gtk_bitset_get_minimum(udp->sel_bitset)); 
+work-selected.c:		if (strcmp(udp->sel_item->result, STR_DIR) ||
+work-selected.c:		    strncmp(udp->sel_item->result, STR_ERR, 5)) {
+work-selected.c:			view_file(udp->sel_item, udp->main_window);
+work-selected.c:			gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+work-selected.c:	gtk_window_close(GTK_WINDOW(udp->action_window));
+work-selected.c:	GdkClipboard *clippy = gtk_widget_get_clipboard(udp->main_window);
+work-selected.c:	if (gtk_bitset_get_size (udp->sel_bitset) == 1) {
+work-selected.c:		DupItem *item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), 
+work-selected.c:				gtk_bitset_get_minimum(udp->sel_bitset));
+work-selected.c:	gtk_bitset_iter_init_first (&iter, udp->sel_bitset, &value);
+work-selected.c:	DupItem *item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), value);
+work-selected.c:		item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), value); // Get the selected item
+work-selected.c:			gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+work-selected.c:	gtk_window_close(GTK_WINDOW(udp->action_window));
+work-selected.c:	DupItem *item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), 
+work-selected.c:				gtk_bitset_get_minimum(udp->sel_bitset)); 
+work-selected.c:	gtk_file_launcher_launch (file_launcher, GTK_WINDOW(udp->main_window), NULL, (GAsyncReadyCallback) launch_async_cb, NULL);
+work-selected.c:	see_entry_data(udp->list_store, udp->selection);
+work-selected.c:	GtkBitset *sel_bitset = gtk_selection_model_get_selection ((GtkSelectionModel *)udp->selection);
+work-selected.c:	udp->sel_bitset = sel_bitset;
+work-selected.c:		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+work-selected.c:	udp->action_window = gtk_window_new();
+work-selected.c:		gtk_window_set_title(GTK_WINDOW(udp->action_window), "Single Selection Actions");
+work-selected.c:		gtk_window_set_title(GTK_WINDOW(udp->action_window), "Multiple Selection Actions");
+work-selected.c:	gtk_window_set_default_size(GTK_WINDOW(udp->action_window), 512, 256);
+work-selected.c:	gtk_window_set_child(GTK_WINDOW(udp->action_window), box_action);
+work-selected.c:	gtk_window_present(GTK_WINDOW(udp->action_window));
+work-trash.c:        gtk_bitset_iter_init_first (&iter, udp->sel_bitset, &value);
+work-trash.c:        	item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), value);
+work-trash.c:			gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+work-trash.c:	gtk_alert_dialog_choose(alert, GTK_WINDOW(udp->main_window), NULL, work_trash_choice, udp);
+work-trash.c:	gtk_window_close(GTK_WINDOW(udp->action_window));
+work-trash.c:	if (gtk_bitset_get_size(udp->sel_bitset) > 1 &&
+work-trash.c:	    count_selected_result(udp->sel_bitset, udp->list_store, STR_DIR) > 0) { 
+work-trash.c:		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+work-trash.c:	if (gtk_bitset_get_size(udp->sel_bitset) > 0 &&
+work-trash.c:	    count_selected_result(udp->sel_bitset, udp->list_store, STR_ERR) > 0) { 
+work-trash.c:		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));

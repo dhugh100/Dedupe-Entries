@@ -1,4 +1,4 @@
-# Dedup
+# Dedupe Entries
 
 ## Description
 Dedup uses SHA256 hashes to identify and take action on duplicate files. 
@@ -48,4 +48,4 @@ If you would like to contribute, please fork the repository and use a feature br
 
 ## License
 This project is licensed under the GPL 3.0  license - see the LICENSE file for details.
-# ddup
+# Dedupe Entries

@@ -16,7 +16,7 @@
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
 
 #include "main.h"
-#include "load-entry-data.h"
+#include "load-store.h"
 #include "get-hash.h"
 #include "traverse.h"
 

@@ -19,7 +19,7 @@
 #include "work-trash.h"
 #include "work-selected.h"
 #include "show-columns.h"
-#include "load-entry-data.h"
+#include "load-store.h"
 #include "see-entry-data.h"
 
 void wipe_selected(user_data *udp)

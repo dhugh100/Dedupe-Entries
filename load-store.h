@@ -1,4 +1,4 @@
-// This file, show-columns.h, is a part of the Dedupe Entries program.
+// This file, load-store.h, is a part of the Entry Dedupe program.
 // 
 // Copyright (C) 2024  David Hugh
 // 
@@ -15,9 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
 
-#ifndef show_columns_h
-#define show_columns_h
+#ifndef load_file_data_h
+#define load_file_data_h
 
-void show_columns (user_data *);
+void clean_up (user_data *);
+void load_entry_data (user_data *);
 
 #endif

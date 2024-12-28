@@ -1,4 +1,4 @@
-// This file, show-columns.h, is a part of the Dedupe Entries program.
+// This file, sort-store.h, is a part of the Entry Dedupe program.
 // 
 // Copyright (C) 2024  David Hugh
 // 
@@ -15,9 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
 
-#ifndef show_columns_h
-#define show_columns_h
+#ifndef sort_columns_h
+#define sort_columns_h
 
-void show_columns (user_data *);
+int cmp_result_a (const void *, const void *, user_data *);
+void get_sort_type_cb (GtkWidget *, user_data *);
 
 #endif

@@ -17,10 +17,10 @@
 
 #include "main.h"
 #include "get-folders.h"
-#include "sort-columns.h"
-#include "filter-columns.h"
+#include "sort-store.h"
+#include "filter-store.h"
 #include "work-options.h"
-#include "load-entry-data.h"
+#include "load-store.h"
 #include "search.h"
 #include "about.h"
 #include "see-entry-data.h"
@@ -35,16 +35,6 @@ void adjust_sfs_button_sensitivity (user_data *udp)
 		gtk_widget_set_sensitive(udp->sort_button, TRUE);
 		gtk_widget_set_sensitive(udp->filter_button, TRUE);
 		gtk_widget_set_sensitive(udp->search_bar, TRUE);
-/*
-		if (strlen(udp->fep->res_ebt) || strlen(udp->fep->name_ebt)) {
-			gtk_widget_set_sensitive(udp->filter_button, TRUE);
-			gtk_widget_set_sensitive(udp->search_bar, FALSE);
-		}
-		else {
-			gtk_widget_set_sensitive(udp->filter_button, TRUE);
-			gtk_widget_set_sensitive(udp->search_bar, TRUE);
-		}
-*/
 	}
 	else {
 		gtk_widget_set_sensitive(udp->sort_button, FALSE);
