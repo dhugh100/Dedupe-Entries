@@ -1,4 +1,4 @@
-// This file, sort-store.h, is a part of the Entry Dedupe program.
+// This file, sort-store.h, is a part of the Dedupe Entries program.
 // 
 // Copyright (C) 2024  David Hugh
 // 

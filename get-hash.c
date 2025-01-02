@@ -131,6 +131,5 @@ int getsha256 (DupItem *item, user_data *udp)
 	EVP_MD_CTX_free(mdctx);
 	g_object_unref(in);
 	g_free(read_buff);
-
 	return 1;
 }

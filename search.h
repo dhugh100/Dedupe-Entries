@@ -1,4 +1,4 @@
-// This file, search.h, is a part of the Dedupe Entry program.
+// This file, search.h, is a part of the Dedupe Entries program.
 // 
 // Copyright (C) 2024  David Hugh
 // 
