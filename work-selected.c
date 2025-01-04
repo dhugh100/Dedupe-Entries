@@ -14,13 +14,13 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
+
 #include "main.h"
 #include "view-file.h"
 #include "work-trash.h"
 #include "work-selected.h"
 #include "show-columns.h"
 #include "load-store.h"
-#include "see-entry-data.h"
 
 void wipe_selected(user_data *udp)
 {
@@ -152,8 +152,6 @@ void launch_cb(GtkCheckButton *self, user_data *udp)
 
 void work_selected_file_cb(GtkGestureClick *self, int n_press, double x, double y, user_data *udp)
 {
-	see_entry_data(udp->list_store, udp->selection);
-
 	GtkWidget *box_action;
 
 	GtkBitset *sel_bitset = gtk_selection_model_get_selection ((GtkSelectionModel *)udp->selection);

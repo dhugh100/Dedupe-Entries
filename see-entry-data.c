@@ -19,7 +19,7 @@ void see_entry_data (GListStore *list_store, GtkMultiSelection *selection)
 
 		printf ("Hash: %s", item->hash); 
 
-		printf (" Size: %u", item->file_size);
+		printf (" Size: %s", item->file_size);
 		printf (" Modified: %s\n", item->modified);
 
 		if (selection) 

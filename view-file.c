@@ -22,15 +22,14 @@
 
 static void setup_list_view_cb (GtkSignalListItemFactory *self, GtkListItem *listitem)
 {
-	GtkWidget *lb = gtk_label_new(NULL);
-	gtk_label_set_xalign(GTK_LABEL(lb), 0.0);
-	gtk_list_item_set_child(listitem, lb);
+       GtkWidget *lb = gtk_label_new(NULL);
+       gtk_label_set_xalign(GTK_LABEL(lb), 0.0);
+       gtk_list_item_set_child(listitem, lb);
 }
 
 // Factory bind
-// - Using mono font 
 
-static void bind_list_view_cb (GtkSignalListItemFactory *self, GtkListItem *listitem, user_data *udp)
+static void bind_list_view_cb (GtkSignalListItemFactory *self, GtkListItem *listitem)
 {
 	GtkWidget *lb = gtk_list_item_get_child(listitem);
 	GtkStringObject *strobj = gtk_list_item_get_item(listitem);
@@ -39,57 +38,48 @@ static void bind_list_view_cb (GtkSignalListItemFactory *self, GtkListItem *list
 }
 
 // Make the dump string format
-// - Format: offset, space, 1st group of 8, space, 2nd group of 8, space, bar, printable chars, bar
-// - Offset is 8 hex digits; group of 8 is 2 hex digits, space, char; 
+// - Format: offset, space, 2 hex digits followd by space x 16, bar, printable chars, bar
+// - Offset is 8 hex digits; 
 // - Printable chars are 16 chars or '.' if not printable, with bar at start and end
 
-void make_format (unsigned char *inp, int len_in, char *oup, int offset)
+void make_string (unsigned char *input, int len_in, char *output, int offset)
 {
+	char work[128] = { 0x00 }; // Work 
+	memset(output, 0x00, 128); // Clear output string
+
 	// Output string starts with an offset in hex
-	sprintf(oup, "%08x ", offset); // Add offset to the output string
-	*(oup += 9); // Increment the pointer to the output string
+	sprintf(work, "%08x ", offset); // Add offset to the output string
+	strcat(output, work); // Increment the pointer to the output string
 
 	// Looup through input bytes, building output string and printable string
-	char printable[PRINTABLE_CHAR_SIZE] = { 0x00 }; // Array for single printable char or .
-	char *prp = printable; 
+	char printable[PRINTABLE_CHAR_SIZE+1] = { 0x00 }; // Array for single printable char or . w/trailing null
 	int i;
 
 	for (i = 0; i < len_in; i++) {
-		// Insert a space between groups of 8 hex digits
-		if ((i > 0) && (i % 8 == 0)) {
-			strcat(oup, " "); // Add a space to the output string
-			*(oup += 1); // Increment the pointer to the output string 
-		}
-
 		// Put hex digits in the output string
-		sprintf(oup, "%02x ", inp[i]);
-		*(oup += 3); // Increment the pointer to the output buffer
+		sprintf(work, "%02x ", input[i]);
+		strcat(output, work);
 
-		// Put the printable character in the local string or a .
-		if ((inp[i] < 0x20) || (inp[i] > 0x7e)) sprintf(prp, "%c", 0x2e); // Add a . if not printable
-		else sprintf(prp, "%c", inp[i]); // Add printable character
-
-		*(prp++); // Increment the pointer to printable string
+		// Put the printable character in the printable string or a '.'
+		if ((input[i] < 0x20) || (input[i] > 0x7e)) {
+			strcat(printable, "."); // Add a . if not printable
+		} 
+		else {
+			sprintf(work, "%c", input[i]);
+			strcat(printable, work); // Add printable character
+		}
 	}
 
 	// We may get less then PRINTABLE_CHAR_SIZE bytes to process if so pad out with spaces 
 	while (i < PRINTABLE_CHAR_SIZE) {
-
-		// Insert an extra space after 8 characters
-		if (i % 8 == 0) {
-			strcat(oup, " "); // Add a space to the output string
-			*(oup += 1); // Increment the pointer to the output buffer
-		}
-
-		strcat(oup, "   "); // Add three spaces to output string        
-		strcat(prp, " "); // Add one space to printable string      
-		*(oup += 3); // Increment the pointer to the output string
-		*(prp++); // Increment the pointer to printable string
+		strcat(output, "   "); // Add three spaces to output string        
+		strcat(printable, " "); // Add one space to printable string      
 		i++; // Increment the index to the input string
 	}
 
 	// Format the final output string, adding on the local string for printable characters
-	sprintf(oup, "%s |%s|", oup, printable);
+	sprintf(work, "|%s|", printable);
+	strcat(output, work);
 }
 
 // Read file and make strings in dump format
@@ -120,31 +110,35 @@ void read_and_make_strings (GtkStringList *str_list, const char *name, GtkWidget
 	read = g_input_stream_read(G_INPUT_STREAM(in), read_buff, READ_BUFF, NULL, NULL);
 
 	// Variables for formatting
-	int offset = 0; // Used to introduce offset of line of PRINTABLE_CHAR_SIZE byes in file
-	unsigned char format_buff[PRINTABLE_CHAR_SIZE] = { 0x00 }; // Small buffer to pass to format routine
-	unsigned char *fbp = format_buff; // Point to small buffer to pass to format routine     
-	char output[128] = { 0x00 }; // Output buffer used by format routine
+	int offset = 0; 
+	unsigned char *format; 
+	char output[128] = { 0x00 }; 
 
 	// Outer loop fills read buffer from file
+	int i, done, left;
 	while (read != 0) {
-		// Inner loop formats byte in read buffer
-		for (int i = 0; i < read; i++) {
-			// Get the read bytes into the small buffer used by the formatting routine
+		// Inner loop sets up calls for formatting input
+		format = read_buff;  
+		done = 0; 
+
+		// Get as many groups of 16 as we can
+		for (i = 0; i < read; i++) {
+			// Point the format ptr to start of unit to format
 			if (i != 0 && !(i % PRINTABLE_CHAR_SIZE)) {
-				make_format(format_buff, PRINTABLE_CHAR_SIZE, output, offset); // Get output filled with dump string
-				gtk_string_list_append(str_list, output); // Add output to string list
-				offset += PRINTABLE_CHAR_SIZE; // Increment offset for next line
-				fbp = format_buff; // Reset ptr to start of input buffer
+				make_string(format, PRINTABLE_CHAR_SIZE, output, offset);
+				gtk_string_list_append(str_list, output); 
+				offset += PRINTABLE_CHAR_SIZE; 
+				format = &read_buff[i];  // Point format to current position in read buffer
+				done += 16;
 			}
-			*fbp = read_buff[i]; // Fill input buffer to pass for format
-			*(fbp += 1); // Increment unsigned char pointer to buffer
+
 		}
 
-		// Format any bytes not yet formatted in for loop (< PRINTABLE_CHAR_SIZE)
-		if (fbp - format_buff) {
-			make_format(format_buff, fbp - format_buff, output, offset);
+		// Format any stragglers in the read buffer
+		if (read - done > 0) {
+			format = &read_buff[done]; // Point format to position in read buffer
+			make_string(format, read - done, output, offset);
 			gtk_string_list_append(str_list, output);
-			offset += PRINTABLE_CHAR_SIZE;
 		}
 
 		// Fill read buffer from file
@@ -181,7 +175,7 @@ void view_file (DupItem *item, GtkWidget *main_window)
 	gtk_window_set_title(GTK_WINDOW(fview_window), basename((char *)item->name));
 	gtk_window_set_default_size(GTK_WINDOW(fview_window), 896, 256);
 	GtkWidget *scrolled_window = gtk_scrolled_window_new();
-	gtk_window_set_child(GTK_WINDOW(fview_window), scrolled_window);
+	gtk_window_set_child(GTK_WINDOW(fview_window),GTK_WIDGET(scrolled_window));
 
 	// Setup and show the list view with no selection
 	GtkWidget *list_view = gtk_list_view_new(GTK_SELECTION_MODEL(ns), factory);

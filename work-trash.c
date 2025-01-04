@@ -49,8 +49,6 @@ int count_selected_result(GtkBitset *bitset, GListStore *list_store, const char 
 
 void trash_em(user_data *udp)
 {
-	uint32_t cnt = 0;
-	
         // Seed the iterator
         GtkBitsetIter iter;
         guint value = 0;  
