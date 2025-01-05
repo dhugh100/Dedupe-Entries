@@ -19,12 +19,6 @@
 #include "work-selected.h"
 #include "show-columns.h"
 
-// Return ptr to result
-static const char *dup_item_get_result(DupItem *item)
-{
-	return item->result;
-}
-
 // Return ptr to name
 static const char *dup_item_get_name(DupItem *item)
 {
@@ -45,7 +39,7 @@ static void bind_result_cb(GtkSignalListItemFactory *factory, GtkListItem *listi
 {
 	GtkWidget *label = gtk_list_item_get_child(listitem);
 	GObject *item = gtk_list_item_get_item(GTK_LIST_ITEM(listitem));
-	GBinding *prop_bind = g_object_bind_property(item, "result", label, "label", G_BINDING_SYNC_CREATE);
+	g_object_bind_property(item, "result", label, "label", G_BINDING_SYNC_CREATE);
 }
 
 // For the factory, get the fullname for the item into the label
