@@ -159,8 +159,12 @@ typedef struct user_data {
         GtkWidget *name_a_sec_btn;
         GtkWidget *name_d_sec_btn;
 
+	// View file
+	GtkStringList *str_list; 
+
 	// Switches
         gboolean cancel_request; // True if user has requested a cancel
+        gboolean cancel_string_load; // True when view file windows is closed
 
 	// Options
 	char *opt_name;

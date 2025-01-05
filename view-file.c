@@ -18,6 +18,18 @@
 #include "main.h"
 #include "view-file.h"
 
+void do_view_pending ()
+{
+        if (g_main_context_pending(NULL)) g_main_context_iteration(NULL, FALSE);
+}
+
+// Signal time to stop the string load
+gboolean view_file_close_cb (GtkWindow* self, user_data *udp)
+{
+	udp->cancel_string_load = TRUE;
+	return FALSE;  // False to allow the default window close to run
+}
+
 // Factory setup
 
 static void setup_list_view_cb (GtkSignalListItemFactory *self, GtkListItem *listitem)
@@ -84,16 +96,16 @@ void make_string (unsigned char *input, int len_in, char *output, int offset)
 
 // Read file and make strings in dump format
 
-void read_and_make_strings (GtkStringList *str_list, const char *name, GtkWidget *main_window)
+void read_and_make_strings (user_data *udp)
 {
 	// Make the file object for streaming
-	GFile *file = g_file_new_for_path(name);
+	GFile *file = g_file_new_for_path(udp->sel_item->name);
 
 	// Setup input stream
 	GFileInputStream *in = g_file_read(file, NULL, NULL);
 	if (!in) {
-		GtkAlertDialog *alert = gtk_alert_dialog_new("Can't read file %s\n", name);
-		gtk_alert_dialog_show(alert, GTK_WINDOW(main_window));
+		GtkAlertDialog *alert = gtk_alert_dialog_new("Can't read file %s\n", udp->sel_item->name);
+		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
 		return;
 	}
 
@@ -101,7 +113,7 @@ void read_and_make_strings (GtkStringList *str_list, const char *name, GtkWidget
 	unsigned char *read_buff = g_malloc0(READ_BUFF);
 	if (!read_buff) {
 		GtkAlertDialog *alert = gtk_alert_dialog_new("Can't allocate read buff");
-		gtk_alert_dialog_show(alert, GTK_WINDOW(main_window));
+		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
 		return;
 	}
 
@@ -115,30 +127,34 @@ void read_and_make_strings (GtkStringList *str_list, const char *name, GtkWidget
 	char output[128] = { 0x00 }; 
 
 	// Outer loop fills read buffer from file
-	int i, done, left;
+	int i;
 	while (read != 0) {
 		// Inner loop sets up calls for formatting input
 		format = read_buff;  
-		done = 0; 
-
 		// Get as many groups of 16 as we can
 		for (i = 0; i < read; i++) {
+			// Check for cancel
+			if (udp->cancel_string_load) {
+				do_view_pending();
+				goto read_and_make_strings_exit;
+			}
+			if (i != 0 && !(i % 10)) {
+				do_view_pending();
+			}	
 			// Point the format ptr to start of unit to format
 			if (i != 0 && !(i % PRINTABLE_CHAR_SIZE)) {
 				make_string(format, PRINTABLE_CHAR_SIZE, output, offset);
-				gtk_string_list_append(str_list, output); 
+				gtk_string_list_append(udp->str_list, output); 
 				offset += PRINTABLE_CHAR_SIZE; 
 				format = &read_buff[i];  // Point format to current position in read buffer
-				done += 16;
 			}
-
 		}
 
 		// Format any stragglers in the read buffer
-		if (read - done > 0) {
-			format = &read_buff[done]; // Point format to position in read buffer
-			make_string(format, read - done, output, offset);
-			gtk_string_list_append(str_list, output);
+		if (read - offset > 0) {
+			format = &read_buff[read - offset]; // Point format to position in read buffer
+			make_string(format, read - offset, output, offset);
+			gtk_string_list_append(udp->str_list, output);
 		}
 
 		// Fill read buffer from file
@@ -146,6 +162,8 @@ void read_and_make_strings (GtkStringList *str_list, const char *name, GtkWidget
 	}
 
 	// Clean up     
+read_and_make_strings_exit:
+	do_view_pending();
 	g_object_unref(in);
 	g_free(read_buff);
 }
@@ -154,16 +172,15 @@ void read_and_make_strings (GtkStringList *str_list, const char *name, GtkWidget
 // - Use a GtkStringList to hold the strings with no selection
 // - The dump string format: 8 digit offset, 16 hex digits (2 groups of 8), 16 printable characters
 
-void view_file (DupItem *item, GtkWidget *main_window)
+void view_file (user_data *udp)
 {
+	udp->cancel_string_load = FALSE;
+
 	// Initial string list model
-	GtkStringList *str_list = gtk_string_list_new(NULL);
-
+	udp->str_list = gtk_string_list_new(NULL);
+	
 	// Don't want to select anything for model
-	GtkNoSelection *ns = gtk_no_selection_new(G_LIST_MODEL(str_list));
-
-	// Fill up the string list with strings in dump format
-	read_and_make_strings(str_list, item->name, main_window);
+	GtkNoSelection *ns = gtk_no_selection_new(G_LIST_MODEL(udp->str_list));
 
 	// Setup the factory for the list view
 	GtkListItemFactory *factory = gtk_signal_list_item_factory_new();
@@ -172,13 +189,20 @@ void view_file (DupItem *item, GtkWidget *main_window)
 
 	// Setup window and scrolled_window for file view
 	GtkWidget *fview_window = gtk_window_new();
-	gtk_window_set_title(GTK_WINDOW(fview_window), basename((char *)item->name));
+	gtk_window_set_title(GTK_WINDOW(fview_window), basename((char *)udp->sel_item->name));
 	gtk_window_set_default_size(GTK_WINDOW(fview_window), 896, 256);
 	GtkWidget *scrolled_window = gtk_scrolled_window_new();
 	gtk_window_set_child(GTK_WINDOW(fview_window),GTK_WIDGET(scrolled_window));
+
+	// Connect signal to close window
+	g_signal_connect(fview_window, "close-request", G_CALLBACK(view_file_close_cb), udp);
 
 	// Setup and show the list view with no selection
 	GtkWidget *list_view = gtk_list_view_new(GTK_SELECTION_MODEL(ns), factory);
 	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), list_view);
 	gtk_window_present(GTK_WINDOW(fview_window));
+	
+	// Read and make strings in dump format
+	// - Show the strings in the list view while formatting, don't wait for all to be done
+	read_and_make_strings(udp);
 }

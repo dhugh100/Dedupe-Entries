@@ -18,6 +18,6 @@
 #ifndef view_file_h
 #define view_file_h
 
-void view_file (DupItem *, GtkWidget *);
+void view_file (user_data *);
 
 #endif

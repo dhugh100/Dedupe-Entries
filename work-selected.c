@@ -49,7 +49,7 @@ void view_cb(GtkCheckButton *self, user_data *udp)
 	if (gtk_check_button_get_active(self)) {
 		if (strcmp(udp->sel_item->result, STR_DIR) ||
 		    strncmp(udp->sel_item->result, STR_ERR, 5)) {
-			view_file(udp->sel_item, udp->main_window);
+			view_file(udp);
 		} 
 		else {
 			GtkAlertDialog *alert = gtk_alert_dialog_new("Can't view Directories or files with errors");
