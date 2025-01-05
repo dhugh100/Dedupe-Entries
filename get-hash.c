@@ -82,7 +82,7 @@ int getsha256 (DupItem *item, user_data *udp)
 		return 1;
 	}
 	float all_read = read;
-	char percent_read[4]; // 3 digit number plus null
+	char percent_read[7]; // 3 digit number plus '.' plus 2 digit fraction  plus null
 
 	// Loop to read into buffer, update hash and progress bar
 	while (read > 0) {
@@ -99,6 +99,7 @@ int getsha256 (DupItem *item, user_data *udp)
 
 		// Update progress bar
 		sprintf(percent_read, "%3.2f", (float)all_read / strtol(item->file_size, NULL, 10) * 100.0);
+		printf("Percent read: %s\n", percent_read);
 		do_progress_bar((GtkProgressBar *) udp->progress_bar, percent_read, g_file_get_basename(file)); // Show progress bar
 
 		// Fill read buffer from file
@@ -108,7 +109,7 @@ int getsha256 (DupItem *item, user_data *udp)
 	} // End read while
 
 	// Get the hash into the hash buffer
-	int md_len = 0;
+	uint32_t md_len = 0;
 	if (!EVP_DigestFinal_ex(mdctx, ub_hash, &md_len)) {
 		g_object_set(item, "result", "Error: Digest final issue", NULL);
 		g_object_unref(file);

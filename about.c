@@ -28,7 +28,6 @@ void about_cb (GSimpleAction *action, GVariant *parm, user_data *udp)
 	const char *author[] = { "Author", "\nDavid Hugh", NULL };
 
 	// Get logo from inline resource compiled into Dedupe Entries binary
-	GResource *logo_r = logo_get_resource ();
 	GdkTexture *logo_t = gdk_texture_new_from_resource ("/Dedupe Entries/dedupee.png");
 
 	gtk_show_about_dialog (NULL,
