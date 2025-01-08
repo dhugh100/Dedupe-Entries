@@ -71,6 +71,7 @@ void option_init (user_data *udp)
 		udp->opt_include_duplicate = TRUE; // Default to show duplicate files
 		udp->opt_include_unique = TRUE; // Default to show unqiue files
 	}
+	g_free(name);
 }
 
 // Create the main window

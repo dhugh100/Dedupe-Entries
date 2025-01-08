@@ -99,7 +99,6 @@ int getsha256 (DupItem *item, user_data *udp)
 
 		// Update progress bar
 		sprintf(percent_read, "%3.2f", (float)all_read / strtol(item->file_size, NULL, 10) * 100.0);
-		printf("Percent read: %s\n", percent_read);
 		do_progress_bar((GtkProgressBar *) udp->progress_bar, percent_read, g_file_get_basename(file)); // Show progress bar
 
 		// Fill read buffer from file
