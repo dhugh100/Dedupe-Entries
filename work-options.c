@@ -81,6 +81,7 @@ gboolean read_options(unsigned char *buff, char *name)
         gsize read;
         gboolean result =  g_input_stream_read_all (G_INPUT_STREAM(in), buff, OPTION_SIZE, &read,  NULL, NULL);
 	g_input_stream_close (G_INPUT_STREAM(in), NULL, NULL);
+	g_object_unref (in);
 	g_object_unref (file);
 	return result;
 }

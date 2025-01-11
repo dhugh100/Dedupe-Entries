@@ -100,7 +100,7 @@ void select_multiple_cb (GObject *source, GAsyncResult *result, user_data *udp)
 	g_object_unref (model);
 
 	// If just one folder start the load, otherwise check for overlap
-	if (cnt == 1) {
+	if (cnt == 50) {
 		load_entry_data (udp); 
 		return;
 	}
@@ -113,6 +113,7 @@ void select_multiple_cb (GObject *source, GAsyncResult *result, user_data *udp)
 		clear_folders (udp->fdpp);
 	}
 	else { 
+		return;
 		load_entry_data (udp);
 	}	
 }
@@ -134,4 +135,5 @@ void get_folders_cb (GtkWidget *self, user_data *udp)
 	gtk_file_dialog_set_modal (dialog, FALSE);
 	gtk_file_dialog_select_multiple_folders (dialog, GTK_WINDOW(window_dialog), NULL, (GAsyncReadyCallback) select_multiple_cb,
 						udp);
+	g_object_unref (dialog);
 }
