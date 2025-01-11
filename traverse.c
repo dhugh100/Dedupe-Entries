@@ -26,7 +26,7 @@
 
 int traverse (char *dir_str, user_data *udp)
 {
-	char full_name[STR_NAME] = { 0x00 }; // Create full names from passed dir and dir entry
+	char full_name[STR_PATH] = { 0x00 }; // Create full names from passed dir and dir entry
 	char buff[100] = { 0x00 }; // Buffer for conversions
 
 	// Attribute and time structures

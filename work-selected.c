@@ -141,10 +141,12 @@ void launch_cb(GtkCheckButton *self, user_data *udp)
 	GFile *file = g_file_new_for_path(item->name);
         GtkFileLauncher *file_launcher = gtk_file_launcher_new (file);
         gtk_file_launcher_set_file (file_launcher, file);
+	g_object_unref(file);
         gtk_file_launcher_set_always_ask (file_launcher, TRUE);
 	gtk_file_launcher_launch (file_launcher, GTK_WINDOW(udp->main_window), NULL, (GAsyncReadyCallback) launch_async_cb, NULL);
 
 	wipe_selected(udp);
+	g_object_unref(file_launcher);
 }	
 
 // An entry was selected, show the actions for the item

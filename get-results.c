@@ -23,7 +23,8 @@ int cmp_function (const void *a, const void *b)
 {
 	DupItem const *a_item = a;
 	DupItem const *b_item = b;
-	return (memcmp(a_item->hash, b_item->hash, sizeof(a_item->hash))); // Compare hash 
+	return(strcmp(a_item->hash, b_item->hash)); // Compare hash
+	//return (memcmp(a_item->hash, b_item->hash, sizeof(a_item->hash))); // Compare hash 
 }
 
 // Get group designation into the result field of the item

@@ -52,14 +52,13 @@ void adjust_sfs_button_sensitivity (user_data *udp)
 void option_init (user_data *udp)
 {
 	// Construct file name
-	char *name = g_malloc0(STR_NAME);
-	strcpy(name, g_get_home_dir());
-	strcat(name, "/.config/dedupe-entries.cfg");
-	udp->opt_name = name;
+	udp->opt_name = g_malloc0(strlen(g_get_home_dir()) + strlen("/.config/dedupe-entries.cfg") + 1);	
+	strcpy(udp->opt_name, g_get_home_dir());
+	strcat(udp->opt_name, "/.config/dedupe-entries.cfg");
 
 	// Read any saved options in gvariant serialized format
-	unsigned char buff[OPTION_SIZE];
-	if (read_options(buff, name)) {
+	unsigned char buff[OPTION_SIZE] = {0x00};
+	if (read_options(buff, udp->opt_name)) {
 		GVariant *value = g_variant_new("(bbbb)", buff[0], buff[1], buff[2], buff[3]);
 		g_variant_get(value, "(bbbb)", &udp->opt_include_empty, &udp->opt_include_directory, &udp->opt_include_duplicate,
 			      &udp->opt_include_unique);
@@ -71,7 +70,6 @@ void option_init (user_data *udp)
 		udp->opt_include_duplicate = TRUE; // Default to show duplicate files
 		udp->opt_include_unique = TRUE; // Default to show unqiue files
 	}
-	g_free(name);
 }
 
 // Create the main window
@@ -172,6 +170,10 @@ void main_window (GtkApplication *app, user_data *udp)
 
 	// Now present the windows
 	gtk_window_present(GTK_WINDOW(main_window));
+
+	g_object_unref(menu);
+	g_object_unref(options);
+	g_object_unref(about);
 }
 
 // Work command line
@@ -207,7 +209,8 @@ int main (int argc, char **argv)
 	g_free(udp->opt_name);
 	g_free(udp->sep); // Free up search memory
 	g_free(udp->fep); // Free up filter memory
-	clear_folders(udp->fdpp); // Free up folder memory if allocated
+	clear_folders(udp->fdpp); // Free up folder string memory
+	g_free(udp->fdpp); // Free up folder memory
 	g_free(udp); // Free up main user data memory
 
 	return status;

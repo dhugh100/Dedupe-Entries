@@ -39,9 +39,8 @@
 #define MAX_GROUPS (MAX_ENTRIES / 2) // Arbitrary
 
 // Char buffer sizes for strings
-#define STR_PATH (PATH_MAX) // From limits.h includes null
+#define STR_PATH PATH_MAX // From limits.h includes null
 #define STR_BNAME (NAME_MAX + 1) // From limits.h add null
-#define STR_NAME (PATH_MAX + NAME_MAX)
 #define STR_HASH (SHA256_DIGEST_LENGTH * 2) + 1 // Two asci hex digits for hash byte + Null
 #define STR_CLIP (STR_PATH * 1000) // Clipboard mostly for small groups
 

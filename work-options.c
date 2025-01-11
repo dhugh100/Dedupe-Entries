@@ -35,7 +35,9 @@ void save_cb(GtkCheckButton *self, user_data *udp)
         GFile *file = g_file_new_for_path (udp->opt_name);
         GFileOutputStream *out = g_file_replace (file, NULL, TRUE, G_FILE_CREATE_NONE, NULL, NULL);
         if (!out) {
-	        GtkAlertDialog *alert = gtk_alert_dialog_new ("Can't open option stream");
+        	g_output_stream_close (G_OUTPUT_STREAM (out), NULL, NULL);
+		g_object_unref (file);
+		GtkAlertDialog *alert = gtk_alert_dialog_new ("Can't open option stream");
         	gtk_alert_dialog_show (alert, GTK_WINDOW (udp->main_window));
         }
 
@@ -51,11 +53,14 @@ void save_cb(GtkCheckButton *self, user_data *udp)
         gsize wrote;
         gboolean result = g_output_stream_write_all (G_OUTPUT_STREAM (out), data, sz, &wrote, NULL, NULL);
         if (!result) {
+        	g_output_stream_close (G_OUTPUT_STREAM (out), NULL, NULL);
+		g_object_unref (file);
 	        GtkAlertDialog *alert = gtk_alert_dialog_new ("Problem writing file");
         	gtk_alert_dialog_show (alert, GTK_WINDOW (udp->main_window));
         }
+       	g_output_stream_close (G_OUTPUT_STREAM (out), NULL, NULL);
+	g_object_unref (file);
 
-        g_output_stream_close (G_OUTPUT_STREAM (out), NULL, NULL);
         gtk_window_close (GTK_WINDOW (udp->option_window));  
 }
 
@@ -75,6 +80,8 @@ gboolean read_options(unsigned char *buff, char *name)
         // Read in serialized gvariant
         gsize read;
         gboolean result =  g_input_stream_read_all (G_INPUT_STREAM(in), buff, OPTION_SIZE, &read,  NULL, NULL);
+	g_input_stream_close (G_INPUT_STREAM(in), NULL, NULL);
+	g_object_unref (file);
 	return result;
 }
 
