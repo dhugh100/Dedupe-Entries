@@ -24,11 +24,10 @@ int cmp_function (const void *a, const void *b)
 	DupItem const *a_item = a;
 	DupItem const *b_item = b;
 	return(strcmp(a_item->hash, b_item->hash)); // Compare hash
-	//return (memcmp(a_item->hash, b_item->hash, sizeof(a_item->hash))); // Compare hash 
 }
 
 // Get group designation into the result field of the item
-// - Field could have been initialed with error or directory prior to call
+// - Field could have been initialed with error or directory prior to call, othewise pointer is 0
 
 int get_results (user_data *udp)
 {
@@ -45,13 +44,10 @@ int get_results (user_data *udp)
 	uint32_t i = 0; // Loop counter
 	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(udp->list_store));
 
-	DupItem *item = g_object_new(DUP_TYPE_ITEM, NULL);
-	DupItem *next_item = g_object_new(DUP_TYPE_ITEM, NULL);
-
 	// Edge case of 1 entry
 	if (cnt == 1) {
-		item = g_list_model_get_item((GListModel *) udp->list_store, 0);
-		if (strlen(item->result) != 0x00) { // Skip if a directory or an error
+		DupItem *item = g_list_model_get_item((GListModel *) udp->list_store, 0);
+		if (item->result != 0x00) { // Skip if already initialed
 			g_object_unref(item);
 			return 1;
 		}
@@ -65,16 +61,16 @@ int get_results (user_data *udp)
 
 		if (udp->cancel_request == TRUE) return 0; // Stop processing if cancel requested
 
-		item = g_list_model_get_item((GListModel *) udp->list_store, i);
+		DupItem *item = g_list_model_get_item((GListModel *) udp->list_store, i);
+		DupItem *next_item = g_list_model_get_item((GListModel *) udp->list_store, i + 1);
 
-		// Skip if a directory or an error already in result, otherwise should be 1 or more
-		if (strlen(item->result) > 0) {
+		// Skip if result already initialed
+		if (item->result != 0x00) {
 			i++;
 			g_object_unref(item);
+			g_object_unref(next_item);
 			continue;
 		}
-
-		next_item = g_list_model_get_item((GListModel *) udp->list_store, i + 1);
 
 		// See if current item equal to saved current group hash        
 		if (!strcmp((const char *)cghash, item->hash)) { // True if not equal to current group 
@@ -98,10 +94,10 @@ int get_results (user_data *udp)
 	}
 
 	// Handle last file struct outside of loop
-	item = g_list_model_get_item((GListModel *) udp->list_store, i);
+	DupItem *item = g_list_model_get_item((GListModel *) udp->list_store, i);
 
 	// First see if result already there
-	if (strlen(item->result) > 0) { // Skip if a directory or an error
+	if (item->result != 0x00) { // Skip if a directory or an error
 		g_object_unref(item);
 		return 1;
 	}
@@ -110,11 +106,11 @@ int get_results (user_data *udp)
 	if (!strcmp((const char *)cghash, item->hash)) { // False if equal 
 		sprintf(buff, "%07d", group);
 		g_object_set(item, "result", buff, NULL);
-		g_object_unref(item);
 	}
 	else {
 		g_object_set(item, "result", STR_UNI, NULL);
-		g_object_unref(item);
 	}
+
+	g_object_unref(item);
 	return 1;
 }

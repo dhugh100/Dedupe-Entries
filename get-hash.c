@@ -54,7 +54,7 @@ int getsha256 (DupItem *item, user_data *udp)
 	// Setup input stream
 	GFileInputStream *in = g_file_read(file, NULL, NULL);
 	if (!in) {
-		g_object_set(item, "result", "Error: file read failure", NULL);
+		g_object_set(item, "result", "Error: file read failure", "hash", "", NULL);
 		g_object_unref(file);
 		return 1;
 	}
@@ -64,6 +64,8 @@ int getsha256 (DupItem *item, user_data *udp)
 	if (!read_buff) {
 		g_object_set(item, "result", "Error: read buffer allocation failure", NULL);
 		g_object_unref(file);
+		g_input_stream_close(G_INPUT_STREAM(in), NULL, NULL);
+		g_object_unref(in);
 		return 0;
 	}
 
@@ -76,8 +78,9 @@ int getsha256 (DupItem *item, user_data *udp)
 	int read = 0;
 	read = g_input_stream_read(G_INPUT_STREAM(in), read_buff, READ_BUFF, NULL, NULL);
 	if (read == -1) {
-		g_object_set(item, "result", "Error: seed read failure", NULL);
+		g_object_set(item, "result", "Error: seed read failure", "hash", "", NULL);
 		g_object_unref(file);
+		g_input_stream_close(G_INPUT_STREAM(in), NULL, NULL);
 		g_object_unref(in);
 		return 1;
 	}
@@ -91,15 +94,16 @@ int getsha256 (DupItem *item, user_data *udp)
 
 		// Update hash
 		if (!EVP_DigestUpdate(mdctx, read_buff, read)) {
-			g_object_set(item, "result", "Error: Digest update issue", NULL);
+			g_object_set(item, "result", "Error: Digest update issue", "hash", "", NULL);
 			g_object_unref(file);
+			g_input_stream_close(G_INPUT_STREAM(in), NULL, NULL);
 			g_object_unref(in);
 			return 1;
 		}
 
 		// Update progress bar
 		sprintf(percent_read, "%3.2f", (float)all_read / strtol(item->file_size, NULL, 10) * 100.0);
-		do_progress_bar((GtkProgressBar *) udp->progress_bar, percent_read, g_file_get_basename(file)); // Show progress bar
+		do_progress_bar((GtkProgressBar *) udp->progress_bar, percent_read, basename((char *)item->name)); // Show progress bar
 
 		// Fill read buffer from file
 		read = g_input_stream_read(G_INPUT_STREAM(in), read_buff, READ_BUFF, NULL, NULL);
@@ -110,8 +114,9 @@ int getsha256 (DupItem *item, user_data *udp)
 	// Get the hash into the hash buffer
 	uint32_t md_len = 0;
 	if (!EVP_DigestFinal_ex(mdctx, ub_hash, &md_len)) {
-		g_object_set(item, "result", "Error: Digest final issue", NULL);
+		g_object_set(item, "result", "Error: Digest final issue", "hash", "", NULL);
 		g_object_unref(file);
+		g_input_stream_close(G_INPUT_STREAM(in), NULL, NULL);
 		g_object_unref(in);
 		return 1;
 	}
@@ -129,6 +134,7 @@ int getsha256 (DupItem *item, user_data *udp)
 	// Cleanup
 	g_object_unref(file);
 	EVP_MD_CTX_free(mdctx);
+	g_input_stream_close(G_INPUT_STREAM(in), NULL, NULL);
 	g_object_unref(in);
 	g_free(read_buff);
 	return 1;

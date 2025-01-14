@@ -49,6 +49,7 @@
 #define STR_EMP "Empty\0"
 #define STR_ERR "Error\0"
 #define STR_UNI "Unique\0"
+#define STR_SPACE " \0"
 
 // Define the DupItem GObject type
 #define DUP_TYPE_ITEM (dup_item_get_type ())

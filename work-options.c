@@ -34,12 +34,6 @@ void save_cb(GtkCheckButton *self, user_data *udp)
         // Setup file and stream for writing
         GFile *file = g_file_new_for_path (udp->opt_name);
         GFileOutputStream *out = g_file_replace (file, NULL, TRUE, G_FILE_CREATE_NONE, NULL, NULL);
-        if (!out) {
-        	g_output_stream_close (G_OUTPUT_STREAM (out), NULL, NULL);
-		g_object_unref (file);
-		GtkAlertDialog *alert = gtk_alert_dialog_new ("Can't open option stream");
-        	gtk_alert_dialog_show (alert, GTK_WINDOW (udp->main_window));
-        }
 
         // Creat variant from current values
         GVariant *value = g_variant_new ("(bbbb)", udp->opt_include_empty, udp->opt_include_directory, udp->opt_include_duplicate, udp->opt_include_unique);
@@ -52,21 +46,24 @@ void save_cb(GtkCheckButton *self, user_data *udp)
         // Write in one fell swoop
         gsize wrote;
         gboolean result = g_output_stream_write_all (G_OUTPUT_STREAM (out), data, sz, &wrote, NULL, NULL);
-        if (!result) {
-        	g_output_stream_close (G_OUTPUT_STREAM (out), NULL, NULL);
-		g_object_unref (file);
+
+	// Clean up
+	g_variant_unref (value);
+       	g_output_stream_close (G_OUTPUT_STREAM (out), NULL, NULL);
+	g_object_unref (out);
+	g_object_unref (file);
+
+	if (!result) {
 	        GtkAlertDialog *alert = gtk_alert_dialog_new ("Problem writing file");
         	gtk_alert_dialog_show (alert, GTK_WINDOW (udp->main_window));
         }
-       	g_output_stream_close (G_OUTPUT_STREAM (out), NULL, NULL);
-	g_object_unref (file);
 
-        gtk_window_close (GTK_WINDOW (udp->option_window));  
+	gtk_window_close (GTK_WINDOW (udp->option_window));  
 }
 
 gboolean read_options(unsigned char *buff, char *name)
 {
-        // Get file size, and if not there exit
+        // Get file size, and if 0 exit
         struct stat attr;
         stat(name, &attr);
         if (attr.st_size != OPTION_SIZE) {
@@ -77,9 +74,11 @@ gboolean read_options(unsigned char *buff, char *name)
         GFile *file = g_file_new_for_path(name);
         GFileInputStream *in = g_file_read(file, NULL, NULL);
 
-        // Read in serialized gvariant
+        // Read into buff
         gsize read;
         gboolean result =  g_input_stream_read_all (G_INPUT_STREAM(in), buff, OPTION_SIZE, &read,  NULL, NULL);
+
+	// Clean up
 	g_input_stream_close (G_INPUT_STREAM(in), NULL, NULL);
 	g_object_unref (in);
 	g_object_unref (file);

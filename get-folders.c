@@ -102,7 +102,6 @@ void select_multiple_cb (GObject *source, GAsyncResult *result, user_data *udp)
 	// If just one folder start the load, otherwise check for overlap
 	if (cnt == 50) {
 		load_entry_data (udp); 
-		return;
 	}
 
 	// See if folders overlap, not allowed
@@ -113,7 +112,6 @@ void select_multiple_cb (GObject *source, GAsyncResult *result, user_data *udp)
 		clear_folders (udp->fdpp);
 	}
 	else { 
-		return;
 		load_entry_data (udp);
 	}	
 }

@@ -26,6 +26,7 @@
 
 int traverse (char *dir_str, user_data *udp)
 {
+	int rcode = 1; // Return code, 1 is good, 0 is error
 	char full_name[STR_PATH] = { 0x00 }; // Create full names from passed dir and dir entry
 	char buff[100] = { 0x00 }; // Buffer for conversions
 
@@ -44,7 +45,7 @@ int traverse (char *dir_str, user_data *udp)
 
 	// Setup directory item
 	DupItem *item =
-	    g_object_new(DUP_TYPE_ITEM, "result", STR_DIR, "name", dir_str, "hash", "", "file_size", "", "modified", "", NULL);
+	    g_object_new(DUP_TYPE_ITEM, "name", dir_str, "hash", "", "file_size", "", "modified", "", NULL);
 
 	// Open the directory in preparation for loop
 	dir = opendir(dir_str);
@@ -92,12 +93,11 @@ int traverse (char *dir_str, user_data *udp)
 		}
 
 		// Create object to store
-		item =
-		    g_object_new(DUP_TYPE_ITEM, "result", "", "name", full_name, "hash", "", "file_size", "", "modified", "", NULL);
+		item = g_object_new(DUP_TYPE_ITEM, "name", full_name, NULL);
 
 		// Get stat structure initialed with current entry
 		if (stat(full_name, &attr) == -1) { // -1 is error on stat
-			g_object_set(item, "result", "Error: stat failed", NULL);
+			g_object_set(item, "result", "Error: stat failed", "hash", " ", "file_size", "", "modified", "", NULL);
 			g_list_store_append(udp->list_store, item);
 			g_object_unref(item);
 			continue;
@@ -114,15 +114,16 @@ int traverse (char *dir_str, user_data *udp)
 
 		// Get the hash into item and record any error in result
 		if (attr.st_size != 0) {
-			getsha256(item, udp); // Will store hex digits representing hash in item
+			rcode = getsha256(item, udp); // Will store hex digits representing hash in item
 			g_list_store_append(udp->list_store, item);
 			g_object_unref(item);
 		}
 		else {
-			g_object_set(item, "result", STR_EMP, NULL);
+			g_object_set(item, "result", STR_EMP, "hash", "", NULL);
 			g_list_store_append(udp->list_store, item);
 			g_object_unref(item);
 		}
+		if (rcode == 0) return 0; // Stop if error in hash
 	} // End Dir read while   
 
 	if (dir) closedir(dir);
