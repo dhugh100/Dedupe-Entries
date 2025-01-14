@@ -22,25 +22,9 @@
 #include "traverse.h"
 #include "get-results.h"
 #include "sort-store.h"
+#include "lib.h"
 #include "see-entry-data.h"
 #include "load-store.h"
-
-// Free up the store items 
-
-void clear_store_items(GListStore *list_store)
-{
-	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(list_store));
-	for (int i = 0; i < cnt; i++) {
-		DupItem *item = g_list_model_get_item(G_LIST_MODEL(list_store), i);
-		g_free((const gpointer)item->result);  
-		g_free((const gpointer)item->name);  
-		g_free((const gpointer)item->hash);
-		g_free((const gpointer)item->file_size);
-		g_free((const gpointer)item->modified);
-		g_object_unref(item);
-	}
-	g_list_store_remove_all(list_store);
-}
 
 // Cancel clean up
 // - Remove any entries from list store (could be partial and misleading)
@@ -73,97 +57,31 @@ void cancel_cb (GtkWidget *self, user_data *udp)
 	g_idle_add((GSourceFunc) clean_up, udp);
 }
 
-// Compare function for find in result column
-// - Could be Error, Empty, Directory, Group, Unique
-// - Called by find with equal function
+// Exclude the empty, directory, group and unique items if not directed to be included in options
 
-gboolean find_result (DupItem *item1, DupItem *item2)
+void exclude_items (user_data *udp)
 {
-	if (!strcmp(item1->result, item2->result)) return TRUE;
-	else return FALSE;
-}
+	// Get count of items in list store
+	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(udp->list_store));
 
-// Run through list store to weed out the group items
-// - Use regex bre to find valid groups in result
-// - Must be sorted by result column to use
-
-void splice_group (GListStore *list_store)
-{
-	regex_t regex;
-	regcomp(&regex, "^[0-9]\\{7\\}$", REG_NOSUB); // Group number is 7 digits, BRE
-
-	uint32_t start_position = 0, end_position = 0, i = 0, j = 0;
-
-	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(list_store));
-
-	// Find start and stop index for upcoming splice of group
-	for (; i < cnt; i++) {
-		DupItem *item = g_list_model_get_item(G_LIST_MODEL(list_store), i);
-		if (regexec (&regex,(item->result), 0, NULL, 0) == 0) {
-			start_position = i;
-			for (j = i + 1; j < cnt; j++) {
-				DupItem *item = g_list_model_get_item(G_LIST_MODEL(list_store), j);
-				if (regexec (&regex,(item->result), 0, NULL, 0) == REG_NOMATCH) {
-					end_position = j;
-					break;
-				}
-				g_object_unref(item);
-			}
-			break;
+	for (int i = 0; i < cnt; i++) {
+		DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), i);
+		if ((!udp->opt_include_unique && !strcmp(item->result, STR_UNI)) ||
+		    (!udp->opt_include_directory && !strcmp(item->result, STR_DIR)) ||
+		    (!udp->opt_include_empty && !strcmp(item->result, STR_EMP)) ||
+		    (!udp->opt_include_duplicate && isdigit(item->result[0]))) {
+			free_item_memory(item);
+			g_list_store_remove(udp->list_store, i);
+			i--; // Adjust for removed item
+			cnt--; // Adjust for removed item
 		}
 		g_object_unref(item);
 	}
-
-	// Account for edge condition where end_position is not set
-	if (end_position == 0) end_position = j; // One more than end of list store, need to setup substraction for splice
-	if (j == 0) return; // Never found a good group number
-
-	// Splice out the entries
-	g_list_store_splice(list_store, start_position, end_position - start_position, NULL, 0);
-}
-
-// Run though list store to weed out the empty, directory, and unique items if not directed to be included in options
-// - Can't implement completely during load process as have to load item before determining unique/dup results
-// - App default is to include all files, cutting down on the need to work this function
-// - Iterate with remove on the fly problematic (cnt is less, but what is position ?)
-// - Must be sorted by result column to use 
-
-void find_and_splice (GListStore *list_store, char *str)
-{
-	uint32_t start_position = 0, end_position = 0, i = 0;
-	gboolean result = FALSE;
-
-	// Get count of items in list store
-	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(list_store));
-
-	// Get the first item in the list store
-	DupItem *item = g_object_new(DUP_TYPE_ITEM, "result", str, NULL); // Have to pass item to find   
-	result = g_list_store_find_with_equal_func(list_store, item, (GEqualFunc) find_result, &start_position);
-
-	// If found the start, now need to find the end
-	if (result) {
-		end_position = 0;
-		// Loop until find a different result
-		for (i = start_position; i < cnt; i++) {
-			DupItem *next = g_list_model_get_item(G_LIST_MODEL(list_store), i);
-			if (strcmp(str, next->result)) { // Doesn't match so has changed
-				end_position = i;
-				g_object_unref(next);
-				break;
-			}
-			g_object_unref(next);
-		}
-		// Account for edge condition  where end_position is not set
-		if (end_position == 0) end_position = i; // One more than end of list store, need to setup substraction for splice
-
-		// Splice out the entries
-		g_list_store_splice(list_store, start_position, end_position - start_position, NULL, 0);
-	}
-	g_object_unref(item);
 }
 
 // Sort compare
 // - Default is result primary, name secondary, both ascending
+
 int cmp_a (const void *a, const void *b, user_data *udp)
 {
 	DupItem *item1 = (DupItem *) a;
@@ -231,17 +149,14 @@ void load_entry_data (user_data *udp)
 
 		// No show stopper (0) so get results 
 		if (!get_results(udp)) break;
-		return;
 
 		// No show stopper (0) so check to see if result type should be included
-		// Sort the list store by so can find start and end of unique, empty, group and directory results as needed
-		g_list_store_sort(udp->list_store, (GCompareDataFunc) cmp_a, udp); // Sort by result/name columns ascending
+		if (!udp->opt_include_unique || !udp->opt_include_directory ||
+	       	    !udp->opt_include_empty || !udp->opt_include_duplicate)
+ 			exclude_items(udp);
 
-		// Remove the entries from the list store that are not to be included
-		if (!udp->opt_include_empty) find_and_splice(udp->list_store, STR_EMP);
-		if (!udp->opt_include_directory) find_and_splice(udp->list_store, STR_DIR);
-		if (!udp->opt_include_unique) find_and_splice(udp->list_store, STR_UNI);
-		if (!udp->opt_include_duplicate) splice_group(udp->list_store); // Remove the group entries
+		g_list_store_sort(udp->list_store, (GCompareDataFunc) cmp_a, NULL);
+
 	} // End for
 
 	// Show columns if something to show

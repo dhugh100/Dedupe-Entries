@@ -24,7 +24,7 @@
 #include <limits.h>
 #include <openssl/evp.h> // For hash calculation
 #include <assert.h> // for debugging
-#include <regex.h> 
+#include <ctype.h> 
 #include <libgen.h> 
 
 // General

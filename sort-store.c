@@ -126,20 +126,9 @@ void alter_secondary_sensitvity (GtkCheckButton *button, user_data *udp)
 // Prompt the user to choose proceed or cancel
 void get_sort_type_cb (GtkWidget *self, user_data *udp)
 {
-	// Create labels
-	const char *format = "<span weight=\"bold\">\%s</span>";
-
 	// Primary setup
-	GtkWidget *primary_l = gtk_label_new(NULL);
-	char *str = "Primary Sort Option";
-	char *markup = g_markup_printf_escaped(format, str);
-	gtk_label_set_markup(GTK_LABEL(primary_l), markup);
-
-	// Secondary setup
-	GtkWidget *secondary_l = gtk_label_new("NULL");
-	str = "Secondary Sort Option";
-	markup = g_markup_printf_escaped(format, str);
-	gtk_label_set_markup(GTK_LABEL(secondary_l), markup);
+	GtkWidget *primary_l = gtk_label_new("Primary");
+	GtkWidget *secondary_l = gtk_label_new("Secondary");
 
 	// Create check buttons
 	// - No result secondary since no secondary for primary name sort 

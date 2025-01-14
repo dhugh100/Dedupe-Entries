@@ -1,0 +1,94 @@
+gboolean filter_match (DupItem *item, user_data *udp) filter-store.c
+gboolean read_options(unsigned char *buff, char *name) work-options.c
+gboolean subname (DupItem *item, user_data *udp) filter-store.c
+gboolean subres (DupItem *item, user_data *udp) filter-store.c
+gboolean view_file_close_cb (GtkWindow* self, user_data *udp) view-file.c
+int cmp_a (const void *a, const void *b, user_data *udp) load-store.c
+int cmp_function (const void *a, const void *b) get-results.c
+int cmp_name_a (const void *a, const void *b, user_data *udp) sort-store.c
+int cmp_name_d (const void *a, const void *b, user_data *udp) sort-store.c
+int cmp_result_a (const void *a, const void *b, user_data *udp) sort-store.c
+int cmp_result_d (const void *a, const void *b, user_data *udp) sort-store.c
+int cmp_sec (const void *a, const void *b) sort-store.c
+int count_selected_result(GtkBitset *bitset, GListStore *list_store, const char *result) work-trash.c
+int find_overlap(int cnt, user_data *udp) get-folders.c
+int get_count (char *target, char search) get-folders.c
+int get_results (user_data *udp) get-results.c
+int getsha256 (DupItem *item, user_data *udp) get-hash.c
+int main (int argc, char **argv) main.c
+int traverse (char *dir_str, user_data *udp) traverse.c
+static const char *dup_item_get_name(DupItem *item) show-columns.c
+static const SECTION union { const guint8 data[1807]; const double alignment; void * const ptr;}  logo_resource_data = { logo.c
+static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, }; // Use in class init install-property.c
+static GStaticResource static_resource = { logo_resource_data.data, sizeof (logo_resource_data.data) - 1 /* nul terminator */, NULL, NULL, NULL }; logo.c
+static void bind_list_view_cb (GtkSignalListItemFactory *self, GtkListItem *listitem) view-file.c
+static void bind_name_cb(GtkSignalListItemFactory *factory, GtkListItem *listitem, user_data *udp) show-columns.c
+static void bind_result_cb(GtkSignalListItemFactory *factory, GtkListItem *listitem, user_data *udp) show-columns.c
+static void dup_item_class_init(DupItemClass *klass) install-property.c
+static void dup_item_init(DupItem *item) install-property.c
+static void dup_item_set_property(GObject *object, uint32_t property_id, const GValue *value, GParamSpec *pspec) install-property.c
+static void logoresource_constructor (void) logo.c
+static void logoresource_destructor (void) logo.c
+static void setup_cb(GtkSignalListItemFactory *factory, GObject *listitem) show-columns.c
+static void setup_list_view_cb (GtkSignalListItemFactory *self, GtkListItem *listitem) view-file.c
+uint32_t search_match_loop (GListStore *list_store, uint32_t cnt, uint32_t *next_check, const char *text) search.c
+void about_cb (GSimpleAction *action, GVariant *parm, user_data *udp) about.c
+void adjust_sfs_button_sensitivity (user_data *udp) main.c
+void alter_secondary_sensitvity (GtkCheckButton *button, user_data *udp) sort-store.c
+void and_cb (GtkCheckButton *self, user_data *udp) filter-store.c
+void apply_cb(GtkCheckButton *self, user_data *udp) work-options.c
+void apply_filters_cb (GtkWidget *self, user_data *udp) filter-store.c
+void apply_sort_cb (GtkCheckButton *button, user_data *udp) sort-store.c
+void build_filtered_store(GListStore *current, GListStore *new, user_data *udp) filter-store.c
+void cancel_cb (GtkWidget *self, user_data *udp) load-store.c
+void clean_up (user_data *udp) load-store.c
+void clear_filters_cb (GtkWidget *self, user_data *udp) filter-store.c
+void clear_folders (char *fopp[MAX_FOLDERS]) get-folders.c
+void clear_store_items(GListStore *list_store) load-store.c
+void cmd_line_directory_cb (GApplication *app, GFile **files, int n_files, const char *hint, user_data *udp) main.c
+void copy_cb(GtkCheckButton *self, user_data *udp) work-selected.c
+void copy_store (GListStore *src, GListStore *dst) filter-store.c
+void directory_cb(GtkCheckButton *self, user_data *udp) work-options.c
+void do_pending () get-hash.c
+void do_progress_bar (GtkProgressBar *progress_bar, char *percent, const char *name) get-hash.c
+void do_view_pending () view-file.c
+void dup_item_get_property (GObject *object, uint32_t property_id, GValue *value, GParamSpec *pspec) install-property.c
+void duplicate_cb(GtkCheckButton *self, user_data *udp) work-options.c
+void empty_cb(GtkCheckButton *self, user_data *udp) work-options.c
+void exclude_items (user_data *udp) load-store.c
+void free_item_memory (DupItem *item) load-store.c
+void get_filters_cb (GtkWidget *self, user_data *udp) filter-store.c
+void get_folders_cb (GtkWidget *self, user_data *udp) get-folders.c
+void get_sort_type_cb (GtkWidget *self, user_data *udp) sort-store.c
+void initialize_filter (user_data *udp) filter-store.c
+void launch_async_cb (GtkFileLauncher *launcher, GAsyncResult *res, GError **error) work-selected.c
+void launch_cb(GtkCheckButton *self, user_data *udp) work-selected.c
+void load_entry_data (user_data *udp) load-store.c
+void main_window (GtkApplication *app, user_data *udp) main.c
+void make_string (unsigned char *input, int len_in, char *output, int offset) view-file.c
+void name_buff_cb (GtkWidget *self, user_data *udp) filter-store.c
+void name_n_cb (GtkCheckButton *self, user_data *udp) filter-store.c
+void option_init (user_data *udp) main.c
+void or_cb (GtkCheckButton *self, user_data *udp) filter-store.c
+void prompt_next (user_data *udp) search.c
+void prompt_trash(user_data * udp); work-trash.c
+void prompt_trash(user_data *udp) work-trash.c
+void read_and_make_strings (user_data *udp) view-file.c
+void res_n_cb (GtkCheckButton *self, user_data *udp) filter-store.c
+void result_buff_cb (GtkWidget *self, user_data *udp) filter-store.c
+void save_cb(GtkCheckButton *self, user_data *udp) work-options.c
+void see_entry_data (GListStore *list_store, GtkMultiSelection *selection) see-entry-data.c
+void select_multiple_cb (GObject *source, GAsyncResult *result, user_data *udp) get-folders.c
+void set_sensitivity_clear_button (filter_entry *ep) filter-store.c
+void show_columns (user_data *udp) show-columns.c
+void trash_em(user_data *udp) work-trash.c
+void unique_cb(GtkCheckButton *self, user_data *udp) work-options.c
+void view_cb(GtkCheckButton *self, user_data *udp) work-selected.c
+void view_file (user_data *udp) view-file.c
+void wipe_selected(user_data *udp) work-selected.c
+void work_next_choice (GObject *source_object, GAsyncResult *res, void *ptr) search.c
+void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp) work-options.c
+void work_search_entry_cb (GtkWidget *self, user_data *udp) search.c
+void work_selected_file_cb(GtkGestureClick *self, int n_press, double x, double y, user_data *udp) work-selected.c
+void work_trash_cb(GtkWidget *self, user_data *udp) work-trash.c
+void work_trash_choice(GObject *source_object, GAsyncResult *res, void *ptr) work-trash.c

@@ -17,8 +17,9 @@
 
 #include "main.h"
 #include "show-columns.h"
-#include "work-options.h"
 #include "load-store.h"
+#include "lib.h"
+#include "work-options.h"
 
 void apply_cb(GtkCheckButton *self, user_data *udp)
 {
@@ -61,29 +62,6 @@ void save_cb(GtkCheckButton *self, user_data *udp)
 	gtk_window_close (GTK_WINDOW (udp->option_window));  
 }
 
-gboolean read_options(unsigned char *buff, char *name)
-{
-        // Get file size, and if 0 exit
-        struct stat attr;
-        stat(name, &attr);
-        if (attr.st_size != OPTION_SIZE) {
-                return FALSE;
-        }
-
-        // Setup file and stream
-        GFile *file = g_file_new_for_path(name);
-        GFileInputStream *in = g_file_read(file, NULL, NULL);
-
-        // Read into buff
-        gsize read;
-        gboolean result =  g_input_stream_read_all (G_INPUT_STREAM(in), buff, OPTION_SIZE, &read,  NULL, NULL);
-
-	// Clean up
-	g_input_stream_close (G_INPUT_STREAM(in), NULL, NULL);
-	g_object_unref (in);
-	g_object_unref (file);
-	return result;
-}
 
 void unique_cb(GtkCheckButton *self, user_data *udp)
 {

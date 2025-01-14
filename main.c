@@ -23,6 +23,7 @@
 #include "load-store.h"
 #include "search.h"
 #include "about.h"
+#include "lib.h"
 #include "see-entry-data.h"
 
 // Adjust the sensitivity of the sort, filter buttons and search bar based on the status of the list store
