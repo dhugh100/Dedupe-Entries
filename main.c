@@ -206,15 +206,17 @@ int main (int argc, char **argv)
 	int status = g_application_run(G_APPLICATION(app), argc, argv);
 
 	// Clean up
-	if (udp->list_store) { 
-		clear_store_items(udp->list_store); 
-		g_object_unref(udp->list_store);
-	}	
-
+	// - Clear the saved list store first as created during filter and most complete list
 	if (udp->saved_list_store) { 
+		clear_store_items(udp->saved_list_store); 
+		g_object_unref(udp->saved_list_store);
+		g_list_store_remove_all(udp->list_store); 
+		g_object_unref(udp->list_store); 
+	}	
+	else if (udp->list_store) { 
 		clear_store_items(udp->list_store); 
 		g_object_unref(udp->list_store);
-	}	
+	}
 
 	g_object_unref(app);
 	g_free(udp->opt_name);

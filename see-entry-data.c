@@ -14,8 +14,8 @@ void see_entry_data (GListStore *list_store, GtkMultiSelection *selection)
 			printf ("Error: item is NULL\n");
 			return;
 		}
-		printf ("\nRecord: %d Result: %s", i, item->result);
-		printf (" Name: %s\n", item->name);
+		printf ("\nRecord: %d Result: %s Ptr: %p", i, item->result, item->result);
+		printf (" Name: %s Ptr: %p\n", item->name, item->name);
 
 		printf ("Hash: %s", item->hash); 
 

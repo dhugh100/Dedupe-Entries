@@ -57,6 +57,8 @@ void view_cb(GtkCheckButton *self, user_data *udp)
 		}
 	}
 	wipe_selected(udp);
+
+	load_entry_data(udp);
 }
 
 // Copy the selected entry(s) data to the clipboard

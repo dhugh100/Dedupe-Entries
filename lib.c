@@ -5,11 +5,11 @@
  
 void free_item_memory (DupItem *item)
 {
-        g_free((const gpointer)item->result);  
-        g_free((const gpointer)item->name);  
-        g_free((const gpointer)item->hash);
-        g_free((const gpointer)item->file_size);
-        g_free((const gpointer)item->modified);
+        if (item->result) g_free((const gpointer)item->result);  
+        if (item->name) g_free((const gpointer)item->name);  
+        if (item->hash) g_free((const gpointer)item->hash);
+        if (item->file_size) g_free((const gpointer)item->file_size);
+        if (item->modified) g_free((const gpointer)item->modified);
 }
 
 // Clear the store items
@@ -18,12 +18,14 @@ void free_item_memory (DupItem *item)
 
 void clear_store_items(GListStore *list_store)
 {
+/*	
         uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(list_store));
         for (int i = 0; i < cnt; i++) {
                 DupItem *item = g_list_model_get_item(G_LIST_MODEL(list_store), i); 
                 free_item_memory(item);  
                 g_object_unref(item);
         }
+*/	
         g_list_store_remove_all(list_store);
 }
 

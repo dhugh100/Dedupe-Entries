@@ -35,9 +35,8 @@ void copy_store (GListStore *src, GListStore *dst)
 {
 	g_list_store_remove_all(dst);
 	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(src));
-	DupItem *item = g_object_new(G_TYPE_OBJECT, NULL);
 	for (uint32_t i = 0; i < cnt; i++) {
-		item = g_list_model_get_item(G_LIST_MODEL(src), i);
+		DupItem *item = g_list_model_get_item(G_LIST_MODEL(src), i);
 		g_list_store_append(G_LIST_STORE(dst), item);
 		g_object_unref(item);
 	}
@@ -105,21 +104,19 @@ gboolean filter_match (DupItem *item, user_data *udp)
 // Build the filtered list store
 // - Remove all items from the new list store
 
-void build_filtered_store(GListStore *current, GListStore *new, user_data *udp)
+void build_filtered_store (GListStore *current, GListStore *new, user_data *udp)
 {
-
 	// Build the list store based on filter
 	g_list_store_remove_all(new);
 	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(current));
-	DupItem *item = g_object_new(G_TYPE_OBJECT, NULL);
 	for (uint32_t i = 0; i < cnt; i++) {
-		item = g_list_model_get_item(G_LIST_MODEL(current), i);
-		if (filter_match(item, udp))
+		DupItem *item = g_list_model_get_item(G_LIST_MODEL(current), i);
+		if (filter_match(item, udp)) {
 			g_list_store_append(new, item);
+		}	
 		g_object_unref(item);
 	}
 }
-
 
 // Callback to apply the filter
 // - Close the filter window
@@ -132,7 +129,7 @@ void apply_filters_cb (GtkWidget *self, user_data *udp)
 
 	// If first filter
 	if (!udp->saved_list_store) { 
-		udp->saved_list_store = g_list_store_new(G_TYPE_OBJECT);
+		udp->saved_list_store  = g_list_store_new(G_TYPE_OBJECT);
 		copy_store(udp->list_store, udp->saved_list_store);
 	}	
 	build_filtered_store(udp->saved_list_store, udp->list_store, udp);
@@ -237,7 +234,7 @@ void clear_filters_cb (GtkWidget *self, user_data *udp)
 void get_filters_cb (GtkWidget *self, user_data *udp)
 {
 	// Don't do succesive filters
-	initialize_filter(udp);
+	// initialize_filter(udp);
 
 	// Create window and add title
 	GtkWidget *filter_window = gtk_window_new();

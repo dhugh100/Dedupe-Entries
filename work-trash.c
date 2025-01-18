@@ -24,6 +24,13 @@
 // Forward declaration
 void prompt_trash(user_data * udp);
 
+int delay(user_data *udp)
+{
+	load_entry_data(udp);
+	return FALSE;
+}
+
+
 int count_selected_result(GtkBitset *bitset, GListStore *list_store, const char *result)
 {
 	GtkBitsetIter iter;
@@ -38,6 +45,7 @@ int count_selected_result(GtkBitset *bitset, GListStore *list_store, const char 
 
 	} while (gtk_bitset_iter_next(&iter, &value));
 
+	g_object_unref(item);
 	return hit;
 }
 
@@ -69,6 +77,7 @@ void trash_em(user_data *udp)
 	} while (gtk_bitset_iter_next(&iter, &value)); 
 
 	g_object_unref(gf);
+	g_object_unref(item);
 
 	load_entry_data(udp); // Reload list store
 	return;			      
@@ -104,6 +113,7 @@ void prompt_trash(user_data *udp)
 	gtk_alert_dialog_set_default_button(alert, 1);
 	gtk_alert_dialog_set_modal(alert, FALSE);
 	gtk_alert_dialog_choose(alert, GTK_WINDOW(udp->main_window), NULL, work_trash_choice, udp);
+	g_object_unref(alert);
 }
 
  

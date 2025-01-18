@@ -103,28 +103,15 @@ int cmp_a (const void *a, const void *b, user_data *udp)
 
 void load_entry_data (user_data *udp)
 {
-	// Create a list store if not there yet
-	if (!udp->list_store) {
-		GListStore *list_store = g_list_store_new(G_TYPE_OBJECT);
-		udp->list_store = list_store; // Save pointer to list store
-	}
+	if (gtk_window_get_child(GTK_WINDOW(udp->main_window))) // If child window exists, then remove it
+		gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);	 
 
-	// No point keeping saved store if still there post filter 
-	if (udp->saved_list_store) {
-		clear_store_items(udp->saved_list_store);
-		g_object_unref(udp->saved_list_store);
-		udp->saved_list_store = NULL;
-	}
+	if (!udp->list_store) // If list store already exists, then do not create another
+		udp->list_store = g_list_store_new(G_TYPE_OBJECT);
+	else
+		g_list_store_remove_all(udp->list_store);
 
-	// If have entries in the list store, time to remove since working new directories
-	if (g_list_model_get_n_items(G_LIST_MODEL(udp->list_store))) {
-		clear_store_items(udp->list_store);
-	}	
-
-	// Remove and collect any existing child
-	gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
-
-	// Create a box to hold the progress bar
+ 	 // Create a box to hold the progress bar
 	GtkWidget *progress_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 3);
 	gtk_window_set_child(GTK_WINDOW(udp->main_window), progress_box);
 
