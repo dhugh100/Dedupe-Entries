@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
 
 #include "main.h"
+#include "see-entry-data.h"
 #include "filter-store.h"
 
 // Set sensitivity of clear button - gray out if no text is in either entry buff text
@@ -29,7 +30,15 @@ void set_sensitivity_clear_button (filter_entry *ep)
 		gtk_widget_set_sensitive(ep->clear_btn, FALSE);
 }
 
+/*
 // Copy list store from src to dest
+char * new_string (const char *src)
+{
+	char *new = g_malloc(strlen(src) + 1);
+	strcpy(new,src);
+	return (new);
+}
+*/
 
 void copy_store (GListStore *src, GListStore *dst)
 {
@@ -40,6 +49,7 @@ void copy_store (GListStore *src, GListStore *dst)
 		g_list_store_append(G_LIST_STORE(dst), item);
 		g_object_unref(item);
 	}
+
 }
 
 // Check if the filter text in result
@@ -104,19 +114,27 @@ gboolean filter_match (DupItem *item, user_data *udp)
 // Build the filtered list store
 // - Remove all items from the new list store
 
-void build_filtered_store (GListStore *current, GListStore *new, user_data *udp)
+void build_filtered_store(GListStore *current, GListStore *new, user_data *udp)
 {
+
 	// Build the list store based on filter
 	g_list_store_remove_all(new);
 	uint32_t cnt = g_list_model_get_n_items(G_LIST_MODEL(current));
+	DupItem *item = g_object_new(G_TYPE_OBJECT, NULL);
 	for (uint32_t i = 0; i < cnt; i++) {
-		DupItem *item = g_list_model_get_item(G_LIST_MODEL(current), i);
+		item = g_list_model_get_item(G_LIST_MODEL(current), i);
 		if (filter_match(item, udp)) {
-			g_list_store_append(new, item);
+			DupItem *new_item = g_object_new(DUP_TYPE_ITEM,
+					"result", g_strdup(item->result),"name",g_strdup(item->name),
+					"hash", g_strdup(item->hash), "file_size", g_strdup(item->file_size),
+					"modified", g_strdup(item->modified), NULL);
+			g_list_store_append(new, new_item);
+			g_object_unref(new_item);
 		}	
 		g_object_unref(item);
 	}
 }
+
 
 // Callback to apply the filter
 // - Close the filter window
@@ -129,10 +147,14 @@ void apply_filters_cb (GtkWidget *self, user_data *udp)
 
 	// If first filter
 	if (!udp->saved_list_store) { 
-		udp->saved_list_store  = g_list_store_new(G_TYPE_OBJECT);
+		udp->saved_list_store = g_list_store_new(G_TYPE_OBJECT);
 		copy_store(udp->list_store, udp->saved_list_store);
 	}	
 	build_filtered_store(udp->saved_list_store, udp->list_store, udp);
+	printf("saved\n");
+	see_entry_data(udp->saved_list_store, (GtkMultiSelection *)NULL);
+	printf("new\n");
+	see_entry_data(udp->list_store, (GtkMultiSelection *)NULL);
 }
 
 // Callback to get text from the name entry buffer
@@ -234,7 +256,7 @@ void clear_filters_cb (GtkWidget *self, user_data *udp)
 void get_filters_cb (GtkWidget *self, user_data *udp)
 {
 	// Don't do succesive filters
-	// initialize_filter(udp);
+	initialize_filter(udp);
 
 	// Create window and add title
 	GtkWidget *filter_window = gtk_window_new();

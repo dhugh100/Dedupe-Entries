@@ -20,12 +20,6 @@
 #include "show-columns.h"
 
 // Return ptr to name
-static const char *dup_item_get_result(DupItem *item)
-{
-	return item->result;
-}
-
-// Return ptr to name
 static const char *dup_item_get_name(DupItem *item)
 {
 	return item->name;
@@ -45,9 +39,7 @@ static void bind_result_cb(GtkSignalListItemFactory *factory, GtkListItem *listi
 {
 	GtkWidget *label = gtk_list_item_get_child(listitem);
 	GObject *item = gtk_list_item_get_item(GTK_LIST_ITEM(listitem));
-	// g_object_bind_property(item, "result", label, "label", G_BINDING_SYNC_CREATE);
-	const char *string = dup_item_get_result(DUP_ITEM(item));
-	gtk_label_set_text(GTK_LABEL(label), string);
+	g_object_bind_property(item, "result", label, "label", G_BINDING_SYNC_CREATE);
 }
 
 // For the factory, get the fullname for the item into the label
@@ -63,13 +55,10 @@ static void bind_name_cb(GtkSignalListItemFactory *factory, GtkListItem *listite
 void show_columns (user_data *udp)
 {
 	// Remove and collect any existing child
-	if (gtk_window_get_child(GTK_WINDOW(udp->main_window))) {
-		gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
-	}
+	gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
 
 	// Setup the scrolled window for the column view
 	GtkWidget *scrolled_window = gtk_scrolled_window_new();
-	udp->scrolled_window = scrolled_window;
 	gtk_window_set_child(GTK_WINDOW(udp->main_window), scrolled_window);
 
 	// Setup the column view in the scrolled window with separators

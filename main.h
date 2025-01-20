@@ -116,7 +116,6 @@ typedef struct user_data {
 	GtkWidget *option_window;
 	GtkWidget *sort_window;
 	GtkWidget *column_view;
-	GtkWidget *scrolled_window;
 
 	// Entry data
 	GListStore *list_store;
@@ -176,9 +175,6 @@ typedef struct user_data {
         gboolean opt_include_unique;
 
 } user_data;
-
-void main_window(GtkApplication *, user_data *);
-
 
 // Function prototypes
 
