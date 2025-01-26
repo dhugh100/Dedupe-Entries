@@ -47,6 +47,7 @@ static void bind_list_view_cb (GtkSignalListItemFactory *self, GtkListItem *list
 	GtkStringObject *strobj = gtk_list_item_get_item(listitem);
 	char *markup = g_markup_printf_escaped("<span font_desc='mono'>%s</span>", gtk_string_object_get_string(strobj));
 	gtk_label_set_markup(GTK_LABEL(lb), markup);
+	g_free(markup);
 }
 
 // Make the dump string format
@@ -166,6 +167,7 @@ read_and_make_strings_exit:
 	do_view_pending();
 	g_object_unref(in);
 	g_free(read_buff);
+	g_object_unref(file);
 }
 
 // View file in hex dump format

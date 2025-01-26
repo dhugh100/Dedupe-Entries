@@ -205,17 +205,8 @@ int main (int argc, char **argv)
 	g_application_set_flags(G_APPLICATION(app), G_APPLICATION_HANDLES_OPEN);
 	int status = g_application_run(G_APPLICATION(app), argc, argv);
 
-	// Clean up
-	if (udp->list_store) { 
-		clear_store_items(udp->list_store); 
-		g_object_unref(udp->list_store);
-	}	
 
-	if (udp->saved_list_store) { 
-		clear_store_items(udp->list_store); 
-		g_object_unref(udp->list_store);
-	}	
-
+	clear_stores(udp); // Could be three active stores if filtering
 	g_object_unref(app);
 	g_free(udp->opt_name);
 	g_free(udp->sep); // Free up search memory

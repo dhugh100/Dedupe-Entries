@@ -20,17 +20,8 @@
 #include "work-trash.h"
 #include "work-selected.h"
 #include "show-columns.h"
+#include "lib.h"
 #include "load-store.h"
-
-void wipe_selected(user_data *udp)
-{
-	gtk_selection_model_unselect_all(GTK_SELECTION_MODEL (udp->selection));
-
-	gtk_bitset_remove_all (udp->sel_bitset);
-  	gtk_bitset_unref (udp->sel_bitset);
-  	udp->sel_bitset = NULL;
-
-}
 
 // View the selected file in ascii dump format
 // - Only view files, not directories or files with errors

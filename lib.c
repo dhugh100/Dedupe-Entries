@@ -1,7 +1,17 @@
 #include "main.h"
 #include "lib.h"
 
-// Free up the store items memory
+// Clear selected items
+void wipe_selected(user_data *udp)
+{
+        gtk_selection_model_unselect_all(GTK_SELECTION_MODEL (udp->selection));
+
+        gtk_bitset_remove_all (udp->sel_bitset);
+        gtk_bitset_unref (udp->sel_bitset);
+        udp->sel_bitset = NULL;
+}
+
+// Free up a store's item memory
  
 void free_item_memory (DupItem *item)
 {
@@ -25,6 +35,31 @@ void clear_store_items(GListStore *list_store)
                 g_object_unref(item);
         }
         g_list_store_remove_all(list_store);
+}
+
+void clear_stores(user_data *udp)
+{
+	// Clean up
+        if (udp->org_list_store) {  // Will be most complete if not null
+                clear_store_items(udp->org_list_store); 
+                g_object_unref(udp->org_list_store);
+		udp->org_list_store = NULL;
+                if (udp->filtered_list_store) {
+                        g_list_store_remove_all(udp->filtered_list_store);
+                        g_object_unref(udp->filtered_list_store);
+			udp->list_store = NULL;
+                }
+                if (udp->list_store) {
+                        g_list_store_remove_all(udp->list_store);
+                        g_object_unref(udp->list_store);
+			udp->list_store = NULL;
+                }
+        }
+        else if (udp->list_store) {
+                clear_store_items(udp->list_store); 
+                g_object_unref(udp->list_store);
+		udp->list_store = NULL;
+        } 
 }
 
 // Read options from file

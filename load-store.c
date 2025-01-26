@@ -103,23 +103,12 @@ int cmp_a (const void *a, const void *b, user_data *udp)
 
 void load_entry_data (user_data *udp)
 {
-	// Create a list store if not there yet
+	clear_stores(udp); // Clear the stores and associated item memory
+
 	if (!udp->list_store) {
 		GListStore *list_store = g_list_store_new(G_TYPE_OBJECT);
 		udp->list_store = list_store; // Save pointer to list store
 	}
-
-	// No point keeping saved store if still there post filter 
-	if (udp->saved_list_store) {
-		clear_store_items(udp->saved_list_store);
-		g_object_unref(udp->saved_list_store);
-		udp->saved_list_store = NULL;
-	}
-
-	// If have entries in the list store, time to remove since working new directories
-	if (g_list_model_get_n_items(G_LIST_MODEL(udp->list_store))) {
-		clear_store_items(udp->list_store);
-	}	
 
 	// Remove and collect any existing child
 	gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);

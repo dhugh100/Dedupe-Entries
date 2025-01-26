@@ -19,6 +19,7 @@
 #include "load-store.h"
 #include "work-selected.h"
 #include "filter-store.h"
+#include "lib.h"
 #include "work-trash.h"
 
 // Forward declaration
@@ -29,10 +30,8 @@ int count_selected_result(GtkBitset *bitset, GListStore *list_store, const char 
 	GtkBitsetIter iter;
         uint32_t value = 0;  uint32_t hit = 0;
         gtk_bitset_iter_init_first (&iter, bitset, &value);
-	DupItem *item = g_object_new(DUP_TYPE_ITEM, NULL);
-
 	do {
-        	item = g_list_model_get_item (G_LIST_MODEL (list_store), value);
+        	DupItem *item = g_list_model_get_item (G_LIST_MODEL (list_store), value);
 		if (!strncmp(item->result, result, strlen(result))) hit++;
 		g_object_unref(item);
 
@@ -53,23 +52,23 @@ void trash_em(user_data *udp)
         GtkBitsetIter iter;
         guint value = 0;  
         gtk_bitset_iter_init_first (&iter, udp->sel_bitset, &value);
-	DupItem *item = g_object_new(DUP_TYPE_ITEM, NULL);
 	GFile *gf = NULL;
+
 	do {
-        	item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), value);
+        	DupItem *item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), value);
 		gf = g_file_new_for_path(item->name);	// Get the name
 		if (!g_file_trash(gf, NULL, NULL)) {
 			GtkAlertDialog *alert = gtk_alert_dialog_new("Can't trash entry");
 			gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+			g_object_unref(gf);
 			wipe_selected(udp); // Clear selected			
 			return;
 		}
+		g_object_unref(gf);
 		g_object_unref(item);
 
 	} while (gtk_bitset_iter_next(&iter, &value)); 
-
-	g_object_unref(gf);
-
+			    
 	load_entry_data(udp); // Reload list store
 	return;			      
 }
@@ -86,6 +85,7 @@ void work_trash_choice(GObject *source_object, GAsyncResult *res, void *ptr)
 
 	int button = gtk_alert_dialog_choose_finish(dialog, res, NULL);
 	if (button == 0) trash_em(udp);
+	g_object_unref(dialog);
 }
 
 // Trash (or not) prompt for selected items
@@ -93,7 +93,6 @@ void work_trash_choice(GObject *source_object, GAsyncResult *res, void *ptr)
 
 void prompt_trash(user_data *udp)
 {
-
 	// Null terminated button list
 	const char *buttons[] = { "Confirm", "Cancel", NULL };
 
@@ -106,7 +105,6 @@ void prompt_trash(user_data *udp)
 	gtk_alert_dialog_choose(alert, GTK_WINDOW(udp->main_window), NULL, work_trash_choice, udp);
 }
 
- 
 // Start the trash process
 // - Called by the trash button in the action window
 // - Close the action window
