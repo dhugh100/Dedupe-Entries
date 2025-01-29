@@ -26,24 +26,6 @@
 #include "lib.h"
 #include "see-entry-data.h"
 
-// Adjust the sensitivity of the sort, filter buttons and search bar based on the status of the list store
-// - No sort, filter, or search if no list store
-// - No search if filtering on
-
-void adjust_sfs_button_sensitivity (user_data *udp)
-{
-	if (udp->list_store && g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)) > 0) {
-		gtk_widget_set_sensitive(udp->sort_button, TRUE);
-		gtk_widget_set_sensitive(udp->filter_button, TRUE);
-		gtk_widget_set_sensitive(udp->search_bar, TRUE);
-	}
-	else {
-		gtk_widget_set_sensitive(udp->sort_button, FALSE);
-		gtk_widget_set_sensitive(udp->filter_button, FALSE);
-		gtk_widget_set_sensitive(udp->search_bar, FALSE);
-	}
-}
-
 // Initialize saved options
 // - Read in saved options from file with fixed name 
 // - If no file, then use default options

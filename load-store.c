@@ -39,11 +39,7 @@ void clean_up (user_data *udp)
 	gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
 
 	// Clean up any data
-	if (udp->list_store) {
-		clear_store_items(udp->list_store); // Free up the item strings
-		g_object_unref(udp->list_store); // Remove all entries from list store		
-		udp->list_store = NULL; // Remove all entries from list store		
-	}
+	g_idle_add((GSourceFunc)clear_stores, udp);
 
 	// Clear the folder pointers, but leave array of pointers
 	if (udp->fdpp) clear_folders(udp->fdpp);

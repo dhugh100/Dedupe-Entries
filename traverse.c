@@ -75,17 +75,24 @@ int traverse (char *dir_str, user_data *udp)
 		// If the entry is a directory, recurse
 		if (entry->d_type == DT_DIR) {
 			// If return from lower level is 0, then pass 0 back up
-			if (!traverse(full_name, udp)) return 0;
+			if (!traverse(full_name, udp)) {
+				if (dir) closedir(dir);
+			       	return 0;
+			}	
 		}
 
 		// Only working on POSIX regular files and directories, ignore all others
 		if (entry->d_type != DT_REG) continue;
 
 		// Check for cancel request and max entries hit before storing file name
-		if (udp->cancel_request == TRUE) return 0;
+		if (udp->cancel_request == TRUE) { 
+			if (dir) closedir(dir);
+		       	return 0;
+		}
 
 		if (g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)) >= MAX_ENTRIES) {
 			g_idle_add((GSourceFunc) clean_up, udp);
+			if (dir) closedir(dir);
 			GtkAlertDialog *alert =
 			    gtk_alert_dialog_new("Max entries of %d hit - Pick folders with fewer entries", MAX_ENTRIES);
 			gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
@@ -123,7 +130,10 @@ int traverse (char *dir_str, user_data *udp)
 			g_list_store_append(udp->list_store, item);
 			g_object_unref(item);
 		}
-		if (rcode == 0) return 0; // Stop if error in hash
+		if (rcode == 0) {
+			if (dir) closedir(dir);
+			return 0; // Stop if error in hash
+		} 
 	} // End Dir read while   
 
 	if (dir) closedir(dir);

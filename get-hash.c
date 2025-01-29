@@ -90,14 +90,25 @@ int getsha256 (DupItem *item, user_data *udp)
 	// Loop to read into buffer, update hash and progress bar
 	while (read > 0) {
 
-		if (udp->cancel_request == TRUE) break; // Stop processing if cancel requested
+		if (udp->cancel_request == TRUE) {
+			g_object_set(item, "result", "Error: Hash Canceled", "hash", "", NULL);
+			g_object_unref(file);
+			EVP_MD_CTX_free(mdctx);
+			g_input_stream_close(G_INPUT_STREAM(in), NULL, NULL);
+			g_object_unref(in);
+			g_free(read_buff);
+			return 0;
+
+		}
 
 		// Update hash
 		if (!EVP_DigestUpdate(mdctx, read_buff, read)) {
 			g_object_set(item, "result", "Error: Digest update issue", "hash", "", NULL);
 			g_object_unref(file);
+			EVP_MD_CTX_free(mdctx);
 			g_input_stream_close(G_INPUT_STREAM(in), NULL, NULL);
 			g_object_unref(in);
+			g_free(read_buff);
 			return 1;
 		}
 
