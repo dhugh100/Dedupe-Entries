@@ -177,8 +177,6 @@ typedef struct user_data {
 
 } user_data;
 
-// Function prototypes
-
-void adjust_sfs_button_sensitivity(user_data *);
+void option_init(user_data *udp);
 
 #endif
