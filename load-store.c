@@ -26,31 +26,13 @@
 #include "see-entry-data.h"
 #include "load-store.h"
 
-// Cancel clean up
-// - Remove any entries from list store (could be partial and misleading)
-// - Clear the folders 
-
-void clean_up (user_data *udp)
-{
-	// Reset cancel request
-	udp->cancel_request = FALSE;
-
-	// Trash any child window
-	gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
-
-	// Clean up any data
-	g_idle_add((GSourceFunc)clear_stores, udp);
-
-	// Clear the folder pointers, but leave array of pointers
-	if (udp->fdpp) clear_folders(udp->fdpp);
-}
 
 // Cancel button hit, set cancel to true and do cleanup when cycles available
 
 void cancel_cb (GtkWidget *self, user_data *udp)
 {
 	udp->cancel_request = TRUE;
-	g_idle_add((GSourceFunc) clean_up, udp);
+	g_idle_add((GSourceFunc) cancel_clean_up, udp);
 }
 
 // Exclude the empty, directory, group and unique items if not directed to be included in options

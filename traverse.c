@@ -16,7 +16,7 @@
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
 
 #include "main.h"
-#include "load-store.h"
+#include "lib.h"
 #include "get-hash.h"
 #include "traverse.h"
 
@@ -91,7 +91,7 @@ int traverse (char *dir_str, user_data *udp)
 		}
 
 		if (g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)) >= MAX_ENTRIES) {
-			g_idle_add((GSourceFunc) clean_up, udp);
+			g_idle_add((GSourceFunc) cancel_clean_up, udp); // treat as if cancel requested
 			if (dir) closedir(dir);
 			GtkAlertDialog *alert =
 			    gtk_alert_dialog_new("Max entries of %d hit - Pick folders with fewer entries", MAX_ENTRIES);

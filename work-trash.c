@@ -17,8 +17,6 @@
 
 #include "main.h"
 #include "load-store.h"
-#include "work-selected.h"
-#include "filter-store.h"
 #include "lib.h"
 #include "work-trash.h"
 

@@ -19,21 +19,6 @@
 #include "load-store.h"
 #include "get-folders.h"
 
-// Clear folders
-
-void clear_folders (char *fopp[MAX_FOLDERS])
-{
-	// Clear the folder data
-	for (int i = 0; i < MAX_FOLDERS; i++) {
-		if (fopp[i]) {
-			g_free (fopp[i]);
-			fopp[i] = NULL;
-		}
-		else
-			break;
-	}
-}
-
 // Count the number of times a character appears in a string
 
 int get_count (char *target, char search)

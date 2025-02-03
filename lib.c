@@ -1,6 +1,41 @@
 #include "main.h"
 #include "lib.h"
 
+// Cancel clean up
+// - For cancel remove any entries from list store (could be partial and misleading)
+// - Clear the folders 
+
+void cancel_clean_up (user_data *udp)
+{
+        // Reset cancel request
+        udp->cancel_request = FALSE;
+
+        // Trash any child window
+        gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
+
+        // Clean up any data
+        g_idle_add((GSourceFunc)clear_stores, udp);
+
+        // Clear the folder pointers, but leave array of pointers
+        if (udp->fdpp) clear_folders(udp->fdpp);
+}
+
+
+// Clear folders
+// - Free up the memory allocated for the folder strings
+void clear_folders (char *fopp[MAX_FOLDERS])
+{
+        // Clear the folder data
+        for (int i = 0; i < MAX_FOLDERS; i++) {
+                if (fopp[i]) {
+                        g_free (fopp[i]);
+                        fopp[i] = NULL;
+                }
+                else
+                        break;
+        }
+}
+
 // Adjust the sensitivity of the sort, filter buttons and search bar based on the status of the list store
 // - No sort, filter, or search if no list store
 // - No search if filtering on

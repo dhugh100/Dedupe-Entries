@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
 
 #include "main.h"
-#include "show-columns.h"
 #include "load-store.h"
 #include "lib.h"
 #include "work-options.h"

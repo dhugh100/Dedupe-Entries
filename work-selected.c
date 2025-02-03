@@ -18,10 +18,8 @@
 #include "main.h"
 #include "view-file.h"
 #include "work-trash.h"
-#include "work-selected.h"
-#include "show-columns.h"
 #include "lib.h"
-#include "load-store.h"
+#include "work-selected.h"
 
 // View the selected file in ascii dump format
 // - Only view files, not directories or files with errors
