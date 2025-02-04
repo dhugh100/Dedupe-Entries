@@ -24,7 +24,6 @@
 #include "search.h"
 #include "about.h"
 #include "lib.h"
-#include "see-entry-data.h"
 
 // Initialize saved options
 // - Read in saved options from file with fixed name 

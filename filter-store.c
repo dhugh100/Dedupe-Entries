@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
 
 #include "main.h"
-#include "see-entry-data.h"
 #include "lib.h"
 #include "filter-store.h"
 

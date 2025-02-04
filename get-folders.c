@@ -17,6 +17,7 @@
 
 #include "main.h"
 #include "load-store.h"
+#include "lib.h"
 #include "get-folders.h"
 
 // Count the number of times a character appears in a string

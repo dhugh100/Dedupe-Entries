@@ -1,6 +1,34 @@
 #include "main.h"
 #include "lib.h"
 
+
+// Used when debugging programs
+
+void see_entry_data (GListStore *list_store, GtkMultiSelection *selection)
+{ 
+        int cnt = g_list_model_get_n_items (G_LIST_MODEL (list_store));
+
+        // Print out file data from the store to stdout
+        for (int i = 0; i < cnt; i++)   {
+
+                DupItem *item = g_list_model_get_item (G_LIST_MODEL (list_store), i);
+                if (item == NULL) {
+                        printf ("Error: item is NULL\n");
+                        return;
+                }
+                printf ("\nRecord: %d Result: %s Result Ptr: %p", i, item->result, item->result);
+                printf (" Name: %s Name Ptr: %p\n", item->name, item->name);
+
+                printf ("Hash: %s", item->hash); 
+
+                printf (" Size: %s", item->file_size);
+                printf (" Modified: %s\n", item->modified);
+
+                if (selection) 
+                        printf ("Selected?: %s\n", gtk_selection_model_is_selected(GTK_SELECTION_MODEL (selection) , i) ? "Yes" : "No");
+	}
+}
+
 // Cancel clean up
 // - For cancel remove any entries from list store (could be partial and misleading)
 // - Clear the folders 
@@ -19,7 +47,6 @@ void cancel_clean_up (user_data *udp)
         // Clear the folder pointers, but leave array of pointers
         if (udp->fdpp) clear_folders(udp->fdpp);
 }
-
 
 // Clear folders
 // - Free up the memory allocated for the folder strings

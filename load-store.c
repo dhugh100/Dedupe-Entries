@@ -16,16 +16,11 @@
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
 
 #include "main.h"
-#include "get-folders.h"
 #include "show-columns.h"
-#include "get-hash.h"
 #include "traverse.h"
 #include "get-results.h"
-#include "sort-store.h"
 #include "lib.h"
-#include "see-entry-data.h"
 #include "load-store.h"
-
 
 // Cancel button hit, set cancel to true and do cleanup when cycles available
 
@@ -35,6 +30,18 @@ void cancel_cb (GtkWidget *self, user_data *udp)
 	g_idle_add((GSourceFunc) cancel_clean_up, udp);
 }
 
+// Default sort compare
+// - Default is result primary, name secondary, both ascending
+
+int default_sort_cmp (const void *a, const void *b, user_data *udp)
+{
+        DupItem *item1 = (DupItem *) a;
+        DupItem *item2 = (DupItem *) b;
+        if (!strcmp(item1->result, item2->result))
+                return (strcmp(item1->name, item2->name));
+        else
+                return (strcmp(item1->result, item2->result));
+}
 // Exclude the empty, directory, group and unique items if not directed to be included in options
 
 void exclude_items (user_data *udp)
@@ -55,19 +62,6 @@ void exclude_items (user_data *udp)
 		}
 		g_object_unref(item);
 	}
-}
-
-// Sort compare
-// - Default is result primary, name secondary, both ascending
-
-int cmp_a (const void *a, const void *b, user_data *udp)
-{
-	DupItem *item1 = (DupItem *) a;
-	DupItem *item2 = (DupItem *) b;
-	if (!strcmp(item1->result, item2->result))
-		return (strcmp(item1->name, item2->name));
-	else
-		return (strcmp(item1->result, item2->result));
 }
 
 // Drive getting and showing entry duplicates and data
@@ -122,7 +116,7 @@ void load_entry_data (user_data *udp)
 	       	    !udp->opt_include_empty || !udp->opt_include_duplicate)
  			exclude_items(udp);
 
-		g_list_store_sort(udp->list_store, (GCompareDataFunc) cmp_a, NULL);
+		g_list_store_sort(udp->list_store, (GCompareDataFunc) default_sort_cmp, NULL);
 
 	} // End for
 
