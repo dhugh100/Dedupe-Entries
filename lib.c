@@ -1,6 +1,12 @@
 #include "main.h"
 #include "lib.h"
 
+// Cean up pending events
+
+void do_pending ()
+{
+        if (g_main_context_pending(NULL)) g_main_context_iteration(NULL, FALSE);
+}
 
 // Used when debugging programs
 

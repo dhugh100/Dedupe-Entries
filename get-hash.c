@@ -16,14 +16,8 @@
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
 
 #include "main.h"
+#include "lib.h"
 #include "get-hash.h"
-
-// Cean up pending events
-
-void do_pending ()
-{
-	if (g_main_context_pending(NULL)) g_main_context_iteration(NULL, FALSE);
-}
 
 // Setup the progress bar
 // - Show the percentage of the file processed basename being worked

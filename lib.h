@@ -1,6 +1,7 @@
 #ifndef lib_h
 #define lib_h
 
+void do_pending();
 void cancel_clean_up (user_data *);
 void clear_folders (char *[MAX_FOLDERS]);
 void adjust_sfs_button_sensitivity(user_data *);

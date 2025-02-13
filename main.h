@@ -163,6 +163,9 @@ typedef struct user_data {
 	// View file
 	GtkStringList *str_list; 
 
+	// Clipboard
+	GdkClipboard *clippy;
+
 	// Switches
         gboolean cancel_request; // True if user has requested a cancel
         gboolean cancel_string_load; // True when view file windows is closed

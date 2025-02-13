@@ -25,21 +25,19 @@
 // - Only view files, not directories or files with errors
 // - Only invoked when one item is selected
 
-void view_cb(GtkCheckButton *self, user_data *udp)
+void view_cb (GtkCheckButton *self, user_data *udp)
 {
 	// Close action window
 	gtk_window_close(GTK_WINDOW(udp->action_window));
 
 	// Get the selected item
-	udp->sel_item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), 
-				gtk_bitset_get_minimum(udp->sel_bitset)); 
+	udp->sel_item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), gtk_bitset_get_minimum(udp->sel_bitset));
 
 	// Just view files
 	if (gtk_check_button_get_active(self)) {
-		if (strcmp(udp->sel_item->result, STR_DIR) ||
-		    strncmp(udp->sel_item->result, STR_ERR, 5)) {
+		if (strcmp(udp->sel_item->result, STR_DIR) || strncmp(udp->sel_item->result, STR_ERR, 5)) {
 			view_file(udp);
-		} 
+		}
 		else {
 			GtkAlertDialog *alert = gtk_alert_dialog_new("Can't view Directories or files with errors");
 			gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
@@ -52,17 +50,18 @@ void view_cb(GtkCheckButton *self, user_data *udp)
 // - Don't allow text to exceed clipboard size
 // - Could be one or more selected entries
 
-void copy_cb(GtkCheckButton *self, user_data *udp)
+void copy_cb (GtkCheckButton *self, user_data *udp)
 {
 	// Shutdown window
 	gtk_window_close(GTK_WINDOW(udp->action_window));
 
 	GdkClipboard *clippy = gtk_widget_get_clipboard(udp->main_window);
+	udp->clippy = clippy;
 
 	// Easy case is just 1
-	if (gtk_bitset_get_size (udp->sel_bitset) == 1) {
-		DupItem *item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), 
-				gtk_bitset_get_minimum(udp->sel_bitset));
+	if (gtk_bitset_get_size(udp->sel_bitset) == 1) {
+		DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store),
+						      gtk_bitset_get_minimum(udp->sel_bitset));
 		gdk_clipboard_set_text(clippy, item->name);
 		wipe_selected(udp);
 		return;
@@ -72,20 +71,20 @@ void copy_cb(GtkCheckButton *self, user_data *udp)
 
 	// Seed the iterator
 	GtkBitsetIter iter;
-	guint value = 0; 
-	gtk_bitset_iter_init_first (&iter, udp->sel_bitset, &value);
+	guint value = 0;
+	gtk_bitset_iter_init_first(&iter, udp->sel_bitset, &value);
 
 	// Start the text to copy
 	char *clip_text = g_malloc0(STR_CLIP);
 	char *work = g_malloc0(STR_PATH);
-	DupItem *item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), value);
+	DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), value);
 	sprintf(clip_text, "%s\n", item->name);
 
 	// Loop through the bitset
-	while (gtk_bitset_iter_next (&iter,  &value)) {
-		value = gtk_bitset_iter_get_value (&iter);
-		item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), value); // Get the selected item
-	
+	while (gtk_bitset_iter_next(&iter, &value)) {
+		value = gtk_bitset_iter_get_value(&iter);
+		item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), value); // Get the selected item
+
 		sprintf(work, "%s\n", item->name); // Next name to add
 
 		// Don't overrun size of text buffer for clipboard
@@ -96,7 +95,7 @@ void copy_cb(GtkCheckButton *self, user_data *udp)
 		}
 
 		strcat(clip_text, work);
-	}	
+	}
 
 	// Set the clipboard
 	gdk_clipboard_set_text(clippy, clip_text);
@@ -108,46 +107,47 @@ void copy_cb(GtkCheckButton *self, user_data *udp)
 	return;
 }
 
+// Finish the launch for the selected item
+
 void launch_async_cb (GtkFileLauncher *launcher, GAsyncResult *res, GError **error)
 {
-        gtk_file_launcher_launch_finish (launcher, res, error);
+	gtk_file_launcher_launch_finish(launcher, res, error);
 }
 
 // Launch an application for the selected item
 // - Set to always prompt for the application
 // - Only invoked when one item is selected
 
-void launch_cb(GtkCheckButton *self, user_data *udp)
+void launch_cb (GtkCheckButton *self, user_data *udp)
 {
 	// Shutdown window
 	gtk_window_close(GTK_WINDOW(udp->action_window));
 
 	// Get the selected item
-	DupItem *item = g_list_model_get_item (G_LIST_MODEL (udp->list_store), 
-				gtk_bitset_get_minimum(udp->sel_bitset)); 
+	DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store),
+					      gtk_bitset_get_minimum(udp->sel_bitset));
 
 	// Launch the application
 	GFile *file = g_file_new_for_path(item->name);
-        GtkFileLauncher *file_launcher = gtk_file_launcher_new (file);
-        gtk_file_launcher_set_file (file_launcher, file);
+	GtkFileLauncher *file_launcher = gtk_file_launcher_new(file);
+	gtk_file_launcher_set_file(file_launcher, file);
 	g_object_unref(file);
-        gtk_file_launcher_set_always_ask (file_launcher, TRUE);
-	gtk_file_launcher_launch (file_launcher, GTK_WINDOW(udp->main_window), NULL, (GAsyncReadyCallback) launch_async_cb, NULL);
+	gtk_file_launcher_set_always_ask(file_launcher, TRUE);
+	gtk_file_launcher_launch(file_launcher, GTK_WINDOW(udp->main_window), NULL, (GAsyncReadyCallback) launch_async_cb, NULL);
 
 	wipe_selected(udp);
 	g_object_unref(file_launcher);
-}	
+}
 
 // An entry was selected, show the actions for the item
-// - Do select item, don't rely on the position passed
 
-void work_selected_file_cb(GtkGestureClick *self, int n_press, double x, double y, user_data *udp)
+void work_selected_file_cb (GtkGestureClick *self, int n_press, double x, double y, user_data *udp)
 {
 	GtkWidget *box_action;
 
-	GtkBitset *sel_bitset = gtk_selection_model_get_selection ((GtkSelectionModel *)udp->selection);
+	GtkBitset *sel_bitset = gtk_selection_model_get_selection((GtkSelectionModel *) udp->selection);
 	udp->sel_bitset = sel_bitset;
-	guint64 sel_bs_size = gtk_bitset_get_size (sel_bitset);
+	guint64 sel_bs_size = gtk_bitset_get_size(sel_bitset);
 
 	if (sel_bs_size == 0) {
 		GtkAlertDialog *alert = gtk_alert_dialog_new("No Selection");
@@ -179,12 +179,12 @@ void work_selected_file_cb(GtkGestureClick *self, int n_press, double x, double 
 		GtkWidget *launch_chkb = gtk_check_button_new_with_label("Launch application");
 
 		gtk_check_button_set_group(GTK_CHECK_BUTTON(copy_chkb), GTK_CHECK_BUTTON(view_chkb));
-		gtk_check_button_set_group(GTK_CHECK_BUTTON(move_chkb), GTK_CHECK_BUTTON(copy_chkb));	
-		gtk_check_button_set_group(GTK_CHECK_BUTTON(launch_chkb), GTK_CHECK_BUTTON(copy_chkb));	// Had to circle back to the original copy in 2nd parameter
+		gtk_check_button_set_group(GTK_CHECK_BUTTON(move_chkb), GTK_CHECK_BUTTON(copy_chkb));
+		gtk_check_button_set_group(GTK_CHECK_BUTTON(launch_chkb), GTK_CHECK_BUTTON(copy_chkb)); // Had to circle back to the original copy in 2nd parameter
 
 		g_signal_connect(view_chkb, "toggled", G_CALLBACK(view_cb), udp);
 		g_signal_connect(launch_chkb, "toggled", G_CALLBACK(launch_cb), udp);
-	
+
 		gtk_box_append(GTK_BOX(box_action), view_chkb);
 		gtk_box_append(GTK_BOX(box_action), launch_chkb);
 	}

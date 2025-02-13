@@ -20,6 +20,8 @@
 #include "lib.h"
 #include "work-options.h"
 
+// Apply the option change via reload of entry data
+
 void apply_cb(GtkCheckButton *self, user_data *udp)
 {
 	if (udp->opt_changed) {
@@ -28,6 +30,8 @@ void apply_cb(GtkCheckButton *self, user_data *udp)
 	}	
         gtk_window_close (GTK_WINDOW (udp->option_window));  
 }
+
+// Save the option change to a file
 
 void save_cb(GtkCheckButton *self, user_data *udp)
 {
@@ -61,6 +65,7 @@ void save_cb(GtkCheckButton *self, user_data *udp)
 	gtk_window_close (GTK_WINDOW (udp->option_window));  
 }
 
+// Callback for unique option
 
 void unique_cb(GtkCheckButton *self, user_data *udp)
 {
@@ -71,6 +76,8 @@ void unique_cb(GtkCheckButton *self, user_data *udp)
 		udp->opt_include_unique = FALSE;
 }
 
+// Callback for empty option
+
 void empty_cb(GtkCheckButton *self, user_data *udp)
 {
 	udp->opt_changed = TRUE;
@@ -79,6 +86,8 @@ void empty_cb(GtkCheckButton *self, user_data *udp)
 	else
 		udp->opt_include_empty = FALSE;
 }
+
+// Callback for duplicate option
 
 void duplicate_cb(GtkCheckButton *self, user_data *udp)
 {
@@ -89,6 +98,8 @@ void duplicate_cb(GtkCheckButton *self, user_data *udp)
 		udp->opt_include_duplicate = FALSE;
 }
 
+// Callback for directory option
+
 void directory_cb(GtkCheckButton *self, user_data *udp)
 {
 	udp->opt_changed = TRUE;
@@ -97,6 +108,8 @@ void directory_cb(GtkCheckButton *self, user_data *udp)
 	else
 		udp->opt_include_directory = FALSE;
 }
+
+// Display the options window
 
 void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 {
