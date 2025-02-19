@@ -39,9 +39,7 @@ Dedup uses SHA256 hashes to identify and take action on duplicate files.
     - Options.  Chose which result types to include.  The choices are saved in ~/.config/.ddup.cfg
     - About.  Program information.
 
-## Contributing
-If you would like to contribute, please fork the repository and use a feature branch. Pull requests are welcome.
-
 ## License
 This project is licensed under the GPL 3.0  license - see the LICENSE file for details.
+
 # Dedupe Entries
