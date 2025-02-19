@@ -120,8 +120,8 @@ void load_entry_data (user_data *udp)
 
 	} // End for
 
-	// Show columns if something to show
-	if (g_list_model_get_n_items(G_LIST_MODEL(udp->list_store))) {
+	// Show columns if something to show and not in unit test mode
+	if (!udp->ut_active && g_list_model_get_n_items(G_LIST_MODEL(udp->list_store))) {
 		adjust_sfs_button_sensitivity(udp); // Turn on the sort, filter, search bar
 		show_columns(udp);
 	}

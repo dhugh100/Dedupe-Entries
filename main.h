@@ -169,6 +169,7 @@ typedef struct user_data {
 	// Switches
         gboolean cancel_request; // True if user has requested a cancel
         gboolean cancel_string_load; // True when view file windows is closed
+        gboolean ut_active; // True when view file windows is closed
 
 	// Options
 	char *opt_name;

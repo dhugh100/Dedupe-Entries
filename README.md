@@ -4,10 +4,6 @@
 Dedup uses SHA256 hashes to identify and take action on duplicate files. 
 
 ## Installation
-### RPM
-- Download the RPM file.  Use your distributions package manager for RPMs to install. In fedora 41:
-
-    >  `sudo dnf install your-rpm-location` 
 
 ### Compile and link
 - Setup the GTK 4 development environment.
@@ -15,7 +11,7 @@ Dedup uses SHA256 hashes to identify and take action on duplicate files.
 - Download the source and header files.
 - Compile and link.
 
-  >  ``gcc `pkg-config --cflags gtk4` -o ddup  main.c get_folders.c load_entry_data.c traverse.c get_hash.c get_results.c show_columns.c install_property.c work_selected.c see_entry_data.c view_file.c sort_columns.c filter_columns.c work_trash.c work_options.c -lcrypto `pkg-config --libs gtk4` ``
+  >  ``gcc `pkg-config --cflags gtk4` -o dedupee lib.c  main.c get_folders.c load_entry_data.c traverse.c get_hash.c get_results.c show_columns.c install_property.c work_selected.c see_entry_data.c view_file.c sort_columns.c filter_columns.c work_trash.c work_options.c -lcrypto `pkg-config --libs gtk4` ``
 
 ## Usage
 ### Simple Flow Example
