@@ -23,7 +23,7 @@ Dedup uses SHA256 hashes to identify and take action on duplicate files.
   - 7 Digit Number: The group number - all files with the same group number are duplicates, e.g., have the same SHA256 hash.
   - Unique: No file in the selected folder(s) shares the same hash.
 - Select the presented entries for an action with a CTRL + Left click or Shift + Left click on the row. Multiple entries can be selected.
-- Right-click to bring up the action screen. The action screen choices varies depending on whether just one or more than one entries were selected. The actions are:
+- Right-click to bring up the action screen. The action screen choices vary depending on whether just one or more than one entries were selected. The actions are:
   - Trash: Move the file to the trash. Available if single or multiple entries selected. 
   - View: View the file in ASCII Dump format. Available if a single file is selected.
   - Launch: Pass a selected file name to an application. Available if a single entry is selected.
