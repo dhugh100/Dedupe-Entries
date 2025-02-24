@@ -1,6 +1,6 @@
 // This file, show_columns.c, is a part of the Dedupe Entries program.
 // 
-// Copyright (C) 2024  David Hugh
+// Copyright (C) 2025  David Hugh
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

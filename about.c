@@ -1,6 +1,6 @@
 // This file, about.c, is a part of the Dedupe Entries program.
 // 
-// Copyright (C) 2024  David Hugh
+// Copyright (C) 2025  David Hugh
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -38,6 +38,6 @@ void about_cb (GSimpleAction *action, GVariant *parm, user_data *udp)
 		      "version", "Major  1 Minor 0 Patch 0",
 		      "comments",
 		      "A program to find and take action on duplicate files.\nRelies on SHA256 hashes to identify duplicates.",
-		      "copyright", "Copyright 2024 David Hugh",
+		      "copyright", "Copyright 2025 David Hugh",
 		      "license-type", GTK_LICENSE_GPL_3_0, NULL);
 }
