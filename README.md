@@ -37,7 +37,7 @@ Dedup uses SHA256 hashes to identify and take action on duplicate files.
   - Get.  Select the folders to search for duplicates.
   - Sort.  Select the primary and secondary sort order columns in ascending or decending order.  Apply.
   - Filter.  Enter a string to filter columns by result or name.  The 'not' option excludes.  The filters can be combined or not (and / or). Empty filters are always matches. Apply or clear.
-  - Search.  Highlight a row that contains the search string.  Proceed to the next row by selecting next at the prompt, or take action with a right clock.   
+  - Search.  Highlight a row that contains the search string.  Proceed to the next row by selecting next at the prompt, or take action with a right click.   
   - Hamburger.  
     - Options.  Chose which result types to include.  The choices are saved in ~/.config/.ddup.cfg
     - About.  Program information.
