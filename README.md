@@ -10,8 +10,9 @@ Dedup uses SHA256 hashes to identify and take action on duplicate files.
 - Make sure openssl v3 or greater is installed.
 - Download the the c source, logo.xml, and header files.
 - Compile in-line logo.xml to a C string.
-  >  glib-compile-resources --generate-header logo.xml  
-  >  glib-compile-resources --generate-source logo.xml
+  >  `` glib-compile-resources --generate-header logo.xml ``
+  >   
+  >  `` glib-compile-resources --generate-source logo.xml ``
 
 - Compile C programs and link.
   >  ``gcc `pkg-config --cflags gtk4` -o dedupee lib.c  main.c get_folders.c load_entry_data.c traverse.c get_hash.c get_results.c show_columns.c install_property.c work_selected.c see_entry_data.c view_file.c sort_columns.c filter_columns.c work_trash.c work_options.c -lcrypto `pkg-config --libs gtk4` ``
