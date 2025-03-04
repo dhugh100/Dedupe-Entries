@@ -43,6 +43,7 @@
 #define STR_BNAME (NAME_MAX + 1) // From limits.h add null
 #define STR_HASH (SHA256_DIGEST_LENGTH * 2) + 1 // Two asci hex digits for hash byte + Null
 #define STR_CLIP (STR_PATH * 1000) // Clipboard mostly for small groups
+#define STR_ENTRY 256 // Entry buff sizes for search and filter
 
 // Avoid typos by using
 #define STR_DIR "Directory\0"
@@ -72,11 +73,11 @@ struct _DupItem {
 typedef struct search_entry {
         GtkWidget *res_e;
         GtkEntryBuffer *res_eb;
-        char res_ebt[256];
+        char res_ebt[STR_ENTRY];
 
         GtkWidget *name_e;
         GtkEntryBuffer *name_eb;
-        char name_ebt[256];
+        char name_ebt[STR_ENTRY];
 
         GtkWidget *clear_btn;
 
@@ -89,11 +90,11 @@ typedef struct search_entry {
 typedef struct filter_entry {
         GtkWidget *res_e;
         GtkEntryBuffer *res_eb;
-        char res_ebt[256];
+        char res_ebt[STR_ENTRY];
 
         GtkWidget *name_e;
         GtkEntryBuffer *name_eb;
-        char name_ebt[256];
+        char name_ebt[STR_ENTRY];
 
         GtkWidget *clear_btn;
 

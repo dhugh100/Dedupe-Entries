@@ -136,26 +136,20 @@ void apply_filters_cb (GtkWidget *self, user_data *udp)
 	}
 	g_list_store_remove_all(udp->list_store);	
 	build_filtered_store(udp->filtered_list_store, udp->list_store, udp);
-	// printf("saved\n");
-	// see_entry_data(udp->saved_list_store, (GtkMultiSelection *)NULL);
-	// printf("new\n");
-	// see_entry_data(udp->list_store, (GtkMultiSelection *)NULL);
 }
 
 // Callback to get text from the name entry buffer
 
 void name_buff_cb (GtkWidget *self, user_data *udp)
 {
-	const gchar *text = gtk_entry_buffer_get_text(udp->fep->name_eb);
-	strcpy(udp->fep->name_ebt, text);
+	strncpy(udp->fep->name_ebt, gtk_entry_buffer_get_text(udp->fep->name_eb), STR_ENTRY);
 }
 
 // Callback to get the text from the result entry buffer
 
 void result_buff_cb (GtkWidget *self, user_data *udp)
 {
-	const gchar *text = gtk_entry_buffer_get_text(udp->fep->res_eb);
-	strcpy(udp->fep->res_ebt, text);
+	strncpy(udp->fep->res_ebt, gtk_entry_buffer_get_text(udp->fep->res_eb), STR_ENTRY);
 }
 
 // Set the and logic radio button to true or false
