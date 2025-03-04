@@ -1,6 +1,6 @@
 // This file, main.h, is a part of the Dedupe Entries program.
 // 
-// Copyright (C) 2025  David Hugh
+// Copyright (C) 2024  David Hugh
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -50,6 +50,7 @@
 #define STR_ERR "Error\0"
 #define STR_UNI "Unique\0"
 #define STR_SPACE " \0"
+#define STR_CONFIG "/.config/dedupe-entries.cfg\0"
 
 // Define the DupItem GObject type
 #define DUP_TYPE_ITEM (dup_item_get_type ())

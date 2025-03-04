@@ -34,9 +34,8 @@
 void option_init (user_data *udp)
 {
 	// Construct file name
-	udp->opt_name = g_malloc0(strlen(g_get_home_dir()) + strlen("/.config/dedupe-entries.cfg") + 1);	
-	strcpy(udp->opt_name, g_get_home_dir());
-	strcat(udp->opt_name, "/.config/dedupe-entries.cfg");
+	udp->opt_name = g_malloc0(STR_PATH);
+	snprintf(udp->opt_name, STR_PATH, "%s%s", g_get_home_dir(), STR_CONFIG);
 
 	// Read any saved options in gvariant serialized format
 	unsigned char buff[OPTION_SIZE] = {0x00};
