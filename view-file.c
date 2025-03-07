@@ -52,44 +52,44 @@ static void bind_list_view_cb(GtkSignalListItemFactory *self, GtkListItem *listi
 // - Offset is 8 hex digits; 
 // - Printable chars are 16 chars or '.' if not printable, with bar at start and end
 
-void make_string (unsigned char *input, int len_in, char *output, int offset)
+void make_line_string (unsigned char *input, int len_in, char *output, int offset)
 {
 	char work[128] = { 0x00 }; // Work 
-	memset(output, 0x00, 128); // Clear output string
+	memset(output, 0x00, STR_LINE); // Clear output string
 
 	// Output string starts with an offset in hex
-	sprintf(work, "%08x ", offset); // Add offset to the output string
-	strcat(output, work); // Increment the pointer to the output string
+	snprintf(work, sizeof(work), "%08x ", offset); // Add offset to the output string
+	strncat(output, work, sizeof(output) - (strlen(work) + 1));
 
 	// Looup through input bytes, building output string and printable string
-	char printable[PRINTABLE_CHAR_SIZE + 1] = { 0x00 }; // Array for single printable char or . w/trailing null
+	char printable[STR_PRINTABLE] = { 0x00 }; // Array for single printable char or . w/trailing null
 	int i;
 
 	for (i = 0; i < len_in; i++) {
 		// Put hex digits in the output string
-		sprintf(work, "%02x ", input[i]);
-		strcat(output, work);
+		snprintf(work, sizeof(work), "%02x ", input[i]);
+		strncat(output, work, sizeof(output) - (strlen(work) + 1));
 
 		// Put the printable character in the printable string or a '.'
 		if ((input[i] < 0x20) || (input[i] > 0x7e)) {
-			strcat(printable, "."); // Add a . if not printable
+			strncat(printable, ".", sizeof(printable - 2)); // Add a . if not printable
 		}
 		else {
-			sprintf(work, "%c", input[i]);
-			strcat(printable, work); // Add printable character
+			snprintf(work, sizeof(work), "%c", input[i]);
+			strncat(printable, work, sizeof(printable) - (strlen(work) + 1)); // Add printable character
 		}
 	}
 
-	// We may get less then PRINTABLE_CHAR_SIZE bytes to process if so pad out with spaces 
-	while (i < PRINTABLE_CHAR_SIZE) {
-		strcat(output, "   "); // Add three spaces to output string        
-		strcat(printable, " "); // Add one space to printable string      
+	// We may get less then FORMAT UNIT bytes to process if so pad out with spaces 
+	while (i < FORMAT_UNIT) {
+		strncat(output, "   ", sizeof(output) - 4); // Add three spaces to output string        
+		strncat(printable, " ", sizeof(output) - 2); // Add one space to printable string      
 		i++; // Increment the index to the input string
 	}
 
 	// Format the final output string, adding on the local string for printable characters
-	sprintf(work, "|%s|", printable);
-	strcat(output, work);
+	snprintf(work, sizeof(work), "|%s|", printable);
+	strncat(output, work, sizeof(output) - (strlen(work) + 1)); // Add the printable string to the output string
 }
 
 // Read file and make strings in dump format
@@ -122,7 +122,7 @@ void read_and_make_strings (user_data *udp)
 	// Variables for formatting
 	int offset = 0;
 	unsigned char *format;
-	char output[128] = { 0x00 };
+	char output[STR_LINE] = { 0x00 };
 
 	// Outer loop fills read buffer from file
 	int i;
@@ -138,24 +138,18 @@ void read_and_make_strings (user_data *udp)
 			}
 			if (i != 0 && !(i % 10)) do_pending();
 			// Point the format ptr to start of unit to format
-			if (i != 0 && !(i % PRINTABLE_CHAR_SIZE)) {
-				make_string(format, PRINTABLE_CHAR_SIZE, output, offset);
+			if (i != 0 && !(i % FORMAT_UNIT)) {
+				make_line_string(format, FORMAT_UNIT, output, offset);
 				gtk_string_list_append(udp->str_list, output);
-				offset += PRINTABLE_CHAR_SIZE;
+				offset += FORMAT_UNIT;
 				format = &read_buff[i]; // Point format to current position in read buffer
 			}
 		}
 
 		// Format any stragglers in the read buffer
 		if (read - offset > 0) {
-			if (i != 0 && !(i % PRINTABLE_CHAR_SIZE)) do_pending();
-			/*
-			if (i == PRINTABLE_CHAR_SIZE) 
-				format = read_buff; // Point format to start of unit to format
-			else
-				format = &read_buff[read - offset]; // Point format to position in read buffer
-			*/
-			make_string(format, read - offset, output, offset);
+			if (i != 0 && !(i % FORMAT_UNIT)) do_pending();
+			make_line_string(format, read - offset, output, offset);
 			gtk_string_list_append(udp->str_list, output);
 		}
 

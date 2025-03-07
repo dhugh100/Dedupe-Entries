@@ -106,7 +106,7 @@ int getsha256 (DupItem *item, user_data *udp)
 		}
 
 		// Update progress bar
-		sprintf(percent_read, "%3.2f", (float)all_read / strtol(item->file_size, NULL, 10) * 100.0);
+		snprintf(percent_read, sizeof(percent_read), "%3.2f", (float)all_read / strtol(item->file_size, NULL, 10) * 100.0);
 		do_progress_bar((GtkProgressBar *) udp->progress_bar, percent_read, basename((char *)item->name)); // Show progress bar
 
 		// Fill read buffer from file
@@ -128,7 +128,7 @@ int getsha256 (DupItem *item, user_data *udp)
 	// Make unsigned byte hash into str
 	char *chp = c_hash;
 	for (int i = 0; i < md_len; i++) {
-		sprintf((char *)chp, "%02x", ub_hash[i]); // Convert to hex and store
+		snprintf((char *)chp, sizeof(c_hash), "%02x", ub_hash[i]); // Convert to hex and store
 		chp += 2;
 	}
 

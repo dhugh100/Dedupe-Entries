@@ -78,23 +78,23 @@ void copy_cb (GtkCheckButton *self, user_data *udp)
 	char *clip_text = g_malloc0(STR_CLIP);
 	char *work = g_malloc0(STR_PATH);
 	DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), value);
-	sprintf(clip_text, "%s\n", item->name);
+	snprintf(clip_text, sizeof(clip_text), "%s\n", item->name);
 
 	// Loop through the bitset
 	while (gtk_bitset_iter_next(&iter, &value)) {
 		value = gtk_bitset_iter_get_value(&iter);
 		item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), value); // Get the selected item
 
-		sprintf(work, "%s\n", item->name); // Next name to add
+		snprintf(work, sizeof(work), "%s\n", item->name); // Next name to add
 
 		// Don't overrun size of text buffer for clipboard
-		if ((strlen(clip_text) + strlen(work) + 2) > STR_CLIP) {
+		if ((strlen(clip_text) + strlen(work) + 1) > STR_CLIP) {
 			GtkAlertDialog *alert = gtk_alert_dialog_new("Truncating Text for Clipboard");
 			gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
 			break;
 		}
 
-		strcat(clip_text, work);
+		strncat(clip_text, work, sizeof(clip_text) - (strlen(clip_text) + 1));
 	}
 
 	// Set the clipboard

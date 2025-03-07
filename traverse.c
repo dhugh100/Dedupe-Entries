@@ -69,8 +69,8 @@ int traverse (char *dir_str, user_data *udp)
 		if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue; 
 
 		// Don't want to add a forward slash if root was the passed directory
-		if (dir_str[strlen(dir_str) - 1] != '/') sprintf(full_name, "%s/%s", dir_str, entry->d_name);
-		else sprintf(full_name, "%s%s", dir_str, entry->d_name);
+		if (dir_str[strlen(dir_str) - 1] != '/') snprintf(full_name, sizeof(full_name), "%s/%s", dir_str, entry->d_name);
+		else snprintf(full_name, sizeof(full_name), "%s%s", dir_str, entry->d_name);
 
 		// If the entry is a directory, recurse
 		if (entry->d_type == DT_DIR) {
@@ -111,7 +111,7 @@ int traverse (char *dir_str, user_data *udp)
 		}
 
 		// Get file size in Bytes
-		sprintf(buff, "%lu", attr.st_size);
+		snprintf(buff, sizeof(buff), "%lu", attr.st_size);
 		g_object_set(item, "file_size", buff, NULL);
 
 		// Convert to local time, and then to a string

@@ -74,15 +74,15 @@ int get_results (user_data *udp)
 
 		// See if current item equal to saved current group hash        
 		if (!strcmp((const char *)cghash, item->hash)) { // True if not equal to current group 
-			sprintf(buff, "%07d", group);
+			snprintf(buff, sizeof(buff), "%07d", group);
 			g_object_set(item, "result", buff, NULL);
 		}
 		else { // Current hash = previous hash
 			if (!strcmp(item->hash, next_item->hash)) { // See if next hash =, if so means a group
 				group++; // Found a group
-				sprintf(buff, "%07d", group);
+				snprintf(buff, sizeof(buff), "%07d", group);
 				g_object_set(item, "result", buff, NULL);
-				strcpy(cghash, item->hash);
+				strncpy(cghash, item->hash, sizeof(cghash));
 			}
 			else {
 				g_object_set(item, "result", STR_UNI, NULL);
@@ -104,7 +104,7 @@ int get_results (user_data *udp)
 
 	// Create a result
 	if (!strcmp((const char *)cghash, item->hash)) { // False if equal 
-		sprintf(buff, "%07d", group);
+		snprintf(buff, sizeof(buff), "%07d", group);
 		g_object_set(item, "result", buff, NULL);
 	}
 	else {

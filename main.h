@@ -31,7 +31,7 @@
 #define READ_BUFF 16384 // Arbitrary
 #define OPTION_SIZE 4 // Byte count for gvariant
 #define SHA256_DIGEST_LENGTH 32 // SHA256 hash length
-#define PRINTABLE_CHAR_SIZE 16 // Number of bytes to format for a line
+#define FORMAT_UNIT 16 // Number of bytes to format on each line for view file
 
 // Limits
 #define MAX_FOLDERS 20 // Arbitrary
@@ -42,8 +42,10 @@
 #define STR_PATH PATH_MAX // From limits.h includes null
 #define STR_BNAME (NAME_MAX + 1) // From limits.h add null
 #define STR_HASH (SHA256_DIGEST_LENGTH * 2) + 1 // Two asci hex digits for hash byte + Null
-#define STR_CLIP (STR_PATH * 1000) // Clipboard mostly for small groups
+#define STR_CLIP (STR_PATH * 1000) + 1 // Clipboard mostly for small groups
 #define STR_ENTRY 256 // Entry buff sizes for search and filter
+#define STR_LINE 129 // Size of buff for view file lines
+#define STR_PRINTABLE (FORMAT_UNIT + 1) // Size of buff printable char string component of view dump lines
 
 // Avoid typos by using
 #define STR_DIR "Directory\0"
