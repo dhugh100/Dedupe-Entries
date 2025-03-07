@@ -35,7 +35,7 @@ void about_cb (GSimpleAction *action, GVariant *parm, user_data *udp)
 		      "title", "About Dedupe Entries",
 		      "logo", logo_t,
 		      "authors", author,
-		      "version", "Major  1 Minor 0 Patch 0",
+		      "version", "Major 1 Minor 0 Patch 1",
 		      "comments",
 		      "A program to find and take action on duplicate files.\nRelies on SHA256 hashes to identify duplicates.",
 		      "copyright", "Copyright 2025 David Hugh",
