@@ -1,6 +1,6 @@
-// This file, lib.h, is a part of the Entry Dedupe program.
+// This file, work-auto.h, is a part of the Dedupe Entries program.
 // 
-// Copyright (C) 2024  David Hugh
+// Copyright (C) 2025  David Hugh
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,20 +14,9 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
+#ifndef work_trash_h
+#define work_trash_h
 
-#ifndef lib_h
-#define lib_h
-
-void do_pending();
-void cancel_clean_up (user_data *);
-void clear_folders (char *[MAX_FOLDERS]);
-void adjust_sfs_button_sensitivity(user_data *);
-void wipe_selected(user_data *);
-void clear_stores(user_data *);
-void free_item_memory(DupItem *);
-void clear_store_items(GListStore *);
-void see_entry_data(GListStore *, GtkMultiSelection *);
-void trash_em(user_data *);
-gboolean read_options(unsigned char *, char *);
+void work_auto (user_data *);
 
 #endif

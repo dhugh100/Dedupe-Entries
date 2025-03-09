@@ -14,8 +14,8 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
-#ifndef work_trash_h
-#define work_trash_h
+#ifndef work_auto_h
+#define work_auto_h
 
 void work_trash_cb (GtkWidget *, user_data *);
 

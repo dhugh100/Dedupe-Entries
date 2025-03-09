@@ -19,7 +19,6 @@
 #include "show-columns.h"
 #include "traverse.h"
 #include "get-results.h"
-#include "work-auto.h"
 #include "lib.h"
 #include "load-store.h"
 
@@ -38,9 +37,9 @@ int default_sort_cmp (const void *a, const void *b, user_data *udp)
 {
         DupItem *item1 = (DupItem *) a;
         DupItem *item2 = (DupItem *) b;
-        if (!strcmp(item1->result, item2->result)) 
-		return (strcmp(item1->name, item2->name)); 
-        else 
+        if (!strcmp(item1->result, item2->result))
+                return (strcmp(item1->name, item2->name));
+        else
                 return (strcmp(item1->result, item2->result));
 }
 // Exclude the empty, directory, group and unique items if not directed to be included in options
@@ -121,11 +120,9 @@ void load_entry_data (user_data *udp)
 
 	} // End for
 
-
-	// If something to work do manual or auto follow on
+	// Show columns if something to show and not in unit test mode
 	if (!udp->ut_active && g_list_model_get_n_items(G_LIST_MODEL(udp->list_store))) {
-		adjust_sfs_button_sensitivity(udp);
-		if (udp->auto_dedupe) work_auto(udp); // Auto  dedupe
-		else show_columns(udp); // Show and select for actions
+		adjust_sfs_button_sensitivity(udp); // Turn on the sort, filter, search bar
+		show_columns(udp);
 	}
 }

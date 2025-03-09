@@ -1,6 +1,6 @@
 // This file, main.h, is a part of the Dedupe Entries program.
 // 
-// Copyright (C) 2024  David Hugh
+// Copyright (C) 2025  David Hugh
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -173,7 +173,8 @@ typedef struct user_data {
 	// Switches
         gboolean cancel_request; // True if user has requested a cancel
         gboolean cancel_string_load; // True when view file windows is closed
-        gboolean ut_active; // True when view file windows is closed
+        gboolean ut_active; // True when running unit tests (during build/debug)
+	gboolean auto_dedupe; // True when doing full auto dedupe and trash			    
 
 	// Options
 	char *opt_name;
