@@ -19,156 +19,160 @@
 #include "lib.h"
 #include "work-auto.h"
 
-/*
-// Forward declaration
-void prompt_trash (user_data * udp);
-
-// Count the number of selected items with a specific result
-
-int count_selected_result (GtkBitset *bitset, GListStore *list_store, const char *result)
+void auto_cancel_cb (GtkWidget *self, user_data *udp)
 {
-	GtkBitsetIter iter;
-	uint32_t value = 0;
-	uint32_t hit = 0;
-	gtk_bitset_iter_init_first(&iter, bitset, &value);
-	do {
-		DupItem *item = g_list_model_get_item(G_LIST_MODEL(list_store), value);
-		if (!strncmp(item->result, result, strlen(result))) hit++;
-		g_object_unref(item);
-
-	} while (gtk_bitset_iter_next(&iter, &value));
-
-	return hit;
+	gtk_window_close(GTK_WINDOW(udp->auto_prompt_window));
+	gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
 }
 
-// Trash on system and remove item  
-// - Trash, not delete, the selected item
-// - Called when user elects to proceed with trash
-// - Selected items may be a Directory, Empty, Unique or duplicate (group numbers)
-// - After altering file system via trash reload store
-
-void trash_em (user_data *udp)
+void auto_proceed_cb (GtkWidget *self, user_data *udp)
 {
-	// Seed the iterator
-	GtkBitsetIter iter;
-	guint value = 0;
-	gtk_bitset_iter_init_first(&iter, udp->sel_bitset, &value);
-	GFile *gf = NULL;
-
-	do {
-		DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), value);
-		gf = g_file_new_for_path(item->name); // Get the name
-		if (!g_file_trash(gf, NULL, NULL)) {
-			GtkAlertDialog *alert = gtk_alert_dialog_new("Can't trash entry");
-			gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
-			g_object_unref(gf);
-			wipe_selected(udp); // Clear selected                   
-			return;
-		}
-		g_object_unref(gf);
-		g_object_unref(item);
-
-	} while (gtk_bitset_iter_next(&iter, &value));
-
-	load_entry_data(udp); // Reload list store
-	return;
+	gtk_window_close(GTK_WINDOW(udp->auto_prompt_window));
+	trash_em(udp);
+	gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
 }
 
-// Process choice for trash proceed or cancel prompt
-// - Called by prompt function
-// - Confirm is button 0, cancel is 1 (default and escape)
-// - If confirmed trash and remove
-
-void work_trash_choice (GObject *source_object, GAsyncResult *res, void *ptr)
+// Confirm the user wants to trash the duplicates
+void auto_prompt_trash (user_data *udp)
 {
-	GtkAlertDialog *dialog = GTK_ALERT_DIALOG(source_object);
-	user_data *udp = ptr;
+	// Setup a box for the buttons
+	GtkWidget *box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 
-	int button = gtk_alert_dialog_choose_finish(dialog, res, NULL);
-	if (button == 0) trash_em(udp);
-	g_object_unref(dialog);
+	// Setup buttons
+        GtkWidget *auto_proceed = gtk_button_new_with_label("Proceed");
+        GtkWidget *auto_cancel = gtk_button_new_with_label("Cancel");
+
+	// Connect buttons to signals
+        g_signal_connect(auto_proceed, "clicked", G_CALLBACK(auto_proceed_cb), udp);
+        g_signal_connect(auto_cancel, "clicked", G_CALLBACK(auto_cancel_cb), udp);
+
+	// Add buttons to the box
+	gtk_box_append(GTK_BOX(box), auto_proceed);
+	gtk_box_append(GTK_BOX(box), auto_cancel);
+
+	// Setup the window
+	GtkWidget *auto_prompt_window = gtk_window_new();
+	udp->auto_prompt_window = auto_prompt_window;
+	gtk_window_set_title(GTK_WINDOW(auto_prompt_window),"Hash???");
+	gtk_window_set_default_size(GTK_WINDOW(auto_prompt_window), 50, 50);
+	gtk_window_set_child(GTK_WINDOW(auto_prompt_window), box);
+
+	// Show the window
+	gtk_window_present(GTK_WINDOW(auto_prompt_window));
+	gtk_widget_grab_focus (auto_cancel);
 }
 
-// Trash (or not) prompt for selected items
-// - Cancel is default and escape
+// Factory setup
 
-void prompt_trash (user_data *udp)
+static void setup_auto_list_cb(GtkSignalListItemFactory *self, GtkListItem *listitem)
 {
-	// Null terminated button list
-	const char *buttons[] = { "Confirm", "Cancel", NULL };
-
-	GtkAlertDialog *alert = gtk_alert_dialog_new("??? Trash ???");
-	gtk_alert_dialog_set_detail(alert, "Confirm trash all selected items");
-	gtk_alert_dialog_set_buttons(alert, buttons);
-	gtk_alert_dialog_set_cancel_button(alert, 1); // For escape
-	gtk_alert_dialog_set_default_button(alert, 1);
-	Dgtk_alert_dialog_set_modal(alert, FALSE);
-	gtk_alert_dialog_choose(alert, GTK_WINDOW(udp->main_window), NULL, work_trash_choice, udp);
+        GtkWidget *lb = gtk_label_new(NULL);
+        gtk_label_set_xalign(GTK_LABEL(lb), 0.0);
+        gtk_list_item_set_child(listitem, lb);
 }
 
-// Start the trash process
-// - Called by the trash button in the action window
-// - Close the action window
-// - Prompt for confirmation
-// - If confirmed, trash all items
+// Factory bind
 
-void work_trash_cb (GtkWidget *self, user_data *udp)
+static void bind_auto_list_cb(GtkSignalListItemFactory *self, GtkListItem *listitem)
 {
-	gtk_window_close(GTK_WINDOW(udp->action_window));
-
-	// A directory trash should be associated with just one request
-	if (gtk_bitset_get_size(udp->sel_bitset) > 1 && count_selected_result(udp->sel_bitset, udp->list_store, STR_DIR) > 0) {
-		GtkAlertDialog *alert = gtk_alert_dialog_new("Directory removals must be one at a time");
-		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
-		wipe_selected(udp); // Clear selected
-		return;
-	}
-	if (gtk_bitset_get_size(udp->sel_bitset) > 0 && count_selected_result(udp->sel_bitset, udp->list_store, STR_ERR) > 0) {
-		GtkAlertDialog *alert = gtk_alert_dialog_new("Can not trash error entries");
-		gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
-		wipe_selected(udp); // Clear selected
-		return;
-	}
-
-	prompt_trash(udp);
+        GtkWidget *lb = gtk_list_item_get_child(listitem);
+        GtkStringObject *strobj = gtk_list_item_get_item(listitem);
+        char *markup = g_markup_printf_escaped("<span font_desc='mono'>%s</span>", gtk_string_object_get_string(strobj));
+        gtk_label_set_markup(GTK_LABEL(lb), markup);
+        g_free(markup);
 }
-*/
 
-void work_auto(user_data *udp)
+// Identify the entries to remain or be trashed
+// - The first entry in a group is kept, the other entries are trashed
+
+void id_remain_trash(user_data *udp)
 {
-	
-	// Setup selection model 
-	// udp->selection = gtk_multi_selection_new(G_LIST_MODEL(udp->list_store));
+	// Strings for the auto view
+	char str[256] = {0x00};
+	char group[10] = {0x00};
 
-	// Skip the selection model, go straight to the bitset
+	// No selection needed, setup the bitset for the trash function
 	udp->sel_bitset = gtk_bitset_new_empty ();
 
 	// Setup an interation through the store
 	guint32 cnt = g_list_model_get_n_items(G_LIST_MODEL(udp->list_store));
-	see_entry_data (udp->list_store, udp->selection);
-	DupItem *item = NULL; 
-	DupItem *next_item = NULL;
+	guint32 i = 0;
+	DupItem *item = g_object_new(DUP_TYPE_ITEM, NULL); 
+	DupItem *next_item = g_object_new(DUP_TYPE_ITEM, NULL); 
 
 	// Loop through the store, checking to see if next item is a fellow group member
-	for (int i = 0;  i < cnt; i++) {
+	for (;  i + 1 < cnt; i++) {
+		// Get current and next items
 		item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), i);
-		if (!isdigit(item->result[0])) break; // No more groups, and groups would be first in sort
-		if (i + 1 < cnt) { // Make sure one more to check
-			next_item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), i + 1);
-			if (!isdigit(next_item->result[0])) break; // No more groups, and groups would be first in sort
-			if (!strcmp(item->result, next_item->result)) {
-				//gtk_selection_model_select_item ((GtkSelectionModel *) udp->selection, i+1, FALSE);
-				gtk_bitset_add (udp->sel_bitset,i);
+		next_item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), i + 1);
+
+		// Stop if either are not a group
+		if (!isdigit(item->result[0]) || !isdigit(next_item->result[0])) break;
+
+		// If equal then either start or following entries in group
+		if (!strcmp(item->result, next_item->result)) {
+			if (strcmp(item->result, group)) { // 1st in group
+				snprintf(group, sizeof(group), "%s", item->result); // Use to identify last in group
+				snprintf(str, sizeof(str), "%s - Group %s - Name: %s", "Remain", item->result, item->name);
+				gtk_string_list_append(udp->auto_list, str);
+			}	
+			else { // Middle of group
+				gtk_bitset_add (udp->sel_bitset,i); // Add to bitset for trashing
+				snprintf(str, sizeof(str), "%s - Group %s - Name: %s", "Trash ", item->result, item->name);
+				gtk_string_list_append(udp->auto_list, str);
 			}
 		}
+		// Must be the last in the group
+		else if (!strcmp(item->result, group)) { // Last in group
+			gtk_bitset_add (udp->sel_bitset,i); // Add to bitset for trashing
+			snprintf(str, sizeof(str), "%s - Group %s - Name: %s", "Trash ", item->result, item->name);
+			gtk_string_list_append(udp->auto_list, str);
+		}
 	}
+
+	// Here because only one left or next was not in group
+	item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), i);
+	if (!strcmp(item->result, group)) { // Last in group
+		gtk_bitset_add (udp->sel_bitset,i); // add to bitset for trashing
+		snprintf(str, sizeof(str), "%s - Group %s - Name: %s", "Trash ", item->result, item->name);
+		gtk_string_list_append(udp->auto_list, str);
+	}
+
 	g_object_unref(item);	
 	g_object_unref(next_item);
 
-	// Now we have a selection of duplicates to trash, initial the bitset
-	// udp->sel_bitset = gtk_selection_model_get_selection((GtkSelectionModel *) udp->selection);
-	// see_entry_data (udp->list_store, udp->selection);
-	udp->auto_dedupe = FALSE; // Prevent running again after trash function reload
-	trash_em(udp);
+	auto_prompt_trash(udp);
+}
 
+// Put the view of the auto dedupe result in the main window
+// - Use a string list rather than columns
+// - No actions/selection, just confirmation this is what is wanted
+
+void work_auto (user_data *udp)
+{
+	// Make sure won't run again until request
+	udp->auto_dedupe = FALSE;
+
+        // Initial string list model
+        udp->auto_list = gtk_string_list_new(NULL);
+
+	// Collect any child window
+	gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
+
+        // Don't want to select anything for model
+        GtkNoSelection *ns = gtk_no_selection_new(G_LIST_MODEL(udp->auto_list));
+
+        // Setup the factory for the list view
+        GtkListItemFactory *factory = gtk_signal_list_item_factory_new();
+        g_signal_connect(factory, "setup", G_CALLBACK(setup_auto_list_cb), NULL);
+        g_signal_connect(factory, "bind", G_CALLBACK(bind_auto_list_cb), NULL);
+
+        // Setup window and scrolled_window for file view
+        GtkWidget *scrolled_window = gtk_scrolled_window_new();
+        gtk_window_set_child(GTK_WINDOW(udp->main_window), GTK_WIDGET(scrolled_window));
+
+        // Setup and show the list view with no selection
+        GtkWidget *auto_view = gtk_list_view_new(GTK_SELECTION_MODEL(ns), factory);
+        gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), auto_view);
+	id_remain_trash(udp);
 }

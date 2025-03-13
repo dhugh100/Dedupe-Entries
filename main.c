@@ -63,7 +63,7 @@ void auto_cb (GtkWidget *self, user_data *udp)
 
 
 // Create the main window
-// - Buttons get, sort, filter
+// - Buttons get, sort, filter, auto
 // - Search bar with entry
 // - Hamburger menu with options and about
 // - Adjust sensitivity of buttons based on list store status
@@ -84,20 +84,20 @@ void main_window (GtkApplication *app, user_data *udp)
 	GtkWidget *header_bar = gtk_header_bar_new();
 
 	// Setup get, sort, filter, search, restore buttons
-	GtkWidget *auto_button = gtk_button_new_with_label("Auto");
 	GtkWidget *get_button = gtk_button_new_with_label("Get");
 	GtkWidget *sort_button = gtk_button_new_with_label("Sort");
 	GtkWidget *filter_button = gtk_button_new_with_label("Filter");
+	GtkWidget *auto_button = gtk_button_new_with_label("Auto");
 
 	// Save buttons, will have to adjust sensitivity based on list_store store
 	udp->sort_button = sort_button;
 	udp->filter_button = filter_button;
 
 	// Connect buttons to signals
-	g_signal_connect(auto_button, "clicked", G_CALLBACK(auto_cb), udp);
 	g_signal_connect(get_button, "clicked", G_CALLBACK(get_folders_cb), udp);
 	g_signal_connect(sort_button, "clicked", G_CALLBACK(get_sort_type_cb), udp);
 	g_signal_connect(filter_button, "clicked", G_CALLBACK(get_filters_cb), udp);
+	g_signal_connect(auto_button, "clicked", G_CALLBACK(auto_cb), udp);
 
 	// Create search bar
 	GtkWidget *search_bar = gtk_search_bar_new();
@@ -148,10 +148,10 @@ void main_window (GtkApplication *app, user_data *udp)
 	gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(menu_button), (GMenuModel *) menu);
 
 	// Setup header bar
-	gtk_header_bar_pack_start((GtkHeaderBar *) header_bar, auto_button);
 	gtk_header_bar_pack_start((GtkHeaderBar *) header_bar, get_button);
 	gtk_header_bar_pack_start((GtkHeaderBar *) header_bar, sort_button);
 	gtk_header_bar_pack_start((GtkHeaderBar *) header_bar, filter_button);
+	gtk_header_bar_pack_start((GtkHeaderBar *) header_bar, auto_button);
 	gtk_header_bar_pack_end((GtkHeaderBar *) header_bar, menu_button);
 	gtk_header_bar_pack_end((GtkHeaderBar *) header_bar, search_bar);
 

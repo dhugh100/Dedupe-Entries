@@ -93,7 +93,9 @@ void clear_folders (char *fopp[MAX_FOLDERS])
 
 void adjust_sfs_button_sensitivity (user_data *udp)
 {
-       if (udp->list_store && g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)) > 0) {
+       if (udp->list_store && 
+           g_list_model_get_n_items(G_LIST_MODEL(udp->list_store)) > 0 &&
+           !udp->auto_dedupe) {
                gtk_widget_set_sensitive(udp->sort_button, TRUE);
                gtk_widget_set_sensitive(udp->filter_button, TRUE);
                gtk_widget_set_sensitive(udp->search_bar, TRUE);
