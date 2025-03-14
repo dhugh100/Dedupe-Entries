@@ -176,10 +176,12 @@ gboolean read_options(unsigned char *buff, char *name)
 {
         // Get file size, and if 0 exit
         struct stat attr;
-        stat(name, &attr);
-        if (attr.st_size != OPTION_SIZE) {
-                return FALSE;
-        }
+        if (stat(name, &attr) == -1) {
+		return FALSE;
+	}
+        //if (attr.st_size != OPTION_SIZE) {
+        //        return FALSE;
+        //}
 
         // Setup file and stream
         GFile *file = g_file_new_for_path(name);
@@ -187,7 +189,7 @@ gboolean read_options(unsigned char *buff, char *name)
 
         // Read into buff
         gsize read;
-        gboolean result =  g_input_stream_read_all (G_INPUT_STREAM(in), buff, OPTION_SIZE, &read,  NULL, NULL);
+        gboolean result =  g_input_stream_read_all (G_INPUT_STREAM(in), buff, 8, &read,  NULL, NULL);
 
         // Clean up
         g_input_stream_close (G_INPUT_STREAM(in), NULL, NULL);

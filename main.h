@@ -29,7 +29,7 @@
 
 // General
 #define READ_BUFF 16384 // Arbitrary
-#define OPTION_SIZE 4 // Byte count for gvariant
+#define OPTION_SIZE 5 // Byte count for gvariant - 4 bools and one int
 #define SHA256_DIGEST_LENGTH 32 // SHA256 hash length
 #define FORMAT_UNIT 16 // Number of bytes to format on each line for view file
 
@@ -58,6 +58,17 @@
 // Define the DupItem GObject type
 #define DUP_TYPE_ITEM (dup_item_get_type ())
 G_DECLARE_FINAL_TYPE (DupItem, dup_item, DUP, ITEM, GObject)
+
+// Enum and array for auto preserve option
+
+enum auto_pre {
+	AP_MOD_FIRST,
+	AP_MOD_LAST,
+	AP_SHORTEST,
+	AP_LONGEST,
+	AP_ASCENDING,
+	AP_DESCENDING
+};
 
 // Key type
 
@@ -187,6 +198,7 @@ typedef struct user_data {
         gboolean opt_include_directory;
         gboolean opt_include_duplicate;
         gboolean opt_include_unique;
+	int opt_preserve;
 
 } user_data;
 

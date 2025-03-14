@@ -38,11 +38,11 @@ void option_init (user_data *udp)
 	snprintf(udp->opt_name, STR_PATH, "%s%s", g_get_home_dir(), STR_CONFIG);
 
 	// Read any saved options in gvariant serialized format
-	unsigned char buff[OPTION_SIZE] = {0x00};
+	unsigned char buff[64] = {0x00};
 	if (read_options(buff, udp->opt_name)) {
-		GVariant *value = g_variant_new("(bbbb)", buff[0], buff[1], buff[2], buff[3]);
-		g_variant_get(value, "(bbbb)", &udp->opt_include_empty, &udp->opt_include_directory, &udp->opt_include_duplicate,
-			      &udp->opt_include_unique);
+		GVariant *value = g_variant_new("(bbbbi)", buff[0], buff[1], buff[2], buff[3], buff[4]);
+		g_variant_get(value, "(bbbbi)", &udp->opt_include_empty, &udp->opt_include_directory, &udp->opt_include_duplicate,
+			      &udp->opt_include_unique, &udp->opt_preserve);
 		g_variant_unref(value);
 	}
 	else {
@@ -50,6 +50,7 @@ void option_init (user_data *udp)
 		udp->opt_include_directory = TRUE; // Default to show a directory
 		udp->opt_include_duplicate = TRUE; // Default to show duplicate files
 		udp->opt_include_unique = TRUE; // Default to show unqiue files
+		udp->opt_preserve = AP_MOD_LAST; // Default to preserve last modified in group for auto
 	}
 }
 

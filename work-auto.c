@@ -19,6 +19,82 @@
 #include "lib.h"
 #include "work-auto.h"
 
+
+// Comparison function for sort of result ascending modified time ascending 
+
+int sort_modified_a (const void *a, const void *b)
+{
+        DupItem *item1 = (DupItem *) a;
+        DupItem *item2 = (DupItem *) b;
+        if (!strcmp(item1->result, item2->result))  // Equal result on primary sort
+		return strcmp(item1->modified,item2->modified); // Ascending modified time sort (oldest first)
+	else
+		return strcmp(item1->result, item2->result);
+}
+// Comparison function for sort of result ascending modified time ascending 
+
+int sort_modified_d (const void *a, const void *b)
+{
+        DupItem *item1 = (DupItem *) a;
+        DupItem *item2 = (DupItem *) b;
+        if (!strcmp(item1->result, item2->result))  // Equal result on primary sort
+		return strcmp(item2->modified,item1->modified); // Decending modified time sort (oldest first)
+	else
+		return strcmp(item1->result, item2->result);
+}
+
+// Comparison function for sort of result ascending name len ascending 
+
+int sort_name_len_a (const void *a, const void *b)
+{
+        DupItem *item1 = (DupItem *) a;
+        DupItem *item2 = (DupItem *) b;
+        if (!strcmp(item1->result, item2->result))  // Equal result on primary sort
+		if (strlen(item1->name) < strlen(item2->name)) return -1; // Descending name str len
+		else if (strlen(item1->name) > strlen(item2->name)) return 1; 
+		else return 0;						    
+	else
+		return strcmp(item1->result, item2->result);
+}
+
+// Comparison function for sort of result ascending name len descending 
+
+int sort_name_len_d (const void *a, const void *b)
+{
+        DupItem *item1 = (DupItem *) a;
+        DupItem *item2 = (DupItem *) b;
+        if (!strcmp(item1->result, item2->result))  // Equal result on primary sort
+		if (strlen(item2->name) < strlen(item1->name)) return -1; // Descending name str len
+		else if (strlen(item2->name) > strlen(item1->name)) return 1; 
+		else return 0;						    
+	else
+		return strcmp(item1->result, item2->result);
+}
+
+// Comparison function for sort ascending result ascending name  
+
+int sort_name_a (const void *a, const void *b)
+{
+        DupItem *item1 = (DupItem *) a;
+        DupItem *item2 = (DupItem *) b;
+        if (!strcmp(item1->result, item2->result))  // Equal result on primary sort
+		return strcmp(item1->name,item2->name); // Ascending name
+	else
+		return strcmp(item1->result, item2->result);
+}
+
+// Comparison function for sort ascending result descending name 
+
+int sort_name_d (const void *a, const void *b)
+{
+        DupItem *item1 = (DupItem *) a;
+        DupItem *item2 = (DupItem *) b;
+        if (!strcmp(item1->result, item2->result))  // Equal result on primary sort
+		return strcmp(item2->name,item1->name); // Descending name
+	else
+		return strcmp(item1->result, item2->result);
+}
+
 void auto_cancel_cb (GtkWidget *self, user_data *udp)
 {
 	gtk_window_close(GTK_WINDOW(udp->auto_prompt_window));
@@ -100,7 +176,36 @@ void id_remain_trash(user_data *udp)
 	DupItem *item = g_object_new(DUP_TYPE_ITEM, NULL); 
 	DupItem *next_item = g_object_new(DUP_TYPE_ITEM, NULL); 
 
+	// Sort the store based on option for which members of a group remain or get trashed
+	see_entry_data(udp->list_store, (GtkMultiSelection *)NULL);
+	switch (udp->opt_preserve) {
+		case AP_MOD_FIRST:
+			g_list_store_sort(udp->list_store, (GCompareDataFunc)sort_modified_a, NULL);
+			break;
+		case AP_MOD_LAST:			
+			g_list_store_sort(udp->list_store, (GCompareDataFunc)sort_modified_d, NULL);
+			break;
+		case AP_SHORTEST:
+			g_list_store_sort(udp->list_store, (GCompareDataFunc)sort_name_len_a, NULL);
+			break;
+		case AP_LONGEST:			
+			g_list_store_sort(udp->list_store, (GCompareDataFunc)sort_name_len_d, NULL);
+			break;
+		case AP_ASCENDING:
+			g_list_store_sort(udp->list_store, (GCompareDataFunc)sort_name_a, NULL);
+			break;
+		case AP_DESCENDING:			
+			g_list_store_sort(udp->list_store, (GCompareDataFunc)sort_name_d, NULL);
+			break;
+		default:	
+			break;
+	}		
+	see_entry_data(udp->list_store, (GtkMultiSelection *)NULL);
+			
 	// Loop through the store, checking to see if next item is a fellow group member
+	// - Selects first member of group to preserve, all others are marked for trash via bitmap
+	// - Relies on sorting above to ensure order of group members is correct
+	
 	for (;  i + 1 < cnt; i++) {
 		// Get current and next items
 		item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), i);
@@ -111,7 +216,7 @@ void id_remain_trash(user_data *udp)
 
 		// If equal then either start or following entries in group
 		if (!strcmp(item->result, next_item->result)) {
-			if (strcmp(item->result, group)) { // 1st in group
+			if (strcmp(item->result, group)) { // 1st in group if not equal
 				snprintf(group, sizeof(group), "%s", item->result); // Use to identify last in group
 				snprintf(str, sizeof(str), "%s - Group %s - Name: %s", "Remain", item->result, item->name);
 				gtk_string_list_append(udp->auto_list, str);
@@ -150,9 +255,6 @@ void id_remain_trash(user_data *udp)
 
 void work_auto (user_data *udp)
 {
-	// Make sure won't run again until request
-	udp->auto_dedupe = FALSE;
-
         // Initial string list model
         udp->auto_list = gtk_string_list_new(NULL);
 

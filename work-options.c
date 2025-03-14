@@ -28,7 +28,8 @@ void apply_cb(GtkCheckButton *self, user_data *udp)
 		load_entry_data(udp);
 		udp->opt_changed = FALSE;
 	}	
-        gtk_window_close (GTK_WINDOW (udp->option_window));  
+        gtk_window_close (GTK_WINDOW (udp->option_window));
+        gtk_window_set_child (GTK_WINDOW (udp->main_window), NULL);
 }
 
 // Save the option change to a file
@@ -40,7 +41,7 @@ void save_cb(GtkCheckButton *self, user_data *udp)
         GFileOutputStream *out = g_file_replace (file, NULL, TRUE, G_FILE_CREATE_NONE, NULL, NULL);
 
         // Creat variant from current values
-        GVariant *value = g_variant_new ("(bbbb)", udp->opt_include_empty, udp->opt_include_directory, udp->opt_include_duplicate, udp->opt_include_unique);
+        GVariant *value = g_variant_new ("(bbbbi)", udp->opt_include_empty, udp->opt_include_directory, udp->opt_include_duplicate, udp->opt_include_unique, udp->opt_preserve);
 
         // Serialize for writing
         int sz = g_variant_get_size (value);
@@ -63,6 +64,7 @@ void save_cb(GtkCheckButton *self, user_data *udp)
         }
 
 	gtk_window_close (GTK_WINDOW (udp->option_window));  
+        gtk_window_set_child (GTK_WINDOW (udp->main_window), NULL);
 }
 
 // Callback for unique option
@@ -109,21 +111,75 @@ void directory_cb(GtkCheckButton *self, user_data *udp)
 		udp->opt_include_directory = FALSE;
 }
 
+// Callback for auto preserve options
+
+void mod_first_cb(GtkCheckButton *self, user_data *udp)
+{
+	udp->opt_changed = TRUE;
+	udp->opt_preserve = AP_MOD_FIRST;
+}
+
+// Callback for auto preserve options
+
+void mod_last_cb(GtkCheckButton *self, user_data *udp)
+{
+	udp->opt_changed = TRUE;
+	udp->opt_preserve = AP_MOD_LAST;
+}
+// Callback for auto preserve options
+
+void shortest_cb(GtkCheckButton *self, user_data *udp)
+{
+	udp->opt_changed = TRUE;
+	udp->opt_preserve = AP_SHORTEST;
+}
+
+// Callback for auto preserve options
+
+void longest_cb(GtkCheckButton *self, user_data *udp)
+{
+	udp->opt_changed = TRUE;
+	udp->opt_preserve = AP_LONGEST;
+}
+
+// Callback for auto preserve options
+
+void a_cb(GtkCheckButton *self, user_data *udp)
+{
+	udp->opt_changed = TRUE;
+	udp->opt_preserve = AP_ASCENDING;
+}
+// Callback for auto preserve options
+
+void d_cb(GtkCheckButton *self, user_data *udp)
+{
+	udp->opt_changed = TRUE;
+	udp->opt_preserve = AP_DESCENDING;
+}
+
 // Display the options window
 
 void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 {
-
 	// Create labels
-	GtkWidget *show = gtk_label_new("Include Options");
-	gtk_label_set_xalign(GTK_LABEL(show), 0.0);
+	GtkWidget *include = gtk_label_new("Include Options");
+	gtk_label_set_xalign(GTK_LABEL(include), 0.0);
+	GtkWidget *auto_preserve = gtk_label_new("\nAuto Preserve Options");
+	gtk_label_set_xalign(GTK_LABEL(auto_preserve), 0.0);
 
 	// Create check buttons
 	GtkWidget *empty = gtk_check_button_new_with_label("Empty files");
 	GtkWidget *directory = gtk_check_button_new_with_label("Directories");
 	GtkWidget *duplicate = gtk_check_button_new_with_label("Duplicate files");
 	GtkWidget *unique = gtk_check_button_new_with_label("Unique files");
+	GtkWidget *mod_first = gtk_check_button_new_with_label("First Modified");
+	GtkWidget *mod_last = gtk_check_button_new_with_label("Last Modified");
+	GtkWidget *shortest = gtk_check_button_new_with_label("Shortest Name");
+	GtkWidget *longest = gtk_check_button_new_with_label("Longest Name");
+	GtkWidget *a = gtk_check_button_new_with_label("First Name Ascending");
+	GtkWidget *d = gtk_check_button_new_with_label("First Name Descending");
 
+	// Set button status based on current values in memory
 	if (udp->opt_include_empty)
 		gtk_check_button_set_active((GtkCheckButton *) empty, TRUE);
 	else
@@ -144,19 +200,53 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 	else
 		gtk_check_button_set_active((GtkCheckButton *) directory, FALSE);
 
+	if (udp->opt_preserve == AP_MOD_FIRST)
+		gtk_check_button_set_active((GtkCheckButton *) mod_first, TRUE);
+	else if (udp->opt_preserve == AP_MOD_LAST)
+		gtk_check_button_set_active((GtkCheckButton *) mod_last, TRUE);
+	else if (udp->opt_preserve == AP_SHORTEST)
+		gtk_check_button_set_active((GtkCheckButton *) shortest, TRUE);
+	else if (udp->opt_preserve == AP_LONGEST)
+		gtk_check_button_set_active((GtkCheckButton *) longest, TRUE);
+	else if (udp->opt_preserve == AP_ASCENDING)
+		gtk_check_button_set_active((GtkCheckButton *) a, TRUE);
+	else if (udp->opt_preserve == AP_DESCENDING)
+		gtk_check_button_set_active((GtkCheckButton *) d, TRUE);
+
+	// Create check button group for auto preserve options
+	gtk_check_button_set_group(GTK_CHECK_BUTTON(mod_first), GTK_CHECK_BUTTON(mod_last));
+	gtk_check_button_set_group(GTK_CHECK_BUTTON(shortest), GTK_CHECK_BUTTON(mod_first));
+	gtk_check_button_set_group(GTK_CHECK_BUTTON(longest), GTK_CHECK_BUTTON(mod_first));
+	gtk_check_button_set_group(GTK_CHECK_BUTTON(a), GTK_CHECK_BUTTON(mod_first));
+	gtk_check_button_set_group(GTK_CHECK_BUTTON(d), GTK_CHECK_BUTTON(mod_first));
+
+
 	// Setup callbacks
 	g_signal_connect(empty, "toggled", G_CALLBACK(empty_cb), udp);
 	g_signal_connect(unique, "toggled", G_CALLBACK(unique_cb), udp);
 	g_signal_connect(duplicate, "toggled", G_CALLBACK(duplicate_cb), udp);
 	g_signal_connect(directory, "toggled", G_CALLBACK(directory_cb), udp);
+	g_signal_connect(mod_last, "toggled", G_CALLBACK(mod_last_cb), udp);
+	g_signal_connect(mod_first, "toggled", G_CALLBACK(mod_first_cb), udp);
+	g_signal_connect(shortest, "toggled", G_CALLBACK(shortest_cb), udp);
+	g_signal_connect(longest, "toggled", G_CALLBACK(longest_cb), udp);
+	g_signal_connect(a, "toggled", G_CALLBACK(a_cb), udp);
+	g_signal_connect(d, "toggled", G_CALLBACK(d_cb), udp);
 
 	// Create box and add check buttons
 	GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-	gtk_box_append(GTK_BOX(box), show);
+	gtk_box_append(GTK_BOX(box), include);
 	gtk_box_append(GTK_BOX(box), empty);
 	gtk_box_append(GTK_BOX(box), directory);
 	gtk_box_append(GTK_BOX(box), duplicate);
 	gtk_box_append(GTK_BOX(box), unique);
+	gtk_box_append(GTK_BOX(box), auto_preserve);
+	gtk_box_append(GTK_BOX(box), mod_first);
+	gtk_box_append(GTK_BOX(box), mod_last);
+	gtk_box_append(GTK_BOX(box), shortest);
+	gtk_box_append(GTK_BOX(box), longest);
+	gtk_box_append(GTK_BOX(box), a);
+	gtk_box_append(GTK_BOX(box), d);
 
 	// Create window and add title
 	udp->option_window = gtk_window_new();

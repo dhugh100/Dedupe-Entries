@@ -71,7 +71,7 @@ void exclude_items (user_data *udp)
 // - Launch a traverse of each folder and store the entry data in the list store
 // - Using the entry data, determine duplicates and other values for the result column
 // - Parse out any unwanted result types
-// - Launch and show the data in the columns
+// - Launch and show the data in the columns OR auto dedupe
 // - Can re-enter multiple times (mutliple gets)
 
 void load_entry_data (user_data *udp)
@@ -121,11 +121,27 @@ void load_entry_data (user_data *udp)
 
 	} // End for
 
-
 	// If something to work do manual or auto follow on
+	// - Must be groups found for auto dedupe
 	if (!udp->ut_active && g_list_model_get_n_items(G_LIST_MODEL(udp->list_store))) {
 		adjust_sfs_button_sensitivity(udp);
-		if (udp->auto_dedupe) work_auto(udp); // Auto  dedupe
-		else show_columns(udp); // Show and select for actions
+		if (udp->auto_dedupe) {
+			udp->auto_dedupe = FALSE;  // Make sure must reselect
+			DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), 0);
+			// If no groups auto pointless throw a message
+			if (!isdigit(item->result[0])) {  // Default sort puts groups (7 digits) first
+				gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
+				GtkAlertDialog *alert = gtk_alert_dialog_new("No duplicates found");
+				gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+				// g_object_unref(item);
+			}	
+			else {
+				work_auto(udp); // Auto  dedupe
+			}
+			// g_object_unref(item);
+		}	
+		else {
+		       	show_columns(udp); // Show and select for actions
+		}			   
 	}
 }
