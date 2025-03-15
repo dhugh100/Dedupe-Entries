@@ -200,7 +200,6 @@ void id_remain_trash(user_data *udp)
 		default:	
 			break;
 	}		
-	see_entry_data(udp->list_store, (GtkMultiSelection *)NULL);
 			
 	// Loop through the store, checking to see if next item is a fellow group member
 	// - Selects first member of group to preserve, all others are marked for trash via bitmap
@@ -218,19 +217,19 @@ void id_remain_trash(user_data *udp)
 		if (!strcmp(item->result, next_item->result)) {
 			if (strcmp(item->result, group)) { // 1st in group if not equal
 				snprintf(group, sizeof(group), "%s", item->result); // Use to identify last in group
-				snprintf(str, sizeof(str), "%s - Group %s - Name: %s", "Remain", item->result, item->name);
+				snprintf(str, sizeof(str), "%s - Group %s - Modified %s - Name: %s", "Remain", item->result, item->modified, item->name);
 				gtk_string_list_append(udp->auto_list, str);
 			}	
 			else { // Middle of group
 				gtk_bitset_add (udp->sel_bitset,i); // Add to bitset for trashing
-				snprintf(str, sizeof(str), "%s - Group %s - Name: %s", "Trash ", item->result, item->name);
+				snprintf(str, sizeof(str), "%s - Group %s - Modified %s - Name: %s", "Trash ", item->result, item->modified, item->name);
 				gtk_string_list_append(udp->auto_list, str);
 			}
 		}
 		// Must be the last in the group
 		else if (!strcmp(item->result, group)) { // Last in group
 			gtk_bitset_add (udp->sel_bitset,i); // Add to bitset for trashing
-			snprintf(str, sizeof(str), "%s - Group %s - Name: %s", "Trash ", item->result, item->name);
+			snprintf(str, sizeof(str), "%s - Group %s - Modified %s - Name: %s", "Trash ", item->result, item->modified, item->name);
 			gtk_string_list_append(udp->auto_list, str);
 		}
 	}
@@ -239,14 +238,15 @@ void id_remain_trash(user_data *udp)
 	item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), i);
 	if (!strcmp(item->result, group)) { // Last in group
 		gtk_bitset_add (udp->sel_bitset,i); // add to bitset for trashing
-		snprintf(str, sizeof(str), "%s - Group %s - Name: %s", "Trash ", item->result, item->name);
+		snprintf(str, sizeof(str), "%s - Group %s - Modified %s - Name: %s", "Trash ", item->result, item->modified, item->name);
 		gtk_string_list_append(udp->auto_list, str);
 	}
 
 	g_object_unref(item);	
 	g_object_unref(next_item);
 
-	auto_prompt_trash(udp);
+	if (udp->opt_auto_prompt) auto_prompt_trash(udp);
+	else trash_em(udp);
 }
 
 // Put the view of the auto dedupe result in the main window

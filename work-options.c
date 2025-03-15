@@ -41,7 +41,7 @@ void save_cb(GtkCheckButton *self, user_data *udp)
         GFileOutputStream *out = g_file_replace (file, NULL, TRUE, G_FILE_CREATE_NONE, NULL, NULL);
 
         // Creat variant from current values
-        GVariant *value = g_variant_new ("(bbbbi)", udp->opt_include_empty, udp->opt_include_directory, udp->opt_include_duplicate, udp->opt_include_unique, udp->opt_preserve);
+        GVariant *value = g_variant_new ("(bbbbibb)", udp->opt_include_empty, udp->opt_include_directory, udp->opt_include_duplicate, udp->opt_include_unique, udp->opt_preserve, udp->opt_manual_prompt, udp->opt_auto_prompt);
 
         // Serialize for writing
         int sz = g_variant_get_size (value);
@@ -157,6 +157,28 @@ void d_cb(GtkCheckButton *self, user_data *udp)
 	udp->opt_preserve = AP_DESCENDING;
 }
 
+// Callback for manual prompt option
+
+void manual_p_cb(GtkCheckButton *self, user_data *udp)
+{
+	udp->opt_changed = TRUE;
+	if (gtk_check_button_get_active(self))
+		udp->opt_manual_prompt = TRUE;
+	else
+		udp->opt_manual_prompt = FALSE;
+}
+
+// Callback for auto prompt option
+
+void auto_p_cb(GtkCheckButton *self, user_data *udp)
+{
+	udp->opt_changed = TRUE;
+	if (gtk_check_button_get_active(self))
+		udp->opt_auto_prompt = TRUE;
+	else
+		udp->opt_auto_prompt = FALSE;
+}	
+
 // Display the options window
 
 void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
@@ -166,18 +188,24 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 	gtk_label_set_xalign(GTK_LABEL(include), 0.0);
 	GtkWidget *auto_preserve = gtk_label_new("\nAuto Preserve Options");
 	gtk_label_set_xalign(GTK_LABEL(auto_preserve), 0.0);
+	GtkWidget *prompts = gtk_label_new("\nTrash Prompt Options");
+	gtk_label_set_xalign(GTK_LABEL(prompts), 0.0);
 
 	// Create check buttons
 	GtkWidget *empty = gtk_check_button_new_with_label("Empty files");
 	GtkWidget *directory = gtk_check_button_new_with_label("Directories");
 	GtkWidget *duplicate = gtk_check_button_new_with_label("Duplicate files");
 	GtkWidget *unique = gtk_check_button_new_with_label("Unique files");
+
 	GtkWidget *mod_first = gtk_check_button_new_with_label("First Modified");
 	GtkWidget *mod_last = gtk_check_button_new_with_label("Last Modified");
 	GtkWidget *shortest = gtk_check_button_new_with_label("Shortest Name");
 	GtkWidget *longest = gtk_check_button_new_with_label("Longest Name");
 	GtkWidget *a = gtk_check_button_new_with_label("First Name Ascending");
 	GtkWidget *d = gtk_check_button_new_with_label("First Name Descending");
+
+	GtkWidget *manual_prompt = gtk_check_button_new_with_label("Prompt Manual Selection");
+	GtkWidget *auto_prompt = gtk_check_button_new_with_label("Prompt Auto Selection");
 
 	// Set button status based on current values in memory
 	if (udp->opt_include_empty)
@@ -213,6 +241,16 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 	else if (udp->opt_preserve == AP_DESCENDING)
 		gtk_check_button_set_active((GtkCheckButton *) d, TRUE);
 
+	if (udp->opt_manual_prompt)
+		gtk_check_button_set_active((GtkCheckButton *) manual_prompt, TRUE);
+	else
+		gtk_check_button_set_active((GtkCheckButton *) manual_prompt, FALSE);
+
+	if (udp->opt_auto_prompt)
+		gtk_check_button_set_active((GtkCheckButton *) auto_prompt, TRUE);
+	else
+		gtk_check_button_set_active((GtkCheckButton *) auto_prompt, FALSE);
+
 	// Create check button group for auto preserve options
 	gtk_check_button_set_group(GTK_CHECK_BUTTON(mod_first), GTK_CHECK_BUTTON(mod_last));
 	gtk_check_button_set_group(GTK_CHECK_BUTTON(shortest), GTK_CHECK_BUTTON(mod_first));
@@ -226,12 +264,16 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 	g_signal_connect(unique, "toggled", G_CALLBACK(unique_cb), udp);
 	g_signal_connect(duplicate, "toggled", G_CALLBACK(duplicate_cb), udp);
 	g_signal_connect(directory, "toggled", G_CALLBACK(directory_cb), udp);
+
 	g_signal_connect(mod_last, "toggled", G_CALLBACK(mod_last_cb), udp);
 	g_signal_connect(mod_first, "toggled", G_CALLBACK(mod_first_cb), udp);
 	g_signal_connect(shortest, "toggled", G_CALLBACK(shortest_cb), udp);
 	g_signal_connect(longest, "toggled", G_CALLBACK(longest_cb), udp);
 	g_signal_connect(a, "toggled", G_CALLBACK(a_cb), udp);
 	g_signal_connect(d, "toggled", G_CALLBACK(d_cb), udp);
+
+	g_signal_connect(manual_prompt, "toggled", G_CALLBACK(manual_p_cb), udp);
+	g_signal_connect(auto_prompt, "toggled", G_CALLBACK(auto_p_cb), udp);
 
 	// Create box and add check buttons
 	GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -240,6 +282,7 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 	gtk_box_append(GTK_BOX(box), directory);
 	gtk_box_append(GTK_BOX(box), duplicate);
 	gtk_box_append(GTK_BOX(box), unique);
+
 	gtk_box_append(GTK_BOX(box), auto_preserve);
 	gtk_box_append(GTK_BOX(box), mod_first);
 	gtk_box_append(GTK_BOX(box), mod_last);
@@ -247,6 +290,10 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 	gtk_box_append(GTK_BOX(box), longest);
 	gtk_box_append(GTK_BOX(box), a);
 	gtk_box_append(GTK_BOX(box), d);
+
+	gtk_box_append(GTK_BOX(box), prompts);
+	gtk_box_append(GTK_BOX(box), manual_prompt);
+	gtk_box_append(GTK_BOX(box), auto_prompt);
 
 	// Create window and add title
 	udp->option_window = gtk_window_new();
