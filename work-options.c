@@ -184,12 +184,17 @@ void auto_p_cb(GtkCheckButton *self, user_data *udp)
 void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 {
 	// Create labels
-	GtkWidget *include = gtk_label_new("Include Options");
-	gtk_label_set_xalign(GTK_LABEL(include), 0.0);
-	GtkWidget *auto_preserve = gtk_label_new("\nAuto Preserve Options");
-	gtk_label_set_xalign(GTK_LABEL(auto_preserve), 0.0);
-	GtkWidget *prompts = gtk_label_new("\nTrash Prompt Options");
-	gtk_label_set_xalign(GTK_LABEL(prompts), 0.0);
+	GtkWidget *include = gtk_label_new(NULL);
+	gtk_label_set_markup(GTK_LABEL(include), "<b>\nInclude Options\n</b>");
+	gtk_label_set_xalign(GTK_LABEL(include), 0.5);
+	
+	GtkWidget *auto_preserve = gtk_label_new(NULL);
+	gtk_label_set_markup(GTK_LABEL(auto_preserve), "<b>\nAuto Preserve Options\n</b>");
+	gtk_label_set_xalign(GTK_LABEL(auto_preserve), 0.5);
+
+	GtkWidget *prompts = gtk_label_new(NULL);
+	gtk_label_set_markup(GTK_LABEL(prompts), "<b>\nTrash Prompt Options\n</b>");
+	gtk_label_set_xalign(GTK_LABEL(prompts), 0.5);
 
 	// Create check buttons
 	GtkWidget *empty = gtk_check_button_new_with_label("Empty files");

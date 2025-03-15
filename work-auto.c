@@ -129,7 +129,7 @@ void auto_prompt_trash (user_data *udp)
 	// Setup the window
 	GtkWidget *auto_prompt_window = gtk_window_new();
 	udp->auto_prompt_window = auto_prompt_window;
-	gtk_window_set_title(GTK_WINDOW(auto_prompt_window),"Hash???");
+	gtk_window_set_title(GTK_WINDOW(auto_prompt_window),"Trash???");
 	gtk_window_set_default_size(GTK_WINDOW(auto_prompt_window), 50, 50);
 	gtk_window_set_child(GTK_WINDOW(auto_prompt_window), box);
 
@@ -177,7 +177,6 @@ void id_remain_trash(user_data *udp)
 	DupItem *next_item = g_object_new(DUP_TYPE_ITEM, NULL); 
 
 	// Sort the store based on option for which members of a group remain or get trashed
-	see_entry_data(udp->list_store, (GtkMultiSelection *)NULL);
 	switch (udp->opt_preserve) {
 		case AP_MOD_FIRST:
 			g_list_store_sort(udp->list_store, (GCompareDataFunc)sort_modified_a, NULL);
@@ -206,6 +205,7 @@ void id_remain_trash(user_data *udp)
 	// - Relies on sorting above to ensure order of group members is correct
 	
 	for (;  i + 1 < cnt; i++) {
+		do_pending(); // Keep the GUI responsive
 		// Get current and next items
 		item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), i);
 		next_item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), i + 1);
@@ -245,8 +245,10 @@ void id_remain_trash(user_data *udp)
 	g_object_unref(item);	
 	g_object_unref(next_item);
 
-	if (udp->opt_auto_prompt) auto_prompt_trash(udp);
-	else trash_em(udp);
+	if (udp->opt_auto_prompt) 
+		auto_prompt_trash(udp);
+	else 
+		trash_em(udp);
 }
 
 // Put the view of the auto dedupe result in the main window
@@ -260,6 +262,7 @@ void work_auto (user_data *udp)
 
 	// Collect any child window
 	gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
+	do_pending();
 
         // Don't want to select anything for model
         GtkNoSelection *ns = gtk_no_selection_new(G_LIST_MODEL(udp->auto_list));
@@ -276,5 +279,6 @@ void work_auto (user_data *udp)
         // Setup and show the list view with no selection
         GtkWidget *auto_view = gtk_list_view_new(GTK_SELECTION_MODEL(ns), factory);
         gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), auto_view);
+	gtk_window_present(GTK_WINDOW(udp->main_window));
 	id_remain_trash(udp);
 }
