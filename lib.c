@@ -194,37 +194,3 @@ gboolean read_options(unsigned char *buff, char *name)
         g_object_unref (file);
         return result;
 }
-
-// Trash on system and remove item
-// - Trash, not delete, the selected item
-// - Called when user elects to proceed with trash
-// - Selected items may be a Directory, Empty, Unique or duplicate (group numbers)
-// - After altering file system via trash reload store
-
-void trash_em (user_data *udp)
-{
-        // Seed the iterator
-        GtkBitsetIter iter;
-        guint value = 0;
-        gtk_bitset_iter_init_first(&iter, udp->sel_bitset, &value);
-        GFile *gf = NULL;
-
-        do {
-                DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), value);
-                gf = g_file_new_for_path(item->name); // Get the name
-                if (!g_file_trash(gf, NULL, NULL)) {
-                        GtkAlertDialog *alert = gtk_alert_dialog_new("Can't trash entry");
-                        gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
-                        g_object_unref(gf);
-                        wipe_selected(udp); // Clear selected
-                        return;
-		}	
-                g_object_unref(gf);
-                g_object_unref(item);
-
-        } while (gtk_bitset_iter_next(&iter, &value));
-
-        load_entry_data(udp); // Reload list store
-        return;
-}
-

@@ -17,8 +17,8 @@
 
 #include "main.h"
 #include "lib.h"
+#include "trash.h"
 #include "work-auto.h"
-
 
 // Comparison function for sort of result ascending modified time ascending 
 
@@ -93,49 +93,6 @@ int sort_name_d (const void *a, const void *b)
 		return strcmp(item2->name,item1->name); // Descending name
 	else
 		return strcmp(item1->result, item2->result);
-}
-
-void auto_cancel_cb (GtkWidget *self, user_data *udp)
-{
-	gtk_window_close(GTK_WINDOW(udp->auto_prompt_window));
-	gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
-}
-
-void auto_proceed_cb (GtkWidget *self, user_data *udp)
-{
-	gtk_window_close(GTK_WINDOW(udp->auto_prompt_window));
-	trash_em(udp);
-	gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
-}
-
-// Confirm the user wants to trash the duplicates
-void auto_prompt_trash (user_data *udp)
-{
-	// Setup a box for the buttons
-	GtkWidget *box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-
-	// Setup buttons
-        GtkWidget *auto_proceed = gtk_button_new_with_label("Proceed");
-        GtkWidget *auto_cancel = gtk_button_new_with_label("Cancel");
-
-	// Connect buttons to signals
-        g_signal_connect(auto_proceed, "clicked", G_CALLBACK(auto_proceed_cb), udp);
-        g_signal_connect(auto_cancel, "clicked", G_CALLBACK(auto_cancel_cb), udp);
-
-	// Add buttons to the box
-	gtk_box_append(GTK_BOX(box), auto_proceed);
-	gtk_box_append(GTK_BOX(box), auto_cancel);
-
-	// Setup the window
-	GtkWidget *auto_prompt_window = gtk_window_new();
-	udp->auto_prompt_window = auto_prompt_window;
-	gtk_window_set_title(GTK_WINDOW(auto_prompt_window),"Trash???");
-	gtk_window_set_default_size(GTK_WINDOW(auto_prompt_window), 50, 50);
-	gtk_window_set_child(GTK_WINDOW(auto_prompt_window), box);
-
-	// Show the window
-	gtk_window_present(GTK_WINDOW(auto_prompt_window));
-	gtk_widget_grab_focus (auto_cancel);
 }
 
 // Factory setup
@@ -246,7 +203,7 @@ void id_remain_trash(user_data *udp)
 	g_object_unref(next_item);
 
 	if (udp->opt_auto_prompt) 
-		auto_prompt_trash(udp);
+		prompt_trash(udp);
 	else 
 		trash_em(udp);
 }

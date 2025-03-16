@@ -24,12 +24,15 @@
 
 void apply_cb(GtkCheckButton *self, user_data *udp)
 {
+	gtk_window_close (GTK_WINDOW (udp->option_window));
 	if (udp->opt_changed) {
 		load_entry_data(udp);
 		udp->opt_changed = FALSE;
-	}	
-        gtk_window_close (GTK_WINDOW (udp->option_window));
-        gtk_window_set_child (GTK_WINDOW (udp->main_window), NULL);
+	}
+	else {
+		gtk_window_close (GTK_WINDOW (udp->option_window));
+        	gtk_window_set_child (GTK_WINDOW (udp->main_window), NULL);
+	}
 }
 
 // Save the option change to a file
@@ -303,6 +306,10 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 	// Create window and add title
 	udp->option_window = gtk_window_new();
 	gtk_window_set_title(GTK_WINDOW(udp->option_window), "Options");
+
+	// Make transient to main window and modal
+	gtk_window_set_transient_for(GTK_WINDOW(udp->option_window), GTK_WINDOW(udp->main_window));
+	gtk_window_set_modal(GTK_WINDOW(udp->option_window), TRUE);
 
 	// Create header bar to use as titlebar, include save button
 	GtkWidget *header = gtk_header_bar_new();

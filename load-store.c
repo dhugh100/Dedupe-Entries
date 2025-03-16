@@ -126,7 +126,7 @@ void load_entry_data (user_data *udp)
 	if (!udp->ut_active && g_list_model_get_n_items(G_LIST_MODEL(udp->list_store))) {
 		adjust_sfs_button_sensitivity(udp);
 		if (udp->auto_dedupe) {
-			udp->auto_dedupe = FALSE;  // Make sure must reselect
+			udp->auto_dedupe = FALSE; // Have to reselect auto dedupe
 			DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), 0);
 			// If no groups auto pointless throw a message
 			if (!isdigit(item->result[0])) {  // Default sort puts groups (7 digits) first

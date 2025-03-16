@@ -17,9 +17,59 @@
 
 #include "main.h"
 #include "view-file.h"
-#include "work-trash.h"
+#include "trash.h"
 #include "lib.h"
 #include "work-selected.h"
+
+// Count the number of selected items with a specific result
+
+int count_selected_result (GtkBitset *bitset, GListStore *list_store, const char *result)
+{
+        GtkBitsetIter iter;
+        uint32_t value = 0;
+        uint32_t hit = 0;
+        gtk_bitset_iter_init_first(&iter, bitset, &value);
+        do {
+                DupItem *item = g_list_model_get_item(G_LIST_MODEL(list_store), value);
+                if (!strncmp(item->result, result, strlen(result))) hit++;
+                g_object_unref(item);
+
+        } while (gtk_bitset_iter_next(&iter, &value));
+
+        return hit;
+}
+
+// Start the trash process
+// - Called by the trash button in the action window
+// - Close the action window
+// - Prompt for confirmation
+// - If confirmed, trash all items
+
+void work_trash_cb (GtkWidget *self, user_data *udp)
+{
+        gtk_window_close(GTK_WINDOW(udp->action_window));
+
+        // A directory trash should be associated with just one request
+        if (gtk_bitset_get_size(udp->sel_bitset) > 1 && count_selected_result(udp->sel_bitset, udp->list_store, STR_DIR) > 0) {
+                GtkAlertDialog *alert = gtk_alert_dialog_new("Directory removals must be one at a time");
+                gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+                wipe_selected(udp); // Clear selected
+                return;
+        }
+
+	// Don't try to trash error entries
+	if (gtk_bitset_get_size(udp->sel_bitset) > 0 && count_selected_result(udp->sel_bitset, udp->list_store, STR_ERR) > 0) {
+                GtkAlertDialog *alert = gtk_alert_dialog_new("Can not trash error entries");
+                gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
+                wipe_selected(udp); // Clear selected
+                return;
+        }
+
+	if (udp->opt_manual_prompt == TRUE) 
+		prompt_trash(udp);
+	else
+	       trash_em(udp);
+}
 
 // View the selected file in ascii dump format
 // - Only view files, not directories or files with errors

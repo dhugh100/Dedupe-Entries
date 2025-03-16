@@ -130,7 +130,7 @@ typedef struct user_data {
 	GtkWidget *trash_window;
 	GtkWidget *option_window;
 	GtkWidget *sort_window;
-	GtkWidget *auto_prompt_window;
+	GtkWidget *trash_prompt_window;
 	GtkWidget *column_view;
 
 	// Entry data

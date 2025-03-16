@@ -41,38 +41,6 @@ int count_selected_result (GtkBitset *bitset, GListStore *list_store, const char
 	return hit;
 }
 
-// Process choice for trash proceed or cancel prompt
-// - Called by prompt function
-// - Confirm is button 0, cancel is 1 (default and escape)
-// - If confirmed trash and remove
-
-void work_trash_choice (GObject *source_object, GAsyncResult *res, void *ptr)
-{
-	GtkAlertDialog *dialog = GTK_ALERT_DIALOG(source_object);
-	user_data *udp = ptr;
-
-	int button = gtk_alert_dialog_choose_finish(dialog, res, NULL);
-	if (button == 0) trash_em(udp);
-	g_object_unref(dialog);
-}
-
-// Trash (or not) prompt for selected items
-// - Cancel is default and escape
-
-void prompt_trash (user_data *udp)
-{
-	// Null terminated button list
-	const char *buttons[] = { "Confirm", "Cancel", NULL };
-
-	GtkAlertDialog *alert = gtk_alert_dialog_new("??? Trash ???");
-	gtk_alert_dialog_set_detail(alert, "Confirm trash all selected items");
-	gtk_alert_dialog_set_buttons(alert, buttons);
-	gtk_alert_dialog_set_cancel_button(alert, 1); // For escape
-	gtk_alert_dialog_set_default_button(alert, 1);
-	gtk_alert_dialog_set_modal(alert, FALSE);
-	gtk_alert_dialog_choose(alert, GTK_WINDOW(udp->main_window), NULL, work_trash_choice, udp);
-}
-
 // Start the trash process
 // - Called by the trash button in the action window
 // - Close the action window
