@@ -1,0 +1,93 @@
+{
+   open_close1
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:g_malloc0
+   fun:g_type_create_instance
+   fun:g_object_new_internal.part.0
+   fun:UnknownInlinedFun
+   fun:g_object_new_with_properties
+   fun:g_object_new
+   fun:g_io_module_new
+   fun:g_io_modules_scan_all_in_directory_with_scope
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:gtk_init_check
+   fun:gtk_init
+   fun:gtk_application_startup
+   fun:UnknownInlinedFun
+   fun:signal_emit_valist_unlocked
+}
+{
+   open_close2
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:FcPatternObjectInsertElt
+   fun:FcPatternObjectAddWithBinding
+   fun:FcPatternDuplicate
+   fun:pango_fc_font_map_reload_font
+   fun:gsk_reload_font
+}
+{
+   open_close_get1
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   fun:g_malloc0
+   fun:g_type_create_instance
+   fun:g_object_new_internal.part.0
+   fun:UnknownInlinedFun
+   fun:g_object_new_with_properties
+   fun:g_object_new
+   fun:_g_local_file_info_get
+   fun:g_local_file_query_info
+   fun:query_info_async_thread.lto_priv.0
+   fun:g_task_thread_pool_thread
+   fun:g_thread_pool_thread_proxy.lto_priv.0
+   fun:g_thread_proxy
+}
+{
+   open_close_get2
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:ralloc_size
+   fun:ralloc_context
+   fun:mesa_cache_db_open
+   fun:mesa_cache_db_multipart_init_part_locked
+   fun:mesa_cache_db_multipart_init_part.part.0
+   fun:mesa_cache_db_multipart_init_part
+   fun:mesa_cache_db_multipart_read_entry
+   fun:disk_cache_db_load_item
+   fun:disk_cache_get
+   fun:vk_pipeline_cache_lookup_object
+   fun:radv_pipeline_cache_object_search
+   fun:radv_graphics_pipeline_cache_search
+   fun:radv_graphics_pipeline_compile
+   fun:radv_graphics_pipeline_init
+}
+
+{
+   open_get_select_trash_close
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:ralloc_size
+   fun:rzalloc_size
+   fun:rzalloc_array_size
+   fun:_mesa_hash_table_init
+   fun:_mesa_hash_table_create
+   fun:radv_CreateDevice
+   fun:terminator_CreateDevice
+   fun:loader_create_device_chain
+   fun:loader_layer_create_device
+   fun:vkCreateDevice
+   fun:gdk_display_create_vulkan_device
+   fun:gdk_display_create_vulkan_instance.lto_priv.0
+   fun:UnknownInlinedFun
+   fun:vulkan_supported_platform
+}
+

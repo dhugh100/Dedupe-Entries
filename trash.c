@@ -60,6 +60,9 @@ void trash_em (user_data *udp)
 	if (cnt > 1000) 
 		gtk_spinner_stop ((GtkSpinner *)spinner);
 
+	g_object_ref_sink(spinner);
+	g_object_unref(spinner);
+
 	// Clean up
         clear_stores(udp); // Clear the stores and associated item memory
 
