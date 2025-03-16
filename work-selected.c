@@ -17,7 +17,7 @@
 
 #include "main.h"
 #include "view-file.h"
-#include "trash.h"
+#include "work-trash.h"
 #include "lib.h"
 #include "work-selected.h"
 

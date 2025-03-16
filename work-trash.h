@@ -1,6 +1,6 @@
-// This file, work-trash.h, is a part of the Dedupe Entries program.
+// This file, work-trash.h, is a part of the Entry Dedupe program.
 // 
-// Copyright (C) 2025  David Hugh
+// Copyright (C) 2025 David Hugh
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,9 +14,10 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https:www.gnu.org/licenses/>.
-#ifndef work_auto_h
-#define work_auto_h
 
-void work_trash_cb (GtkWidget *, user_data *);
+#ifndef work_trash_h
+#define work_trash_h
+
+void prompt_trash(user_data *);
 
 #endif
