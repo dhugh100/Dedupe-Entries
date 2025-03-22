@@ -197,7 +197,7 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 	gtk_label_set_xalign(GTK_LABEL(auto_preserve), 0.5);
 
 	GtkWidget *prompts = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(prompts), "<b>\nTrash Prompt Options\n</b>");
+	gtk_label_set_markup(GTK_LABEL(prompts), "<b>\nTrash Confirmation Prompt Options\n</b>");
 	gtk_label_set_xalign(GTK_LABEL(prompts), 0.5);
 
 	// Create check buttons
