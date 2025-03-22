@@ -20,19 +20,14 @@
 #include "lib.h"
 #include "work-options.h"
 
-// Apply the option change via reload of entry data
+// Apply the options changed in memory to the current selected folders
 
 void apply_cb(GtkCheckButton *self, user_data *udp)
 {
 	gtk_window_close (GTK_WINDOW (udp->option_window));
-	if (udp->opt_changed) {
-		load_entry_data(udp);
-		udp->opt_changed = FALSE;
-	}
-	else {
-		gtk_window_close (GTK_WINDOW (udp->option_window));
-        	gtk_window_set_child (GTK_WINDOW (udp->main_window), NULL);
-	}
+	gtk_window_set_child (GTK_WINDOW (udp->main_window), NULL);
+	clear_stores(udp);
+	load_entry_data(udp);
 }
 
 // Save the option change to a file
@@ -74,7 +69,8 @@ void save_cb(GtkCheckButton *self, user_data *udp)
 
 void unique_cb(GtkCheckButton *self, user_data *udp)
 {
-	udp->opt_changed = TRUE;
+	gtk_widget_set_sensitive(udp->save_button, TRUE);
+	gtk_widget_set_sensitive(udp->reshow_button, TRUE);
 	if (gtk_check_button_get_active(self))
 		udp->opt_include_unique = TRUE;
 	else
@@ -85,7 +81,8 @@ void unique_cb(GtkCheckButton *self, user_data *udp)
 
 void empty_cb(GtkCheckButton *self, user_data *udp)
 {
-	udp->opt_changed = TRUE;
+	gtk_widget_set_sensitive(udp->save_button, TRUE);
+	gtk_widget_set_sensitive(udp->reshow_button, TRUE);
 	if (gtk_check_button_get_active(self))
 		udp->opt_include_empty = TRUE;
 	else
@@ -96,7 +93,8 @@ void empty_cb(GtkCheckButton *self, user_data *udp)
 
 void duplicate_cb(GtkCheckButton *self, user_data *udp)
 {
-	udp->opt_changed = TRUE;
+	gtk_widget_set_sensitive(udp->save_button, TRUE);
+	gtk_widget_set_sensitive(udp->reshow_button, TRUE);
 	if (gtk_check_button_get_active(self))
 		udp->opt_include_duplicate = TRUE;
 	else
@@ -107,7 +105,7 @@ void duplicate_cb(GtkCheckButton *self, user_data *udp)
 
 void directory_cb(GtkCheckButton *self, user_data *udp)
 {
-	udp->opt_changed = TRUE;
+	gtk_widget_set_sensitive(udp->save_button, TRUE);
 	if (gtk_check_button_get_active(self))
 		udp->opt_include_directory = TRUE;
 	else
@@ -118,7 +116,7 @@ void directory_cb(GtkCheckButton *self, user_data *udp)
 
 void mod_first_cb(GtkCheckButton *self, user_data *udp)
 {
-	udp->opt_changed = TRUE;
+	gtk_widget_set_sensitive(udp->save_button, TRUE);
 	udp->opt_preserve = AP_MOD_FIRST;
 }
 
@@ -126,14 +124,14 @@ void mod_first_cb(GtkCheckButton *self, user_data *udp)
 
 void mod_last_cb(GtkCheckButton *self, user_data *udp)
 {
-	udp->opt_changed = TRUE;
+	gtk_widget_set_sensitive(udp->save_button, TRUE);
 	udp->opt_preserve = AP_MOD_LAST;
 }
 // Callback for auto preserve options
 
 void shortest_cb(GtkCheckButton *self, user_data *udp)
 {
-	udp->opt_changed = TRUE;
+	gtk_widget_set_sensitive(udp->save_button, TRUE);
 	udp->opt_preserve = AP_SHORTEST;
 }
 
@@ -141,7 +139,7 @@ void shortest_cb(GtkCheckButton *self, user_data *udp)
 
 void longest_cb(GtkCheckButton *self, user_data *udp)
 {
-	udp->opt_changed = TRUE;
+	gtk_widget_set_sensitive(udp->save_button, TRUE);
 	udp->opt_preserve = AP_LONGEST;
 }
 
@@ -149,14 +147,14 @@ void longest_cb(GtkCheckButton *self, user_data *udp)
 
 void a_cb(GtkCheckButton *self, user_data *udp)
 {
-	udp->opt_changed = TRUE;
+	gtk_widget_set_sensitive(udp->save_button, TRUE);
 	udp->opt_preserve = AP_ASCENDING;
 }
 // Callback for auto preserve options
 
 void d_cb(GtkCheckButton *self, user_data *udp)
 {
-	udp->opt_changed = TRUE;
+	gtk_widget_set_sensitive(udp->save_button, TRUE);
 	udp->opt_preserve = AP_DESCENDING;
 }
 
@@ -164,7 +162,7 @@ void d_cb(GtkCheckButton *self, user_data *udp)
 
 void manual_p_cb(GtkCheckButton *self, user_data *udp)
 {
-	udp->opt_changed = TRUE;
+	gtk_widget_set_sensitive(udp->save_button, TRUE);
 	if (gtk_check_button_get_active(self))
 		udp->opt_manual_prompt = TRUE;
 	else
@@ -175,7 +173,7 @@ void manual_p_cb(GtkCheckButton *self, user_data *udp)
 
 void auto_p_cb(GtkCheckButton *self, user_data *udp)
 {
-	udp->opt_changed = TRUE;
+	gtk_widget_set_sensitive(udp->save_button, TRUE);
 	if (gtk_check_button_get_active(self))
 		udp->opt_auto_prompt = TRUE;
 	else
@@ -186,6 +184,9 @@ void auto_p_cb(GtkCheckButton *self, user_data *udp)
 
 void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 {
+	// Overlay current options with saved options
+	option_init(udp);
+
 	// Create labels
 	GtkWidget *include = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(include), "<b>\nInclude Options\n</b>");
@@ -266,7 +267,6 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 	gtk_check_button_set_group(GTK_CHECK_BUTTON(a), GTK_CHECK_BUTTON(mod_first));
 	gtk_check_button_set_group(GTK_CHECK_BUTTON(d), GTK_CHECK_BUTTON(mod_first));
 
-
 	// Setup callbacks
 	g_signal_connect(empty, "toggled", G_CALLBACK(empty_cb), udp);
 	g_signal_connect(unique, "toggled", G_CALLBACK(unique_cb), udp);
@@ -305,7 +305,7 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 
 	// Create window and add title
 	udp->option_window = gtk_window_new();
-	gtk_window_set_title(GTK_WINDOW(udp->option_window), "Options");
+	gtk_window_set_title(GTK_WINDOW(udp->option_window), "Configuration Options");
 
 	// Make transient to main window and modal
 	gtk_window_set_transient_for(GTK_WINDOW(udp->option_window), GTK_WINDOW(udp->main_window));
@@ -315,9 +315,11 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 	GtkWidget *header = gtk_header_bar_new();
 
 	GtkWidget *save = gtk_button_new_with_label("Save");
+	udp->save_button = save;
 	g_signal_connect(save, "clicked", G_CALLBACK(save_cb), udp);
 
-	GtkWidget *reshow = gtk_button_new_with_label("Apply");
+	GtkWidget *reshow = gtk_button_new_with_label("Reshow");
+	udp->reshow_button = reshow;
 	g_signal_connect(reshow, "clicked", G_CALLBACK(apply_cb), udp);
 
 	gtk_header_bar_pack_start((GtkHeaderBar *) header, save);
@@ -326,5 +328,7 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 
 	// Add box to window and show
 	gtk_window_set_child(GTK_WINDOW(udp->option_window), box);
+	gtk_widget_set_sensitive(save, FALSE);
+	gtk_widget_set_sensitive(reshow, FALSE);
 	gtk_window_present(GTK_WINDOW(udp->option_window));
 }

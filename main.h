@@ -67,7 +67,8 @@ enum auto_pre {
 	AP_SHORTEST,
 	AP_LONGEST,
 	AP_ASCENDING,
-	AP_DESCENDING
+	AP_DESCENDING,
+	AP_N
 };
 
 // Key type
@@ -144,6 +145,8 @@ typedef struct user_data {
 	GtkWidget *search_entry;
 	GtkWidget *search_bar;
 	GtkWidget *cancel_button;
+	GtkWidget *save_button;
+	GtkWidget *reshow_button;
 
 	// Folder 
 	char **fdpp; // A pointer to an array of pointers to folder names
@@ -193,7 +196,6 @@ typedef struct user_data {
 
 	// Options
 	char *opt_name;
-	gboolean opt_changed;
 	gboolean opt_include_empty;
         gboolean opt_include_directory;
         gboolean opt_include_duplicate;

@@ -21,7 +21,6 @@
 
 // Trash on system and remove item
 // - Trash, not delete, the selected item (manual or auto)
-// - Selected items may be a Directory, Empty, Unique or duplicate (group numbers)
 // - After altering file system clear stores and remove any child window
 
 void trash_em (user_data *udp)
@@ -41,6 +40,7 @@ void trash_em (user_data *udp)
 	}
 
 
+	// Loop through biset, trashing each item
         do {
 		do_pending();
                 DupItem *item = g_list_model_get_item(G_LIST_MODEL(udp->list_store), value);
@@ -49,7 +49,6 @@ void trash_em (user_data *udp)
                         GtkAlertDialog *alert = gtk_alert_dialog_new("Can't trash entry");
                         gtk_alert_dialog_show(alert, GTK_WINDOW(udp->main_window));
                         g_object_unref(gf);
-                        wipe_selected(udp); // Clear selected
                         return;
 		}	
                 g_object_unref(gf);
@@ -63,15 +62,14 @@ void trash_em (user_data *udp)
 	g_object_ref_sink(spinner);
 	g_object_unref(spinner);
 
+        gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
+
 	// Clean up
         clear_stores(udp); // Clear the stores and associated item memory
 
 	// Reinitial store following clear (errors to stdout otherwise)
 	GListStore *list_store = g_list_store_new(G_TYPE_OBJECT);
         udp->list_store = list_store; // Save pointer to list store
-
-        // Remove and collect any existing child
-        gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
 
         return;
 }
@@ -84,13 +82,12 @@ void trash_cancel_cb (GtkWidget *self, user_data *udp)
         gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
 }
 
-// Trash the items
+// Choose to proceed with trashing the duplicates
 
 void trash_proceed_cb (GtkWidget *self, user_data *udp)
 {
         gtk_window_close(GTK_WINDOW(udp->trash_prompt_window));
         trash_em(udp);
-        gtk_window_set_child(GTK_WINDOW(udp->main_window), NULL);
 }
 
 // Confirm the user wants to trash the duplicates

@@ -25,36 +25,6 @@
 #include "about.h"
 #include "lib.h"
 
-// Initialize saved options
-// - Read in saved options from file with fixed name 
-// - If no file, then use default options
-// - Show options get initialized
-// - Calls function to implement filters associated with options
-
-void option_init (user_data *udp)
-{
-	// Construct file name
-	udp->opt_name = g_malloc0(STR_PATH);
-	snprintf(udp->opt_name, STR_PATH, "%s%s", g_get_home_dir(), STR_CONFIG);
-
-	// Read any saved options in gvariant serialized format
-	unsigned char buff[OPTION_STORAGE] = {0x00};
-	if (read_options(buff, udp->opt_name)) {
-		GVariant *value = g_variant_new("(bbbbibb)", buff[0], buff[1], buff[2], buff[3], (int)buff[4], buff[8], buff[9]);
-		g_variant_get(value, "(bbbbibb)", &udp->opt_include_empty, &udp->opt_include_directory, &udp->opt_include_duplicate,
-			      &udp->opt_include_unique, &udp->opt_preserve, &udp->opt_manual_prompt, &udp->opt_auto_prompt);
-		g_variant_unref(value);
-	}
-	else {
-		udp->opt_include_empty = TRUE; // Default to show empty entries
-		udp->opt_include_directory = TRUE; // Default to show a directory
-		udp->opt_include_duplicate = TRUE; // Default to show duplicate files
-		udp->opt_include_unique = TRUE; // Default to show unqiue files
-		udp->opt_preserve = AP_MOD_LAST; // Default to preserve last modified in group for auto
-		udp->opt_manual_prompt = TRUE; // Default to prompt for manual get/select trash
-		udp->opt_auto_prompt = TRUE; // Default to prompt for auto trash
-	}
-}
 
 // Start auto depdupe process
 
@@ -191,6 +161,7 @@ int main (int argc, char **argv)
 	udp->fdpp = g_malloc0(MAX_FOLDERS * sizeof(char *)); // Allocate folder memory
 	udp->fep = g_malloc0(sizeof(filter_entry)); // Allocate filter entry memory
 	udp->sep = g_malloc0(sizeof(search_entry)); // Allocate search entry memory
+	udp->opt_name = g_malloc0(PATH_MAX); // Allocate search entry memory
 
 	// App setup
 	GtkApplication *app = gtk_application_new("dup.gtk.org", G_APPLICATION_DEFAULT_FLAGS);

@@ -1,7 +1,7 @@
 # Dedupe Entries
 
 ## Description
-Dedupe Entries uses SHA256 hashes to identify and take action on duplicate files. 
+Dedupe Entries uses SHA256 hashes to identify and trash duplicate files. 
 
 ## Installation
 
@@ -9,13 +9,13 @@ Dedupe Entries uses SHA256 hashes to identify and take action on duplicate files
 - Setup the GTK 4 development environment.
 - Make sure openssl v3 or greater is installed.
 - Download the the c source, logo.xml, and header files.
-- Compile in-line logo.xml to a C string.
+- Compile in-line logo.xml to a C string.a
   >  `` glib-compile-resources --generate-header logo.xml ``
   >   
   >  `` glib-compile-resources --generate-source logo.xml ``
 
 - Compile C programs and link.
-  >  ``gcc `pkg-config --cflags gtk4` -o dedupee lib.c  main.c get_folders.c load_entry_data.c traverse.c get_hash.c get_results.c show_columns.c install_property.c work_selected.c see_entry_data.c view_file.c sort_columns.c filter_columns.c work_trash.c work_options.c -lcrypto `pkg-config --libs gtk4` ``
+  >  ``gcc `pkg-config --cflags gtk4` -o dedupee lib.c  main.c get_folders.c load_entry_data.c traverse.c get_hash.c get_results.c show_columns.c install_property.c work_selected.c see_entry_data.c view_file.c sort_columns.c filter_columns.c work_trash.c work_options.c work-auto.c -lcrypto `pkg-config --libs gtk4` ``
 
 ## Usage
 ### Simple Flow Example
@@ -39,11 +39,15 @@ Dedupe Entries uses SHA256 hashes to identify and take action on duplicate files
   - Sort.  Select the primary and secondary sort order columns in ascending or decending order.  Apply.
   - Filter.  Enter a string to filter columns by result or name.  The 'not' option excludes.  The filters can be combined or not (and / or). Empty filters are always matches. Apply or clear.
   - Search.  Highlight a row that contains the search string.  Proceed to the next row by selecting next at the prompt, or take action with a right click.   
+  - Auto.  Automatically trash all but one file in a group of duplicate files.  You specify via configuration options file characteristics that determine which file in the group remains and which files are moved to trash.  
   - Hamburger.  
-    - Options.  Chose which result types to include.  The choices are saved in ~/.config/.ddup.cfg
+    - Options.  
+        -- The choices are saved in ~/.config/.ddup.cfg        
+        -- Include.  Choose which result types to include for processing.     
+        -- Auto Preserve. Choose which file charactertistic in a group of files duplicates preserves a file.  
+        -- Auto Prompt. Choose whether or not to prompt for confirmation prior to trashing entries.
     - About.  Program information.
 
 ## License
 This project is licensed under the GPL 3.0  license - see the LICENSE file for details.
-
 # Dedupe Entries

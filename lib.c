@@ -1,6 +1,6 @@
 // This file, lib.c, is a part of the Entry Dedupe program.
 // 
-// Copyright (C) 2024  David Hugh
+// Copyright (C) 2025  David Hugh
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -193,4 +193,30 @@ gboolean read_options(unsigned char *buff, char *name)
         g_object_unref (in);
         g_object_unref (file);
         return result;
+}
+
+// - Initials options based on file
+
+void option_init (user_data *udp)
+{
+        // Construct file name
+        snprintf(udp->opt_name, STR_PATH, "%s%s", g_get_home_dir(), STR_CONFIG);
+
+        // Read any saved options in gvariant serialized format
+        unsigned char buff[OPTION_STORAGE] = {0x00};
+        if (read_options(buff, udp->opt_name)) {
+                GVariant *value = g_variant_new("(bbbbibb)", buff[0], buff[1], buff[2], buff[3], (int)buff[4], buff[8], buff[9]);
+                g_variant_get(value, "(bbbbibb)", &udp->opt_include_empty, &udp->opt_include_directory, &udp->opt_include_duplicate,
+                              &udp->opt_include_unique, &udp->opt_preserve, &udp->opt_manual_prompt, &udp->opt_auto_prompt);
+                g_variant_unref(value);
+        }
+        else {
+                udp->opt_include_empty = TRUE; // Default to show empty entries
+                udp->opt_include_directory = TRUE; // Default to show a directory
+                udp->opt_include_duplicate = TRUE; // Default to show duplicate files
+                udp->opt_include_unique = TRUE; // Default to show unqiue files
+                udp->opt_preserve = AP_MOD_LAST; // Default to preserve last modified in group for auto
+                udp->opt_manual_prompt = TRUE; // Default to prompt for manual get/select trash
+                udp->opt_auto_prompt = TRUE; // Default to prompt for auto trash
+        }
 }
