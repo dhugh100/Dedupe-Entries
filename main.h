@@ -29,7 +29,7 @@
 
 // General
 #define READ_BUFF 16384 // Arbitrary
-#define OPTION_STORAGE 10 // Byte count for gvariant - 6 bool bytes  and one int 4 bytes
+#define OPTION_STORAGE 8 // Byte count for gvariant - 8 bool bytes  and one int 4 bytes
 #define SHA256_DIGEST_LENGTH 32 // SHA256 hash length
 #define FORMAT_UNIT 16 // Number of bytes to format on each line for view file
 
@@ -196,6 +196,7 @@ typedef struct user_data {
 
 	// Options
 	char *opt_name;
+	gboolean opt_include_hidden;
 	gboolean opt_include_empty;
         gboolean opt_include_directory;
         gboolean opt_include_duplicate;

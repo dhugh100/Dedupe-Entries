@@ -205,14 +205,14 @@ void option_init (user_data *udp)
         // Read any saved options in gvariant serialized format
         unsigned char buff[OPTION_STORAGE] = {0x00};
         if (read_options(buff, udp->opt_name)) {
-                GVariant *value = g_variant_new("(bbbbibb)", buff[0], buff[1], buff[2], buff[3], (int)buff[4], buff[8], buff[9]);
-                g_variant_get(value, "(bbbbibb)", &udp->opt_include_empty, &udp->opt_include_directory, &udp->opt_include_duplicate,
-                              &udp->opt_include_unique, &udp->opt_preserve, &udp->opt_manual_prompt, &udp->opt_auto_prompt);
+                GVariant *value = g_variant_new("(bbbbbubb)", buff[0], buff[1], buff[2], buff[3], buff[4], buff[5], buff[6], buff[7]);
+                g_variant_get(value, "(bbbbbubb)", &udp->opt_include_hidden, &udp->opt_include_directory, &udp->opt_include_empty, &udp->opt_include_duplicate, &udp->opt_include_unique, &udp->opt_preserve, &udp->opt_manual_prompt, &udp->opt_auto_prompt);
                 g_variant_unref(value);
-        }
+	}
         else {
-                udp->opt_include_empty = TRUE; // Default to show empty entries
+                udp->opt_include_hidden = FALSE; // Default to show hidden entries
                 udp->opt_include_directory = TRUE; // Default to show a directory
+                udp->opt_include_empty = TRUE; // Default to show empty entries
                 udp->opt_include_duplicate = TRUE; // Default to show duplicate files
                 udp->opt_include_unique = TRUE; // Default to show unqiue files
                 udp->opt_preserve = AP_MOD_LAST; // Default to preserve last modified in group for auto

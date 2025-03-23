@@ -39,7 +39,7 @@ void save_cb(GtkCheckButton *self, user_data *udp)
         GFileOutputStream *out = g_file_replace (file, NULL, TRUE, G_FILE_CREATE_NONE, NULL, NULL);
 
         // Creat variant from current values
-        GVariant *value = g_variant_new ("(bbbbibb)", udp->opt_include_empty, udp->opt_include_directory, udp->opt_include_duplicate, udp->opt_include_unique, udp->opt_preserve, udp->opt_manual_prompt, udp->opt_auto_prompt);
+        GVariant *value = g_variant_new ("(bbbbbubb)", udp->opt_include_hidden, udp->opt_include_directory, udp->opt_include_empty, udp->opt_include_duplicate, udp->opt_include_unique, udp->opt_preserve, udp->opt_manual_prompt, udp->opt_auto_prompt);
 
         // Serialize for writing
         int sz = g_variant_get_size (value);
@@ -63,6 +63,18 @@ void save_cb(GtkCheckButton *self, user_data *udp)
 
 	gtk_window_close (GTK_WINDOW (udp->option_window));  
         gtk_window_set_child (GTK_WINDOW (udp->main_window), NULL);
+}
+
+// Callback for hidden option
+
+void hidden_cb(GtkCheckButton *self, user_data *udp)
+{
+	gtk_widget_set_sensitive(udp->save_button, TRUE);
+	gtk_widget_set_sensitive(udp->reshow_button, TRUE);
+	if (gtk_check_button_get_active(self))
+		udp->opt_include_hidden = TRUE;
+	else
+		udp->opt_include_hidden = FALSE;
 }
 
 // Callback for unique option
@@ -188,9 +200,13 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 	option_init(udp);
 
 	// Create labels
-	GtkWidget *include = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(include), "<b>\nInclude Options\n</b>");
-	gtk_label_set_xalign(GTK_LABEL(include), 0.5);
+	GtkWidget *etype = gtk_label_new(NULL);
+	gtk_label_set_markup(GTK_LABEL(etype), "<b>\nEntry Include Options\n</b>");
+	gtk_label_set_xalign(GTK_LABEL(etype), 0.5);
+
+	GtkWidget *result = gtk_label_new(NULL);
+	gtk_label_set_markup(GTK_LABEL(result), "<b>\nResult Include Options\n</b>");
+	gtk_label_set_xalign(GTK_LABEL(result), 0.5);
 	
 	GtkWidget *auto_preserve = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(auto_preserve), "<b>\nAuto Preserve Options\n</b>");
@@ -201,8 +217,10 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 	gtk_label_set_xalign(GTK_LABEL(prompts), 0.5);
 
 	// Create check buttons
-	GtkWidget *empty = gtk_check_button_new_with_label("Empty files");
+	GtkWidget *hidden = gtk_check_button_new_with_label("Hidden Entries");
 	GtkWidget *directory = gtk_check_button_new_with_label("Directories");
+	GtkWidget *empty = gtk_check_button_new_with_label("Empty files");
+
 	GtkWidget *duplicate = gtk_check_button_new_with_label("Duplicate files");
 	GtkWidget *unique = gtk_check_button_new_with_label("Unique files");
 
@@ -217,6 +235,16 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 	GtkWidget *auto_prompt = gtk_check_button_new_with_label("Prompt Auto Selection");
 
 	// Set button status based on current values in memory
+	if (udp->opt_include_hidden)
+		gtk_check_button_set_active((GtkCheckButton *) hidden, TRUE);
+	else
+		gtk_check_button_set_active((GtkCheckButton *) hidden, FALSE);
+
+	if (udp->opt_include_directory)
+		gtk_check_button_set_active((GtkCheckButton *) directory, TRUE);
+	else
+		gtk_check_button_set_active((GtkCheckButton *) directory, FALSE);
+
 	if (udp->opt_include_empty)
 		gtk_check_button_set_active((GtkCheckButton *) empty, TRUE);
 	else
@@ -231,11 +259,6 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 		gtk_check_button_set_active((GtkCheckButton *) duplicate, TRUE);
 	else
 		gtk_check_button_set_active((GtkCheckButton *) duplicate, FALSE);
-
-	if (udp->opt_include_directory)
-		gtk_check_button_set_active((GtkCheckButton *) directory, TRUE);
-	else
-		gtk_check_button_set_active((GtkCheckButton *) directory, FALSE);
 
 	if (udp->opt_preserve == AP_MOD_FIRST)
 		gtk_check_button_set_active((GtkCheckButton *) mod_first, TRUE);
@@ -268,10 +291,12 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 	gtk_check_button_set_group(GTK_CHECK_BUTTON(d), GTK_CHECK_BUTTON(mod_first));
 
 	// Setup callbacks
+	g_signal_connect(hidden, "toggled", G_CALLBACK(hidden_cb), udp);
+	g_signal_connect(directory, "toggled", G_CALLBACK(directory_cb), udp);
 	g_signal_connect(empty, "toggled", G_CALLBACK(empty_cb), udp);
+
 	g_signal_connect(unique, "toggled", G_CALLBACK(unique_cb), udp);
 	g_signal_connect(duplicate, "toggled", G_CALLBACK(duplicate_cb), udp);
-	g_signal_connect(directory, "toggled", G_CALLBACK(directory_cb), udp);
 
 	g_signal_connect(mod_last, "toggled", G_CALLBACK(mod_last_cb), udp);
 	g_signal_connect(mod_first, "toggled", G_CALLBACK(mod_first_cb), udp);
@@ -285,9 +310,12 @@ void work_options_cb(GSimpleAction *self, GVariant *parm, user_data *udp)
 
 	// Create box and add check buttons
 	GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-	gtk_box_append(GTK_BOX(box), include);
-	gtk_box_append(GTK_BOX(box), empty);
+	gtk_box_append(GTK_BOX(box), etype);
+	gtk_box_append(GTK_BOX(box), hidden);
 	gtk_box_append(GTK_BOX(box), directory);
+	gtk_box_append(GTK_BOX(box), empty);
+
+	gtk_box_append(GTK_BOX(box), result);
 	gtk_box_append(GTK_BOX(box), duplicate);
 	gtk_box_append(GTK_BOX(box), unique);
 
