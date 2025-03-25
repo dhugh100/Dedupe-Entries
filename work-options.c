@@ -39,7 +39,7 @@ void save_cb(GtkCheckButton *self, user_data *udp)
         GFileOutputStream *out = g_file_replace (file, NULL, TRUE, G_FILE_CREATE_NONE, NULL, NULL);
 
         // Creat variant from current values
-        GVariant *value = g_variant_new ("(bbbbbubb)", udp->opt_include_hidden, udp->opt_include_directory, udp->opt_include_empty, udp->opt_include_duplicate, udp->opt_include_unique, udp->opt_preserve, udp->opt_manual_prompt, udp->opt_auto_prompt);
+        GVariant *value = g_variant_new ("(bbbbbybb)", udp->opt_include_hidden, udp->opt_include_directory, udp->opt_include_empty, udp->opt_include_duplicate, udp->opt_include_unique, udp->opt_preserve, udp->opt_manual_prompt, udp->opt_auto_prompt);
 
         // Serialize for writing
         int sz = g_variant_get_size (value);

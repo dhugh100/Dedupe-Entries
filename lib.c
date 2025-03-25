@@ -205,8 +205,8 @@ void option_init (user_data *udp)
         // Read any saved options in gvariant serialized format
         unsigned char buff[OPTION_STORAGE] = {0x00};
         if (read_options(buff, udp->opt_name)) {
-                GVariant *value = g_variant_new("(bbbbbubb)", buff[0], buff[1], buff[2], buff[3], buff[4], buff[5], buff[6], buff[7]);
-                g_variant_get(value, "(bbbbbubb)", &udp->opt_include_hidden, &udp->opt_include_directory, &udp->opt_include_empty, &udp->opt_include_duplicate, &udp->opt_include_unique, &udp->opt_preserve, &udp->opt_manual_prompt, &udp->opt_auto_prompt);
+                GVariant *value = g_variant_new("(bbbbbybb)", buff[0], buff[1], buff[2], buff[3], buff[4], buff[5], buff[6], buff[7]);
+                g_variant_get(value, "(bbbbbybb)", &udp->opt_include_hidden, &udp->opt_include_directory, &udp->opt_include_empty, &udp->opt_include_duplicate, &udp->opt_include_unique, &udp->opt_preserve, &udp->opt_manual_prompt, &udp->opt_auto_prompt);
                 g_variant_unref(value);
 	}
         else {
@@ -215,7 +215,7 @@ void option_init (user_data *udp)
                 udp->opt_include_empty = TRUE; // Default to show empty entries
                 udp->opt_include_duplicate = TRUE; // Default to show duplicate files
                 udp->opt_include_unique = TRUE; // Default to show unqiue files
-                udp->opt_preserve = AP_MOD_LAST; // Default to preserve last modified in group for auto
+                udp->opt_preserve = AP_SHORTEST; // Default to preserve shortest name in group of duplicates
                 udp->opt_manual_prompt = TRUE; // Default to prompt for manual get/select trash
                 udp->opt_auto_prompt = TRUE; // Default to prompt for auto trash
         }

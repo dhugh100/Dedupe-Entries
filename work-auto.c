@@ -118,7 +118,7 @@ static void bind_auto_list_cb(GtkSignalListItemFactory *self, GtkListItem *listi
 
 // Sort the store based on the option for which members of a group remain or get trashed
 
-void preserve_sort(int preserve, GListStore *store)
+void preserve_sort(unsigned char preserve, GListStore *store)
 {
 	// Sort the store based on option for which members of a group remain or get trashed
 	switch (preserve) {
