@@ -49,10 +49,15 @@ Dedupe Entries uses SHA256 hashes to identify and trash duplicate files.
   - Hamburger.  
     - Options.  
         -- The choices are saved in ~/.config/.ddup.cfg        
+        
         -- Entry Include. Choose which directory entry types to include for processing.     
+        
         -- Result Include. Chose which result types to include for processing.
+
         -- Auto Preserve. Choose which file charactertistic in a group of files duplicates preserves a file.  
+        
         -- Auto Prompt. Choose whether or not to prompt for confirmation prior to trashing entries.
+    
     - About.  Program information.
 
 ## License
