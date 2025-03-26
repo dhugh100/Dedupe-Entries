@@ -15,7 +15,7 @@ Dedupe Entries uses SHA256 hashes to identify and trash duplicate files.
   >  `` glib-compile-resources --generate-source logo.xml ``
 
 - Compile C programs and link.
-  >  ``gcc `pkg-config --cflags gtk4` -o dedupee lib.c  main.c get_folders.c load_entry_data.c traverse.c get_hash.c get_results.c show_columns.c install_property.c work_selected.c see_entry_data.c view_file.c sort_columns.c filter_columns.c work_trash.c work_options.c work-auto.c -lcrypto `pkg-config --libs gtk4` ``
+  >  ``gcc `pkg-config --cflags gtk4` -o dedupee lib.c work-auto.c about.c search.c main.c get-folders.c load-store.c traverse.c get-hash.c get-results.c show-columns.c install-property.c work-selected.c view-file.c sort-store.c filter-store.c work-trash.c work-options.c logo.c -lcrypto `pkg-config --libs gtk4` ``
 
 ## Usage
 ### Manual Selection - Flow Example
