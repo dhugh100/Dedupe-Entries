@@ -18,7 +18,7 @@ Dedupe Entries uses SHA256 hashes to identify and trash duplicate files.
   >  ``gcc `pkg-config --cflags gtk4` -o dedupee lib.c  main.c get_folders.c load_entry_data.c traverse.c get_hash.c get_results.c show_columns.c install_property.c work_selected.c see_entry_data.c view_file.c sort_columns.c filter_columns.c work_trash.c work_options.c work-auto.c -lcrypto `pkg-config --libs gtk4` ``
 
 ## Usage
-### Simple Flow Example
+### Manual Selection - Flow Example
 - Start the application with the icon or from the command line.
 - Click the get button to select a directory. You can select multiple directories.
 - Dedup will traverse the directory(s) selected, hashing the regular files it finds, and then present the results in the left column. The right column has the name. Possible result values:
@@ -33,17 +33,24 @@ Dedupe Entries uses SHA256 hashes to identify and trash duplicate files.
   - Launch: Pass a selected file name to an application. Available if a single entry is selected.
   - Copy to Clipboard: Copies the name of the entries to the clipboard. Available if a a single or multiple entries are selected.
 
+### Auto Selection - Flow Example
+- Start the application with the icon or from the command line.
+- Click the get button to select a directory. You can select multiple directories.
+- The program will identify groups of duplicate files.  For each group, one file will be preserved, the others will be trashed.  The file to be preserved is determined by the configuration options.  
+
 ### Menu options
 - Main Menu
   - Get.  Select the folders to search for duplicates.
   - Sort.  Select the primary and secondary sort order columns in ascending or decending order.  Apply.
   - Filter.  Enter a string to filter columns by result or name.  The 'not' option excludes.  The filters can be combined or not (and / or). Empty filters are always matches. Apply or clear.
   - Search.  Highlight a row that contains the search string.  Proceed to the next row by selecting next at the prompt, or take action with a right click.   
-  - Auto.  Automatically trash all but one file in a group of duplicate files.  You specify via configuration options file characteristics that determine which file in the group remains and which files are moved to trash.  
+  - Auto.  Automatically trash all but one file in a group of duplicate files.  
+
   - Hamburger.  
     - Options.  
         -- The choices are saved in ~/.config/.ddup.cfg        
-        -- Include.  Choose which result types to include for processing.     
+        -- Entry Include. Choose which directory entry types to include for processing.     
+        -- Result Include. Chose which result types to include for processing.
         -- Auto Preserve. Choose which file charactertistic in a group of files duplicates preserves a file.  
         -- Auto Prompt. Choose whether or not to prompt for confirmation prior to trashing entries.
     - About.  Program information.
