@@ -162,6 +162,7 @@ int main (int argc, char **argv)
 	udp->fep = g_malloc0(sizeof(filter_entry)); // Allocate filter entry memory
 	udp->sep = g_malloc0(sizeof(search_entry)); // Allocate search entry memory
 	udp->opt_name = g_malloc0(PATH_MAX); // Allocate search entry memory
+	udp->sel_bitset = gtk_bitset_new_empty(); // Allocate bitset memory
 
 	// App setup
 	GtkApplication *app = gtk_application_new("dup.gtk.org", G_APPLICATION_DEFAULT_FLAGS);
@@ -171,7 +172,8 @@ int main (int argc, char **argv)
 	g_application_set_flags(G_APPLICATION(app), G_APPLICATION_HANDLES_OPEN);
 	int status = g_application_run(G_APPLICATION(app), argc, argv);
 
-
+	gtk_bitset_remove_all (udp->sel_bitset); // Clear the bitset
+	gtk_bitset_unref(udp->sel_bitset); // Free up bitset memory
 	clear_stores(udp); // Could be three active stores if filtering
 	g_object_unref(app);
 	g_free(udp->opt_name);

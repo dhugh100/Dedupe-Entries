@@ -112,10 +112,7 @@ void adjust_sfs_button_sensitivity (user_data *udp)
 void wipe_selected(user_data *udp)
 {
         gtk_selection_model_unselect_all(GTK_SELECTION_MODEL (udp->selection));
-
         gtk_bitset_remove_all (udp->sel_bitset);
-        gtk_bitset_unref (udp->sel_bitset);
-        udp->sel_bitset = NULL;
 }
 
 // Free up a store's item memory

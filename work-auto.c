@@ -155,9 +155,6 @@ void id_remain_trash (user_data *udp)
 	char str[256] = { 0x00 };
 	char group[10] = { 0x00 };
 
-	// No selection needed, setup the bitset for the trash function
-	udp->sel_bitset = gtk_bitset_new_empty();
-
 	// Sort to setup loop
 	preserve_sort(udp->opt_preserve, udp->list_store);
 
@@ -222,11 +219,9 @@ void id_remain_trash (user_data *udp)
 
 	if (udp->opt_auto_prompt) {
 		prompt_trash(udp);
-		gtk_bitset_unref (udp->sel_bitset);
 	}	
 	else {
 		trash_em(udp);
-		gtk_bitset_unref (udp->sel_bitset);
 	}	
 }
 

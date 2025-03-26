@@ -39,7 +39,6 @@ void trash_em (user_data *udp)
 		gtk_spinner_start ((GtkSpinner *)spinner);
 	}
 
-
 	// Loop through biset, trashing each item
         do {
 		do_pending();

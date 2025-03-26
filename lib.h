@@ -27,7 +27,6 @@ void clear_stores(user_data *);
 void free_item_memory(DupItem *);
 void clear_store_items(GListStore *);
 void see_entry_data(GListStore *, GtkMultiSelection *);
-void trash_em(user_data *);
 gboolean read_options(unsigned char *, char *);
 
 #endif

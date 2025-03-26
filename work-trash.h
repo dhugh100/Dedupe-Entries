@@ -19,5 +19,6 @@
 #define work_trash_h
 
 void prompt_trash(user_data *);
+void trash_em(user_data *);
 
 #endif
