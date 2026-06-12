@@ -61,3 +61,5 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/%{appid}.desktop
 %changelog
 * Fri Jun 12 2026 dhugh <dhugh100@users.noreply.github.com> - 1.0.0-1
 - Release 1.0.0
+* Fri Jun 12 2026 dhugh <dhugh100@users.noreply.github.com> - 1.0.0-1
+- Release 1.0.0
