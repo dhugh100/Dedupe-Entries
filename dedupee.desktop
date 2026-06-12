@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Dedupe Entries
+GenericName=Duplicate File Finder
+Comment=Find and take action on duplicate files using SHA256 hashes
+Exec=dedupee
+Icon=io.github.dhugh100.Dedupee
+Terminal=false
+Type=Application
+Categories=Utility;FileManager;
+Keywords=duplicate;files;hash;sha256;

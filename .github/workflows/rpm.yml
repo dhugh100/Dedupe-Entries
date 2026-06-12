@@ -1,0 +1,72 @@
+name: Build RPM
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build-rpm:
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:44
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Install build dependencies
+        run: |
+          dnf install -y --setopt=install_weak_deps=False \
+            gcc \
+            gtk4-devel \
+            openssl-devel \
+            glib2-devel \
+            desktop-file-utils \
+            rpm-build
+
+      - name: Read version from spec
+        id: ver
+        run: |
+          VERSION=$(grep '^Version:' dedupee.spec | awk '{print $2}')
+          RELEASE=$(grep '^Release:' dedupee.spec | sed 's/^Release:[[:space:]]*//' | sed 's/%{?dist}//')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "release=$RELEASE" >> "$GITHUB_OUTPUT"
+          echo "tarname=dedupee-$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create source tarball
+        run: |
+          TARNAME="${{ steps.ver.outputs.tarname }}"
+          mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+          mkdir -p /tmp/$TARNAME
+          cp *.c *.h logo.xml dedupee.png io.github.dhugh100.Dedupee.png \
+             dedupee.desktop LICENSE README.md /tmp/$TARNAME/
+          tar -czf ~/rpmbuild/SOURCES/${TARNAME}.tar.gz -C /tmp "$TARNAME"
+          cp dedupee.spec ~/rpmbuild/SPECS/
+
+      - name: Build RPM
+        run: rpmbuild -ba ~/rpmbuild/SPECS/dedupee.spec
+
+      - name: Collect RPMs
+        run: |
+          mkdir -p dist
+          find ~/rpmbuild/RPMS ~/rpmbuild/SRPMS -name 'dedupee*.rpm' -exec cp {} dist/ \;
+          ls -lh dist/
+
+      - name: Upload RPMs
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: dedupee-rpm-${{ steps.ver.outputs.version }}
+          path: dist/*.rpm
+          retention-days: 30
+
+      - name: Create GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          files: dist/*.rpm

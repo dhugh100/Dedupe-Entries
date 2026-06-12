@@ -1,0 +1,30 @@
+# Ignore everything by default
+*
+
+# Allow directories (required so Git can search them for files)
+!*/
+
+# Whitelist C source and header files
+!*.c
+!*.h
+
+# Whitelist build and configuration files
+!.gitignore
+!README.md
+!*.conf
+!*doRpm.sh
+
+# Packaging assets needed to build the RPM from a clone
+!dedupee.desktop
+!dedupee.spec
+!dedupee.png
+!logo.xml
+!io.github.dhugh100.Dedupee.png
+!LICENSE
+
+# GitHub Actions workflows
+!*.yml
+
+# Ignore everything under ng (test code and fixtures), overriding the
+# whitelists above since later rules win
+ng/**
