@@ -13,7 +13,7 @@ program apply a rule automatically.
 ### Download from GitHub (Preferred)
 
 Pre-built RPM packages are published with each release on the
-[GitHub releases page](https://github.com/dhugh100/Dedupee/releases).
+[GitHub releases page](https://github.com/dhugh100/Dedupe-Entries/releases).
 Download the `.rpm` for your distribution and install it with:
 
 ```bash
@@ -53,21 +53,6 @@ gcc $(pkg-config --cflags gtk4) -Wall -Werror -o dedupee \
     traverse.c get-hash.c get-results.c show-columns.c install-property.c \
     work-selected.c view-file.c sort-store.c filter-store.c work-trash.c \
     work-options.c logo.c -lcrypto $(pkg-config --libs gtk4)
-```
-
-The provided `doBuild.sh` script wraps this and prompts for the version number
-to stamp into the binary.  It resolves `%{optflags}` at build time via
-`rpm --eval '%{optflags}'` and adds `-Wall -Werror`:
-
-```bash
-gcc $(rpm --eval '%{optflags}') $(pkg-config --cflags gtk4) -Wall -Werror \
-    -o dedupee <sources> -lcrypto $(pkg-config --libs gtk4)
-```
-
-Run it interactively:
-
-```bash
-./doBuild.sh
 ```
 
 ## Usage

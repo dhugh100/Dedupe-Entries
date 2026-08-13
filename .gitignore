@@ -12,7 +12,9 @@
 !.gitignore
 !README.md
 !*.conf
-!*doRpm.sh
+
+# Shell scripts
+!*.sh
 
 # Packaging assets needed to build the RPM from a clone
 !dedupee.desktop
@@ -24,7 +26,3 @@
 
 # GitHub Actions workflows
 !*.yml
-
-# Ignore everything under ng (test code and fixtures), overriding the
-# whitelists above since later rules win
-ng/**
