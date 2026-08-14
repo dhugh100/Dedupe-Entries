@@ -6,7 +6,7 @@
 %global appid io.github.dhugh100.Dedupee
 
 Name:           dedupee
-Version:        1.0.0
+Version:        1.0.1
 Release:        1%{?dist}
 Summary:        Find and take action on duplicate files using SHA256 hashes
 
@@ -59,6 +59,8 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/%{appid}.desktop
 %{_datadir}/applications/%{appid}.desktop
 
 %changelog
+* Fri Aug 14 2026 dhugh <dhugh100@users.noreply.github.com> - 1.0.1-1
+- Release 1.0.1
 * Fri Jun 12 2026 dhugh <dhugh100@users.noreply.github.com> - 1.0.0-1
 - Release 1.0.0
 * Fri Jun 12 2026 dhugh <dhugh100@users.noreply.github.com> - 1.0.0-1
